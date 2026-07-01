@@ -1,63 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth } from '@/lib/auth';
 
-// GET /api/orders - 查询订单列表
 export async function GET(request: NextRequest) {
   try {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
     const { searchParams } = new URL(request.url);
-    const buyerId = searchParams.get('buyerId');
+    const status = searchParams.get('status');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
 
-    if (!buyerId) {
-      return NextResponse.json({ error: '缺少 buyerId' }, { status: 400 });
+    const where: any = {
+      buyerId: user!.userId,
+    };
+
+    if (status && status !== 'all') {
+      where.status = status.toUpperCase();
     }
 
-    const orders = await prisma.order.findMany({
-      where: { buyerId },
-      orderBy: { createdAt: 'desc' },
-      include: { template: { select: { title: true } } },
-    });
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          template: {
+            select: {
+              id: true,
+              title: true,
+              coverUrl: true,
+              previewUrl: true,
+            },
+          },
+        },
+      }),
+      prisma.order.count({ where }),
+    ]);
 
-    return NextResponse.json({ orders });
+    const serialized = orders.map((o) => ({
+      ...o,
+      amount: Number(o.amount),
+      platformFee: Number(o.platformFee),
+      creatorRevenue: Number(o.creatorRevenue),
+    }));
+
+    return NextResponse.json({
+      data: serialized,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (error) {
-    console.error('List orders error:', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
-  }
-}
-
-// POST /api/orders - 创建订单
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { buyerId, templateId } = body;
-
-    // 获取模板信息
-    const template = await prisma.template.findUnique({
-      where: { id: templateId },
-    });
-
-    if (!template) {
-      return NextResponse.json({ error: '模板不存在' }, { status: 404 });
-    }
-
-    const amount = Number(template.price);
-    const platformFee = Number((amount * 0.15).toFixed(2));
-    const creatorRevenue = Number((amount - platformFee).toFixed(2));
-
-    const order = await prisma.order.create({
-      data: {
-        buyerId,
-        templateId,
-        orderNo: `OD${Date.now()}`,
-        amount,
-        platformFee,
-        creatorRevenue,
-        status: 'PENDING',
-      },
-    });
-
-    return NextResponse.json({ order }, { status: 201 });
-  } catch (error) {
-    console.error('Create order error:', error);
+    console.error('GET /api/orders error:', error);
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });
   }
 }

@@ -15,6 +15,8 @@ import {
   PlusOutlined,
   ThunderboltOutlined,
   FireOutlined,
+  UserOutlined,
+  DollarOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
@@ -31,70 +33,37 @@ export default function MobileSidebar({ className = '' }: MobileSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { theme } = useTheme();
-  const [collapsed, setCollapsed] = useState(true);
 
   const menuItems: MenuProps['items'] = [
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
-      label: <Link href="/dashboard" onClick={() => setOpen(false)}>工作台</Link>,
+      label: <Link href="/dashboard" onClick={() => setOpen(false)}>发现首页</Link>,
     },
+    { type: 'divider' as const },
     {
-      key: 'create',
-      icon: <PlusOutlined style={{ color: '#5b2eff' }} />,
-      label: <span className="text-brand-400 font-semibold">快速创建</span>,
+      key: 'discover',
+      icon: <ShopOutlined style={{ color: '#ffb020' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)' }}>发现</span>,
       children: [
-        {
-          key: '/dashboard/projects/new',
-          icon: <PlayCircleOutlined />,
-          label: <Link href="/dashboard/projects/new" onClick={() => setOpen(false)}>新建项目</Link>,
-        },
-        {
-          key: '/dashboard/characters/new',
-          icon: <TeamOutlined />,
-          label: <Link href="/dashboard/characters/new" onClick={() => setOpen(false)}>创建角色</Link>,
-        },
-      ],
-    },
-    { type: 'divider' },
-    {
-      key: 'workspace',
-      icon: <ThunderboltOutlined style={{ color: '#7c5cff' }} />,
-      label: <span className="font-semibold">创作空间</span>,
-      children: [
-        {
-          key: '/dashboard/projects',
-          icon: <VideoCameraOutlined />,
-          label: <Link href="/dashboard/projects" onClick={() => setOpen(false)}>我的项目</Link>,
-        },
-        {
-          key: '/dashboard/characters',
-          icon: <TeamOutlined />,
-          label: <Link href="/dashboard/characters" onClick={() => setOpen(false)}>角色管理</Link>,
-        },
-        {
-          key: '/dashboard/scripts',
-          icon: <FileTextOutlined />,
-          label: <Link href="/dashboard/scripts" onClick={() => setOpen(false)}>剧本中心</Link>,
-        },
-      ],
-    },
-    { type: 'divider' },
-    {
-      key: 'community',
-      icon: <FireOutlined style={{ color: '#ff5c6c' }} />,
-      label: <span className="font-semibold">社区市场</span>,
-      children: [
-        {
-          key: '/dashboard/community',
-          icon: <FireOutlined />,
-          label: <Link href="/dashboard/community" onClick={() => setOpen(false)}>社区广场</Link>,
-        },
         {
           key: '/dashboard/market',
           icon: <ShopOutlined />,
           label: <Link href="/dashboard/market" onClick={() => setOpen(false)}>模板市场</Link>,
         },
+        {
+          key: '/dashboard/community',
+          icon: <FireOutlined />,
+          label: <Link href="/dashboard/community" onClick={() => setOpen(false)}>社区广场</Link>,
+        },
+      ],
+    },
+    { type: 'divider' as const },
+    {
+      key: 'trade',
+      icon: <ShoppingCartOutlined style={{ color: '#00d4aa' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)' }}>交易</span>,
+      children: [
         {
           key: '/dashboard/templates',
           icon: <CrownOutlined />,
@@ -107,13 +76,47 @@ export default function MobileSidebar({ className = '' }: MobileSidebarProps) {
         },
       ],
     },
+    { type: 'divider' as const },
+    {
+      key: 'create',
+      icon: <ThunderboltOutlined style={{ color: '#c084fc' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)' }}>创作</span>,
+      children: [
+        {
+          key: '/dashboard/projects/new',
+          icon: <PlusOutlined />,
+          label: <Link href="/dashboard/projects/new" onClick={() => setOpen(false)}>新建项目</Link>,
+        },
+        {
+          key: '/dashboard/characters/new',
+          icon: <TeamOutlined />,
+          label: <Link href="/dashboard/characters/new" onClick={() => setOpen(false)}>创建角色</Link>,
+        },
+        {
+          key: '/dashboard/projects',
+          icon: <VideoCameraOutlined />,
+          label: <Link href="/dashboard/projects" onClick={() => setOpen(false)}>我的项目</Link>,
+        },
+        {
+          key: '/dashboard/scripts',
+          icon: <FileTextOutlined />,
+          label: <Link href="/dashboard/scripts" onClick={() => setOpen(false)}>剧本中心</Link>,
+        },
+      ],
+    },
+    { type: 'divider' as const },
+    {
+      key: '/dashboard/profile',
+      icon: <UserOutlined />,
+      label: <Link href="/dashboard/profile" onClick={() => setOpen(false)}>个人主页</Link>,
+    },
   ];
 
   let selectedKey = '/dashboard';
   for (const item of menuItems || []) {
     if (item && 'key' in item && item.key) {
       const key = item.key as string;
-      if (key === 'create' || key === 'workspace' || key === 'community') continue;
+      if (key === 'discover' || key === 'trade' || key === 'create') continue;
       if (pathname === key || (pathname && pathname.startsWith(key + '/'))) {
         selectedKey = key;
         break;
@@ -154,7 +157,7 @@ export default function MobileSidebar({ className = '' }: MobileSidebarProps) {
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
-          defaultOpenKeys={['create', 'workspace', 'community']}
+          defaultOpenKeys={['discover', 'trade', 'create']}
           items={menuItems}
           className="!border-r-0 !bg-transparent !mt-2"
           theme={theme === 'dark' ? 'dark' : 'light'}

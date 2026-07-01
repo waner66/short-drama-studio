@@ -64,30 +64,49 @@ export default function DashboardLayout({
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
-      label: <Link href="/dashboard" className="no-underline">工作台</Link>,
+      label: <Link href="/dashboard" className="no-underline">发现首页</Link>,
     },
+    { type: 'divider' },
     {
-      key: 'create',
-      icon: <PlusOutlined style={{ color: '#5b2eff' }} />,
-      label: <span className="text-brand-400 font-semibold">快速创建</span>,
+      key: 'discover',
+      icon: <ShopOutlined style={{ color: '#ffb020' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)', paddingLeft: 4 }}>发现</span>,
       children: [
         {
-          key: '/dashboard/projects/new',
-          icon: <PlayCircleOutlined />,
-          label: <Link href="/dashboard/projects/new" className="no-underline">新建项目</Link>,
+          key: '/dashboard/market',
+          icon: <ShopOutlined />,
+          label: <Link href="/dashboard/market" className="no-underline">模板市场</Link>,
         },
         {
-          key: '/dashboard/characters/new',
-          icon: <TeamOutlined />,
-          label: <Link href="/dashboard/characters/new" className="no-underline">创建角色</Link>,
+          key: '/dashboard/community',
+          icon: <FireOutlined />,
+          label: <Link href="/dashboard/community" className="no-underline">社区广场</Link>,
         },
       ],
     },
     { type: 'divider' },
     {
-      key: 'workspace',
-      icon: <ThunderboltOutlined style={{ color: '#7c5cff' }} />,
-      label: <span className="font-semibold">创作空间</span>,
+      key: 'trade',
+      icon: <ShoppingCartOutlined style={{ color: '#00d4aa' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)', paddingLeft: 4 }}>交易</span>,
+      children: [
+        {
+          key: '/dashboard/templates',
+          icon: <CrownOutlined />,
+          label: <Link href="/dashboard/templates" className="no-underline">我的模板</Link>,
+        },
+        {
+          key: '/dashboard/orders',
+          icon: <ShoppingCartOutlined />,
+          label: <Link href="/dashboard/orders" className="no-underline">我的订单</Link>,
+        },
+      ],
+    },
+    { type: 'divider' },
+    {
+      key: 'create',
+      icon: <ThunderboltOutlined style={{ color: '#c084fc' }} />,
+      label: <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-muted)', paddingLeft: 4 }}>创作</span>,
       children: [
         {
           key: '/dashboard/projects',
@@ -108,31 +127,9 @@ export default function DashboardLayout({
     },
     { type: 'divider' },
     {
-      key: 'community',
-      icon: <FireOutlined style={{ color: '#ff5c6c' }} />,
-      label: <span className="font-semibold">社区市场</span>,
-      children: [
-        {
-          key: '/dashboard/community',
-          icon: <FireOutlined />,
-          label: <Link href="/dashboard/community" className="no-underline">社区广场</Link>,
-        },
-        {
-          key: '/dashboard/market',
-          icon: <ShopOutlined />,
-          label: <Link href="/dashboard/market" className="no-underline">模板市场</Link>,
-        },
-        {
-          key: '/dashboard/templates',
-          icon: <CrownOutlined />,
-          label: <Link href="/dashboard/templates" className="no-underline">我的模板</Link>,
-        },
-        {
-          key: '/dashboard/orders',
-          icon: <ShoppingCartOutlined />,
-          label: <Link href="/dashboard/orders" className="no-underline">我的订单</Link>,
-        },
-      ],
+      key: '/dashboard/profile',
+      icon: <UserOutlined />,
+      label: <Link href="/dashboard/profile" className="no-underline">个人主页</Link>,
     },
   ];
 
@@ -165,7 +162,7 @@ export default function DashboardLayout({
   for (const item of menuItems || []) {
     if (item && 'key' in item && item.key) {
       const key = item.key as string;
-      if (key === 'create' || key === 'workspace' || key === 'community') continue;
+      if (key === 'discover' || key === 'trade' || key === 'create') continue;
       if (pathname === key || (pathname && pathname.startsWith(key + '/'))) {
         selectedKey = key;
         break;
@@ -198,7 +195,7 @@ export default function DashboardLayout({
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
-          defaultOpenKeys={['create', 'workspace', 'community']}
+          defaultOpenKeys={['discover', 'trade', 'create']}
           items={menuItems}
           className="!border-r-0 !bg-transparent !mt-3"
           theme={isDark ? "dark" : "light"}
@@ -245,7 +242,12 @@ export default function DashboardLayout({
         </Header>
 
         <Content style={{ background: 'var(--bg-primary)', minHeight: 'calc(100vh - 64px)', overflow: 'auto' }} className="!p-4 lg:!p-6">
-          <div key={pathname}>
+          <div className={
+            pathname?.startsWith('/dashboard/market') ? 'page-market' :
+            pathname?.startsWith('/dashboard/community') ? 'page-community' :
+            pathname?.startsWith('/dashboard/templates') || pathname?.startsWith('/dashboard/orders') || pathname?.startsWith('/dashboard/profile') ? 'page-creator' :
+            'page-dashboard'
+          }>
             {children}
           </div>
         </Content>

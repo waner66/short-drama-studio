@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 interface GradientBtnProps {
   children: ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'market' | 'community' | 'create' | 'sell';
   size?: 'sm' | 'md' | 'lg';
   icon?: ReactNode;
   className?: string;
@@ -29,6 +29,14 @@ const variantClasses = {
     'bg-transparent text-purple-400 border border-purple-500/30 hover:bg-purple-500/10',
   ghost:
     'bg-transparent text-gray-300 hover:bg-white/5',
+  market:
+    'bg-gradient-to-r from-amber-500 to-rose-500 text-white hover:from-amber-400 hover:to-rose-400 shadow-lg shadow-amber-500/25',
+  community:
+    'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-400 hover:to-cyan-400 shadow-lg shadow-emerald-500/25',
+  create:
+    'bg-gradient-to-r from-purple-600 to-violet-500 text-white hover:from-purple-500 hover:to-violet-400 shadow-lg shadow-purple-500/25',
+  sell:
+    'bg-gradient-to-r from-indigo-500 to-pink-500 text-white hover:from-indigo-400 hover:to-pink-400 shadow-lg shadow-indigo-500/25',
 };
 
 export default function GradientBtn({

@@ -93,6 +93,36 @@ body {
   background-clip: text;
 }
 
+/* ===== Scene Color Variables ===== */
+/* 市场感 — 暖金+紫渐变 */
+.page-market {
+  --scene-accent: #ffb020;
+  --scene-accent-glow: rgba(255, 176, 32, 0.2);
+  --scene-gradient-from: #ffb020;
+  --scene-gradient-to: #ff6b9d;
+}
+/* 社区感 — 蓝绿渐变 */
+.page-community {
+  --scene-accent: #00d4aa;
+  --scene-accent-glow: rgba(0, 212, 170, 0.2);
+  --scene-gradient-from: #00d4aa;
+  --scene-gradient-to: #5b2eff;
+}
+/* 创作者感 — 琥珀+深紫 */
+.page-creator {
+  --scene-accent: #c084fc;
+  --scene-accent-glow: rgba(192, 132, 252, 0.2);
+  --scene-gradient-from: #c084fc;
+  --scene-gradient-to: #ff6b9d;
+}
+/* 默认 — 品牌紫 */
+.page-dashboard {
+  --scene-accent: #7c5cff;
+  --scene-accent-glow: rgba(124, 92, 255, 0.2);
+  --scene-gradient-from: #5b2eff;
+  --scene-gradient-to: #7c5cff;
+}
+
 /* ===== Glow Effects ===== */
 .glow-brand {
   box-shadow: 0 0 40px rgba(91, 46, 255, 0.2), 0 0 80px rgba(91, 46, 255, 0.08);
