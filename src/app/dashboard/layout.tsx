@@ -30,7 +30,6 @@ import {
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useTheme } from '@/lib/theme-context';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import MobileSidebar from '@/components/ui/mobile-sidebar';
@@ -246,17 +245,9 @@ export default function DashboardLayout({
         </Header>
 
         <Content style={{ background: 'var(--bg-primary)', minHeight: 'calc(100vh - 64px)', overflow: 'auto' }} className="!p-4 lg:!p-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <div key={pathname}>
+            {children}
+          </div>
         </Content>
       </Layout>
     </Layout>
