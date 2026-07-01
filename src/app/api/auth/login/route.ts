@@ -65,8 +65,15 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
+  } catch (error: any) {
+    const message = error?.message || String(error);
+    console.error('Login error:', message);
+    return NextResponse.json(
+      {
+        error: '服务器错误',
+        detail: process.env.NODE_ENV === 'production' ? undefined : message,
+      },
+      { status: 500 }
+    );
   }
 }

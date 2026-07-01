@@ -87,8 +87,17 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
     });
-  } catch (error) {
-    console.error('Register error:', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
+  } catch (error: any) {
+    const message = error?.message || String(error);
+    console.error('Register error:', message);
+    // 返回具体错误便于调试（生产环境可改为通用消息）
+    return NextResponse.json(
+      {
+        error: '服务器错误',
+        detail: process.env.NODE_ENV === 'production' ? undefined : message,
+        code: error?.code,
+      },
+      { status: 500 }
+    );
   }
 }
