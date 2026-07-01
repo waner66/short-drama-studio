@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # ===== PostgreSQL 数据库 =====
+  postgres:
+    image: postgres:16-alpine
+    container_name: shortdrama-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: short_drama_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== Redis 缓存/队列 =====
+  redis:
+    image: redis:7-alpine
+    container_name: shortdrama-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== Next.js 应用 =====
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shortdrama-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/short_drama_dev?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-short-drama-studio-dev-secret-key-2026}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
+  video_output:
+
+  # ===== Python FastAPI 视频服务 =====
+  video-service:
+    build:
+      context: ./services/video-service
+      dockerfile: Dockerfile
+    container_name: shortdrama-video
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
+      OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
+      OSS_BUCKET: ${OSS_BUCKET:-short-drama-media}
+      OSS_ENDPOINT: ${OSS_ENDPOINT:-oss-cn-hangzhou.aliyuncs.com}
+      REDIS_URL: redis://redis:6379
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - video_output:/app/output
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - video
+      - full

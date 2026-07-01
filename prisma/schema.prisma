@@ -1,0 +1,451 @@
+// Prisma Schema - 短剧制作平台
+// 数据库: PostgreSQL 16
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== 用户模块 ====================
+
+enum UserRole {
+  USER      // 普通用户
+  CREATOR   // 创作者（可上架模板）
+  ADMIN     // 管理员
+}
+
+model User {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  email         String?   @unique
+  phone         String?   @unique
+  passwordHash  String?
+  avatarUrl     String?
+  bio           String?
+  role          UserRole  @default(USER)
+
+  // 关联
+  projects      Project[]
+  characters    Character[]
+  templates     Template[]          @relation("TemplateCreator")
+  orders        Order[]             @relation("OrderBuyer")
+  reviews       Review[]
+  favorites     Favorite[]
+  quotas        UserQuota[]
+  subscription  UserSubscription?
+  settlements   Settlement[]        @relation("SettlementCreator")
+
+  // 社交
+  followers     Follow[]  @relation("Following")
+  following     Follow[]  @relation("Follower")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 角色模板关系
+  characterTemplates  CharacterTemplate[]
+  templateReviews     CharacterTemplateReview[]
+  templateFavorites   CharacterTemplateFavorite[]
+  templatePurchases   CharacterTemplatePurchase[]
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("Follower", fields: [followerId], references: [id])
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+enum QuotaType {
+  TEXT_GEN        // AI文本生成
+  IMAGE_GEN       // AI图片生成
+  CHARACTER_GEN   // AI角色设定生成
+  SCENE_IMAGE     // AI场景画面生成
+  TTS             // TTS语音合成
+  VIDEO_EXPORT    // 视频导出
+}
+
+enum ResetPeriod {
+  MONTHLY
+  ONETIME
+}
+
+model UserQuota {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  quotaType   QuotaType
+  totalQuota  Int         @default(0)
+  usedQuota   Int         @default(0)
+  resetPeriod ResetPeriod @default(ONETIME)
+  resetAt     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([userId, quotaType])
+}
+
+enum PlanType {
+  FREE
+  CREATOR
+  PRO
+}
+
+model UserSubscription {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id])
+  plan       PlanType  @default(FREE)
+  startedAt  DateTime  @default(now())
+  expiresAt  DateTime?
+  status     String    @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// ==================== 创作模块 ====================
+
+model Character {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  name          String
+  gender        String?  // 男, 女, 其他
+  age           Int?
+  personality   String?  // AI生成的性格描述
+  backstory     String?  // AI生成的背景故事
+  avatarUrl     String?  // AI生成/上传的角色图片
+  style         String?  // 写实, 动漫, 古风等
+  isAiGenerated Boolean  @default(false)
+  metadata      Json?    // 扩展字段
+  tags          String[] // 角色标签
+
+  // 新增字段 - 人物设定模板 v2
+  archetype       String?  // 角色原型：霸总/甜宠女主/反派/搞笑担当...
+  narrativeRole   String?  // 叙事功能：主角/对手/帮手/导师/催化剂
+  arcDescription  String?  // 人物弧光简述
+  surfaceTraits   String[] // 表面性格标签
+  innerTraits     String[] // 内在性格标签
+  catchphrase     String?  // 口头禅
+  signatureAction String?  // 标志动作
+  weakness        String?  // 核心弱点
+  desire          String?  // 核心欲望
+  voiceTone       String?  // 语气特征
+  appearanceDesc  String?  // 详细外貌描述
+  imagePrompt     String?  // AI生图Prompt
+  templateId      String?  // 来源模板ID
+
+  // 关联
+  voiceLines    VoiceLine[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum ProjectStatus {
+  DRAFT        // 草稿
+  IN_PROGRESS  // 制作中
+  COMPLETED    // 已完成
+  PUBLISHED    // 已发布为模板
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id])
+  title            String
+  description      String?
+  coverUrl         String?
+  status           ProjectStatus @default(DRAFT)
+  duration         Int?          // 预计总时长(秒)
+  genre            String?       // 类型: 甜宠、悬疑、喜剧等
+  isTemplate       Boolean       @default(false)
+  templateSourceId String?       // 如果是从模板创建的,记录模板ID
+  metadata         Json?
+
+  // 关联
+  scenes           Scene[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Scene {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sceneNumber Int
+  title       String
+  location    String?
+  timeOfDay   String?  // 白天、傍晚、夜晚
+  weather     String?  // 晴天、雨天、雪天等
+  description String?
+  imageUrl    String?  // 场景参考图
+  sortOrder   Int      @default(0)
+
+  // 关联
+  storyboards Storyboard[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([projectId, sceneNumber])
+}
+
+enum ShotType {
+  CLOSE_UP   // 特写
+  MEDIUM     // 中景
+  FULL       // 全景
+  LONG       // 远景
+}
+
+model Storyboard {
+  id               String   @id @default(cuid())
+  sceneId          String
+  scene            Scene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  storyboardNumber Int
+  shotType         ShotType @default(MEDIUM)
+  angle            String?  // 镜头角度
+  movement         String?  // 镜头运动
+  description      String?  // 画面描述
+  durationSeconds  Float    @default(5) // 分镜时长(秒)
+  dialogue         String?  // 对白
+  notes            String?  // 备注
+  sortOrder        Int      @default(0)
+
+  // 关联
+  images           StoryboardImage[]
+  voiceLines       VoiceLine[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([sceneId, storyboardNumber])
+}
+
+model StoryboardImage {
+  id               String   @id @default(cuid())
+  storyboardId     String
+  storyboard       Storyboard @relation(fields: [storyboardId], references: [id], onDelete: Cascade)
+  imageUrl         String
+  prompt           String?  // 生成图片的提示词
+  aiModel          String?  // 使用的AI模型
+  generationParams Json?    // 生成参数
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model VoiceLine {
+  id              String    @id @default(cuid())
+  storyboardId    String
+  storyboard      Storyboard @relation(fields: [storyboardId], references: [id], onDelete: Cascade)
+  characterId     String?
+  character       Character? @relation(fields: [characterId], references: [id])
+  text            String    // 配音文本
+  audioUrl        String?   // 生成的音频URL
+  ttsProvider     String?   // TTS服务商
+  durationSeconds Float?    // 音频时长(秒)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+}
+
+// ==================== 模板市场模块 ====================
+
+enum TemplateStatus {
+  DRAFT       // 草稿
+  REVIEWING   // 审核中
+  PUBLISHED   // 已发布
+  DELISTED    // 已下架
+}
+
+model Template {
+  id             String         @id @default(cuid())
+  creatorId      String
+  creator        User           @relation("TemplateCreator", fields: [creatorId], references: [id])
+  title          String
+  description    String?
+  coverUrl       String?
+  previewUrl     String?        // 预览视频/图片URL
+  price          Decimal        @default(0)
+  category       String?        // 分类
+  tags           String[]       // 标签
+  status         TemplateStatus @default(DRAFT)
+  salesCount     Int            @default(0)
+  avgRating      Float          @default(0)
+  downloadCount  Int            @default(0)
+  metadata       Json?
+
+  // 关联
+  contents       TemplateContent[]
+  orders         Order[]
+  reviews        Review[]
+  favorites      Favorite[]
+  publishedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum ContentType {
+  CHARACTER
+  SCRIPT
+  STORYBOARD
+  SCENE
+}
+
+model TemplateContent {
+  id          String      @id @default(cuid())
+  templateId  String
+  template    Template    @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  contentType ContentType
+  contentData Json        // 模板内容数据
+  sortOrder   Int         @default(0)
+}
+
+enum OrderStatus {
+  PENDING    // 待支付
+  PAID       // 已支付
+  REFUNDED   // 已退款
+  CANCELLED  // 已取消
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  buyerId         String
+  buyer           User        @relation("OrderBuyer", fields: [buyerId], references: [id])
+  templateId      String
+  template        Template    @relation(fields: [templateId], references: [id])
+  orderNo         String      @unique
+  amount          Decimal     // 订单总金额
+  platformFee     Decimal     // 平台抽成
+  creatorRevenue  Decimal     // 创作者收益
+  status          OrderStatus @default(PENDING)
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id])
+  rating     Int      // 1-5星
+  content    String?
+  status     String   @default("PUBLISHED") // PUBLISHED, HIDDEN
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, templateId])
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, templateId])
+}
+
+enum SettlementStatus {
+  PENDING
+  PAID
+}
+
+model Settlement {
+  id          String           @id @default(cuid())
+  creatorId   String
+  creator     User             @relation("SettlementCreator", fields: [creatorId], references: [id])
+  amount      Decimal
+  periodStart DateTime
+  periodEnd   DateTime
+  status      SettlementStatus @default(PENDING)
+  paidAt      DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+// ==================== 人物设定模板 v2 新增 ====================
+
+model CharacterTemplate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  genre         String
+  archetype     String
+  defaultData   Json
+  coverPrompt   String?
+  price         Decimal  @default(0)
+  status        String   @default("DRAFT") // DRAFT/REVIEWING/PUBLISHED/DELISTED
+  salesCount    Int      @default(0)
+  avgRating     Float    @default(0)
+  usageCount    Int      @default(0)
+  favoriteCount Int      @default(0)
+  reviewCount   Int      @default(0)
+  tags          String[]
+  isOfficial    Boolean  @default(false)
+  creatorId     String?
+  creator       User?    @relation(fields: [creatorId], references: [id])
+  reviews       CharacterTemplateReview[]
+  favorites     CharacterTemplateFavorite[]
+  purchases     CharacterTemplatePurchase[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CharacterTemplateReview {
+  id         String            @id @default(cuid())
+  templateId String
+  template   CharacterTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  rating     Int
+  content    String?
+  createdAt  DateTime          @default(now())
+
+  @@unique([userId, templateId])
+}
+
+model CharacterTemplateFavorite {
+  id         String            @id @default(cuid())
+  templateId String
+  template   CharacterTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  createdAt  DateTime          @default(now())
+
+  @@unique([userId, templateId])
+}
+
+model CharacterTemplatePurchase {
+  id             String            @id @default(cuid())
+  buyerId        String
+  buyer          User              @relation(fields: [buyerId], references: [id])
+  templateId     String
+  template       CharacterTemplate @relation(fields: [templateId], references: [id])
+  orderNo        String            @unique
+  amount         Decimal
+  platformFee    Decimal
+  creatorRevenue Decimal
+  status         String            @default("PENDING")
+  paidAt         DateTime?
+  createdAt      DateTime          @default(now())
+}
+
+model CharacterRelation {
+  id            String   @id @default(cuid())
+  projectId     String
+  characterAId  String
+  characterBId  String
+  relationType  String
+  description   String?
+  createdAt     DateTime @default(now())
+}
