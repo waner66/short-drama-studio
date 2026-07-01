@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { paymentService } from '@/lib/payment/payment-service';
 
 /**
  * POST /api/payment/wechat/notify
- * 微信支付异步回调
+ * 微信支付异步回调 → 更新 Prisma 订单状态
  */
 export async function POST(req: NextRequest) {
   try {
@@ -11,11 +12,13 @@ export async function POST(req: NextRequest) {
 
     console.log('[Wechat Notify]', data);
 
-    // 验证签名 (生产环境)
-    // 更新订单状态
-    if (data.trade_state === 'SUCCESS') {
-      console.log(`[Wechat] Payment success: ${data.out_trade_no}`);
-      // TODO: 更新订单状态为 PAID
+    if (data.trade_state === 'SUCCESS' && data.out_trade_no) {
+      await paymentService.handleNotify('WECHAT', {
+        out_trade_no: data.out_trade_no,
+        transaction_id: data.transaction_id || `MOCK_${Date.now()}`,
+        amount: { total: Math.round((data.amount?.total || 0) * 1) },
+        trade_state: 'SUCCESS',
+      });
     }
 
     return NextResponse.json({ code: 'SUCCESS', message: 'OK' });

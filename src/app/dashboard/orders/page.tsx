@@ -6,7 +6,7 @@ import PageHeader from '@/components/ui/page-header';
 import GlassCard from '@/components/ui/glass-card';
 import GradientBtn from '@/components/ui/gradient-btn';
 import EmptyState from '@/components/ui/empty-state';
-import { Spin } from 'antd';
+import { Spin, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 interface OrderItem {
@@ -27,6 +27,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [cancelling, setCancelling] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -51,6 +52,40 @@ export default function OrdersPage() {
     };
     fetchOrders();
   }, [activeTab]);
+
+  // 取消订单
+  async function handleCancel(orderNo: string) {
+    setCancelling(orderNo);
+    try {
+      const res = await fetch(`/api/orders/${orderNo}/cancel`, { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || '取消失败');
+      }
+      message.success('订单已取消');
+      // 刷新列表
+      setOrders((prev) =>
+        prev.map((o) => (o.orderNo === orderNo ? { ...o, status: 'CANCELLED' } : o))
+      );
+    } catch (err: any) {
+      message.error(err.message);
+    } finally {
+      setCancelling(null);
+    }
+  }
+
+  // 下载模板内容
+  async function handleDownload(orderNo: string) {
+    try {
+      const res = await fetch(`/api/orders/${orderNo}/download`);
+      if (!res.ok) throw new Error('下载失败');
+      const data = await res.json();
+      message.success(`模板"${data.template?.title}"已解锁，可前往创作空间使用`);
+      // TODO: 跳转到项目创建页面
+    } catch (err: any) {
+      message.error(err.message || '下载失败');
+    }
+  }
 
   const tabs = [
     { key: 'all', label: '全部订单' },
@@ -107,31 +142,61 @@ export default function OrdersPage() {
               <thead>
                 <tr className="border-b border-white/5">
                   {['订单号', '模板名称', '金额', '状态', '购买时间', '操作'].map((h) => (
-                    <th key={h} className="text-left text-xs font-medium text-gray-500 px-6 py-4">{h}</th>
+                    <th key={h} className="text-left text-xs font-medium text-gray-500 px-6 py-4">
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order) => {
-                  const st = statusMap[order.status] || { color: 'text-gray-400 bg-gray-500/20', label: order.status };
+                  const st = statusMap[order.status] || {
+                    color: 'text-gray-400 bg-gray-500/20',
+                    label: order.status,
+                  };
                   return (
                     <tr key={order.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                       <td className="px-6 py-4 text-sm text-gray-300 font-mono">{order.orderNo}</td>
                       <td className="px-6 py-4 text-sm text-white">{order.template?.title || '未知模板'}</td>
-                      <td className="px-6 py-4 text-sm font-bold text-[#00d4aa]">¥{order.amount}</td>
+                      <td className="px-6 py-4 text-sm font-bold" style={{ color: 'var(--accent-green)' }}>
+                        ¥{order.amount}
+                      </td>
                       <td className="px-6 py-4">
                         <span className={`text-xs px-2.5 py-1 rounded-full ${st.color}`}>{st.label}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{order.paidAt ? new Date(order.paidAt).toLocaleString('zh-CN') : '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {order.paidAt ? new Date(order.paidAt).toLocaleString('zh-CN') : '-'}
+                      </td>
                       <td className="px-6 py-4">
-                        {order.status === 'PAID' && (
-                          <button className="flex items-center gap-1.5 text-sm text-[#5b2eff] hover:text-[#7b5eff] transition-colors">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            下载模板
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {order.status === 'PAID' && (
+                            <button
+                              onClick={() => handleDownload(order.orderNo)}
+                              className="flex items-center gap-1.5 text-sm text-[#5b2eff] hover:text-[#7b5eff] transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              下载
+                            </button>
+                          )}
+                          {order.status === 'PENDING' && (
+                            <button
+                              onClick={() => handleCancel(order.orderNo)}
+                              disabled={cancelling === order.orderNo}
+                              className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+                            >
+                              {cancelling === order.orderNo ? '取消中...' : '取消'}
+                            </button>
+                          )}
+                          {order.status === 'PAID' && (
+                            <Link href={`/dashboard/market/${order.template?.id}`}
+                              className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                              查看
+                            </Link>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
