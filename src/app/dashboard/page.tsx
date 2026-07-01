@@ -40,7 +40,39 @@ interface CommunityItem {
   type: string;
   title: string;
   user: string;
+  userId?: string;
   time: string;
+  description?: string;
+  tags?: string[];
+  price?: number;
+  rating?: number;
+  templateId?: string;
+  templateTitle?: string;
+}
+
+interface CreatorItem {
+  id: string;
+  name: string;
+  avatar?: string;
+  bio?: string;
+  works?: number;
+  followers?: number;
+  rating?: number;
+  totalSales?: number;
+}
+
+/* ---- Relative time formatter ---- */
+function timeAgo(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return '刚刚';
+  if (mins < 60) return `${mins} 分钟前`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} 小时前`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} 天前`;
+  const months = Math.floor(days / 30);
+  return `${months} 月前`;
 }
 
 /* ---- Animated Counter Hook ---- */
@@ -84,8 +116,8 @@ const CATEGORY_ORDER = ['甜宠', '恋爱', '古装', '悬疑', '逆袭', '都�
 export default function DashboardPage() {
   const [hotTemplates, setHotTemplates] = useState<TemplateItem[]>([]);
   const [communityItems, setCommunityItems] = useState<CommunityItem[]>([]);
+  const [topCreators, setTopCreators] = useState<CreatorItem[]>([]);
   const [stats, setStats] = useState({ templates: 0, creators: 0, revenue: 0 });
-  const [loading, setLoading] = useState(true);
 
   const animatedTemplates = useCountUp(stats.templates, 600);
   const animatedCreators = useCountUp(stats.creators, 600);
@@ -96,25 +128,23 @@ export default function DashboardPage() {
       const results = await Promise.allSettled([
         fetch('/api/templates?sort=hot&limit=6').then(r => r.ok ? r.json() : { data: [] }),
         fetch('/api/community/feed?limit=5').then(r => r.ok ? r.json() : { data: [] }),
+        fetch('/api/dashboard/stats').then(r => r.ok ? r.json() : { templates: 0, creators: 0, revenue: 0 }),
+        fetch('/api/community/creators?limit=5').then(r => r.ok ? r.json() : { data: [] }),
       ]);
 
       const tmpl = results[0].status === 'fulfilled' ? results[0].value : { data: [] };
       const comm = results[1].status === 'fulfilled' ? results[1].value : { data: [] };
+      const st = results[2].status === 'fulfilled' ? results[2].value : { templates: 0, creators: 0, revenue: 0 };
+      const creators = results[3].status === 'fulfilled' ? results[3].value : { data: [] };
 
       setHotTemplates(tmpl.data || []);
       setCommunityItems(comm.data || []);
-
-      // Stats — count templates and derive metrics from known data
-      if (tmpl.data) {
-        const creators = new Set(tmpl.data.map((t: TemplateItem) => t.creator?.username).filter(Boolean));
-        const rev = tmpl.data.reduce((sum: number, t: TemplateItem) => sum + (t.price || 0) * (t.salesCount || 0), 0);
-        setStats({
-          templates: tmpl.data.length,
-          creators: creators.size,
-          revenue: Math.round(rev),
-        });
-      }
-      setLoading(false);
+      setTopCreators(creators.data || []);
+      setStats({
+        templates: st.templates || 0,
+        creators: st.creators || 0,
+        revenue: st.revenue || 0,
+      });
     }
     loadData();
   }, []);
@@ -282,7 +312,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] mt-0.5">
                           <span>{item.user}</span>
                           <span>·</span>
-                          <span>{item.time}</span>
+                          <span>{timeAgo(item.time)}</span>
                         </div>
                       </div>
                       <div>
@@ -317,22 +347,41 @@ export default function DashboardPage() {
             </div>
             <div className="surface-card p-4">
               <div className="space-y-3">
-                {hotTemplates.filter((_, i) => i < 5).map((tpl, i) => {
-                  const name = tpl.creator?.username || '创作者';
-                  const colors = ['from-amber-400 to-orange-500', 'from-slate-400 to-slate-500', 'from-orange-600 to-red-600', 'from-violet-500 to-purple-600', 'from-cyan-500 to-blue-600'];
-                  return (
-                    <div key={i} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                      <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${colors[i % colors.length]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                        {name[0] || '?'}
+                {topCreators.length > 0 ? (
+                  topCreators.map((creator, i) => {
+                    const name = creator.name;
+                    const colors = ['from-amber-400 to-orange-500', 'from-slate-400 to-slate-500', 'from-orange-600 to-red-600', 'from-violet-500 to-purple-600', 'from-cyan-500 to-blue-600'];
+                    return (
+                      <div key={creator.id} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${colors[i % colors.length]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                          {name[0] || '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[var(--text-primary)] text-xs font-medium truncate">{name}</p>
+                          <p className="text-[var(--text-muted)] text-[10px]">{creator.totalSales || 0} 次销售</p>
+                        </div>
+                        <span className="text-[var(--text-muted)] text-xs">#{i + 1}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[var(--text-primary)] text-xs font-medium truncate">{name}</p>
-                        <p className="text-[var(--text-muted)] text-[10px]">{tpl.salesCount || 0} 次销售</p>
+                    );
+                  })
+                ) : (
+                  hotTemplates.filter((_, i) => i < 5).map((tpl, i) => {
+                    const name = tpl.creator?.username || '创作者';
+                    const colors = ['from-amber-400 to-orange-500', 'from-slate-400 to-slate-500', 'from-orange-600 to-red-600', 'from-violet-500 to-purple-600', 'from-cyan-500 to-blue-600'];
+                    return (
+                      <div key={i} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${colors[i % colors.length]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                          {name[0] || '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[var(--text-primary)] text-xs font-medium truncate">{name}</p>
+                          <p className="text-[var(--text-muted)] text-[10px]">{tpl.salesCount || 0} 次销售</p>
+                        </div>
+                        <span className="text-[var(--text-muted)] text-xs">#{i + 1}</span>
                       </div>
-                      <span className="text-[var(--text-muted)] text-xs">#{i + 1}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>

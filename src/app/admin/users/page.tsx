@@ -1,50 +1,94 @@
 'use client';
 
-import { Card, Table, Tag, Button, Space, Input, Typography } from 'antd';
-import { SearchOutlined, LockOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import { Card, Table, Tag, Typography, Input } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
+interface UserItem {
+  id: string;
+  username: string;
+  email: string | null;
+  phone: string | null;
+  role: string;
+  status: string;
+  templates: number;
+  orders: number;
+  createdAt: string;
+}
+
 export default function AdminUsersPage() {
-  const data = [
-    { id: '1', username: '短剧达人王', email: 'daren@qq.com', phone: '138****8888', role: 'CREATOR', status: 'ACTIVE', createdAt: '2026-03-15' },
-    { id: '2', username: '创作者小明', email: 'xiaoming@163.com', phone: '139****7777', role: 'USER', status: 'ACTIVE', createdAt: '2026-06-01' },
-    { id: '3', username: '测试用户A', email: 'test@test.com', phone: null, role: 'USER', status: 'BANNED', createdAt: '2026-05-20' },
-  ];
+  const [users, setUsers] = useState<UserItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  async function loadUsers(p = 1) {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({ page: String(p), limit: '10' });
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/admin/users?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.data || []);
+        setTotal(data.pagination?.total || 0);
+      }
+    } catch { /* ignore */ } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadUsers(page); }, [page]);
+
+  const roleLabels: Record<string, string> = { USER: '用户', CREATOR: '创作者', ADMIN: '管理员' };
+  const roleColors: Record<string, string> = { USER: 'blue', CREATOR: 'purple', ADMIN: 'red' };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <Title level={4} className="!mb-0">用户管理</Title>
-        <Input prefix={<SearchOutlined />} placeholder="搜索用户..." style={{ width: 280 }} />
+        <Input.Search
+          prefix={<SearchOutlined />}
+          placeholder="搜索用户名或邮箱..."
+          style={{ width: 280 }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onSearch={() => { setPage(1); loadUsers(1); }}
+          allowClear
+        />
       </div>
 
       <Card>
         <Table
-          dataSource={data}
+          dataSource={users}
+          loading={loading}
           columns={[
-            { title: 'ID', dataIndex: 'id' },
+            { title: 'ID', dataIndex: 'id', width: 100, ellipsis: true },
             { title: '用户名', dataIndex: 'username' },
-            { title: '邮箱', dataIndex: 'email' },
-            { title: '手机', dataIndex: 'phone' },
-            { title: '角色', dataIndex: 'role', render: (v: string) => (
-              <Tag color={v === 'CREATOR' ? 'purple' : v === 'ADMIN' ? 'red' : 'blue'}>
-                {v === 'CREATOR' ? '创作者' : v === 'ADMIN' ? '管理员' : '用户'}
-              </Tag>
-            )},
-            { title: '状态', dataIndex: 'status', render: (v: string) => (
-              <Tag color={v === 'ACTIVE' ? 'green' : 'red'}>{v === 'ACTIVE' ? '正常' : '已封禁'}</Tag>
-            )},
+            { title: '邮箱', dataIndex: 'email', render: (v: string | null) => v || '-' },
+            { title: '手机', dataIndex: 'phone', render: (v: string | null) => v || '-' },
+            {
+              title: '角色',
+              dataIndex: 'role',
+              render: (v: string) => (
+                <Tag color={roleColors[v] || 'blue'}>{roleLabels[v] || v}</Tag>
+              ),
+            },
+            { title: '模板数', dataIndex: 'templates' },
+            { title: '订单数', dataIndex: 'orders' },
             { title: '注册时间', dataIndex: 'createdAt' },
-            { title: '操作', render: () => (
-              <Space>
-                <Button size="small" icon={<LockOutlined />}>封禁</Button>
-                <Button size="small" danger icon={<DeleteOutlined />}>删除</Button>
-              </Space>
-            )},
           ]}
           rowKey="id"
-          pagination={{ pageSize: 10 }}
+          pagination={{
+            current: page,
+            total,
+            pageSize: 10,
+            onChange: setPage,
+            showTotal: (t) => `共 ${t} 条`,
+          }}
         />
       </Card>
     </div>

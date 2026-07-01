@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   Row,
@@ -15,6 +15,7 @@ import {
   Rate,
   Statistic,
   Divider,
+  Spin,
 } from 'antd';
 import {
   UserOutlined,
@@ -28,26 +29,99 @@ import Link from 'next/link';
 
 const { Title, Text } = Typography;
 
+interface CreatorData {
+  id: string;
+  name: string;
+  avatar?: string;
+  bio?: string;
+  role: string;
+  joinedAt: string;
+  templatesCount: number;
+  followers: number;
+  totalSales: number;
+  avgRating: number;
+  isFollowing: boolean;
+  templates: Array<{
+    id: string;
+    title: string;
+    price: number;
+    avgRating: number;
+    salesCount: number;
+  }>;
+}
+
 export default function CreatorProfileClient({ params }: { params: { id: string } }) {
+  const [creator, setCreator] = useState<CreatorData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [followed, setFollowed] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
-  const creator = {
-    id: params.id,
-    name: '短剧达人王',
-    bio: '专注甜宠短剧创作3年，已出品50+部短剧，累计播放量破千万',
-    avatar: null,
-    templatesCount: 12,
-    followers: 3892,
-    totalSales: 4521,
-    avgRating: 4.7,
-    joinedAt: '2024-03',
-  };
+  useEffect(() => {
+    loadCreator();
+  }, [params.id]);
 
-  const creatorTemplates = [
-    { id: '1', title: '霸道总裁爱上我 · 短剧模板', price: 29.9, rating: 4.8, sales: 1234 },
-    { id: '2', title: '甜宠总裁的契约新娘', price: 34.9, rating: 4.6, sales: 892 },
-    { id: '3', title: '温柔总裁的甜蜜陷阱', price: 24.9, rating: 4.9, sales: 1567 },
-  ];
+  async function loadCreator() {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/creator/${params.id}`);
+      if (!res.ok) {
+        if (res.status === 404) { setError('创作者不存在'); return; }
+        throw new Error('加载失败');
+      }
+      const data = await res.json();
+      setCreator(data);
+      setFollowed(data.isFollowing);
+    } catch (err) {
+      setError('加载失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function toggleFollow() {
+    if (!creator || followLoading) return;
+    try {
+      setFollowLoading(true);
+      const res = await fetch(`/api/creator/${params.id}/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: followed ? 'unfollow' : 'follow' }),
+      });
+      if (res.ok) {
+        setFollowed(!followed);
+      } else if (res.status === 401) {
+        setError('请先登录');
+      }
+    } catch {
+      // ignore
+    } finally {
+      setFollowLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error || !creator) {
+    return (
+      <div>
+        <Link href="/dashboard/market">
+          <Button icon={<ArrowLeftOutlined />} type="text">返回市场</Button>
+        </Link>
+        <Card className="mt-4">
+          <div className="text-center py-12">
+            <Text type="secondary">{error || '创作者不存在'}</Text>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -61,14 +135,20 @@ export default function CreatorProfileClient({ params }: { params: { id: string 
       <Card className="mb-6">
         <Row gutter={24} align="middle">
           <Col flex="100px">
-            <Avatar size={80} icon={<UserOutlined />} style={{ backgroundColor: '#1677ff' }} />
+            {creator.avatar ? (
+              <Avatar size={80} src={creator.avatar} />
+            ) : (
+              <Avatar size={80} icon={<UserOutlined />} style={{ backgroundColor: '#1677ff' }} />
+            )}
           </Col>
           <Col flex="auto">
             <div className="flex items-center gap-3 mb-2">
               <Title level={3} className="!mb-0">{creator.name}</Title>
-              <Tag icon={<CrownOutlined />} color="gold">认证创作者</Tag>
+              {creator.role === 'CREATOR' && (
+                <Tag icon={<CrownOutlined />} color="gold">认证创作者</Tag>
+              )}
             </div>
-            <Text type="secondary">{creator.bio}</Text>
+            <Text type="secondary">{creator.bio || '这个人很懒，什么都没写~'}</Text>
             <div className="mt-2">
               <Tag>加入于 {creator.joinedAt}</Tag>
             </div>
@@ -78,7 +158,8 @@ export default function CreatorProfileClient({ params }: { params: { id: string 
               type={followed ? 'default' : 'primary'}
               icon={<TeamOutlined />}
               size="large"
-              onClick={() => { setFollowed(!followed); }}
+              loading={followLoading}
+              onClick={toggleFollow}
             >
               {followed ? '已关注' : '关注创作者'}
             </Button>
@@ -104,32 +185,40 @@ export default function CreatorProfileClient({ params }: { params: { id: string 
       </Card>
 
       {/* 作品列表 */}
-      <Card title="创作模板">
-        <List
-          dataSource={creatorTemplates}
-          renderItem={(item) => (
-            <List.Item
-              actions={[
-                <Link href={`/dashboard/market/${item.id}`} key="view">
-                  <Button size="small">查看详情</Button>
-                </Link>,
-                <Button size="small" type="primary" key="buy">
-                  ¥{item.price} 购买
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                title={item.title}
-                description={
-                  <Space>
-                    <Rate disabled allowHalf value={item.rating} className="!text-sm" />
-                    <Text type="secondary">{item.sales} 销量</Text>
-                  </Space>
-                }
-              />
-            </List.Item>
-          )}
-        />
+      <Card title={`创作模板 (${creator.templates.length})`}>
+        {creator.templates.length === 0 ? (
+          <div className="text-center py-8">
+            <Text type="secondary">暂无已发布模板</Text>
+          </div>
+        ) : (
+          <List
+            dataSource={creator.templates}
+            renderItem={(item) => (
+              <List.Item
+                actions={[
+                  <Link href={`/dashboard/market/${item.id}`} key="view">
+                    <Button size="small">查看详情</Button>
+                  </Link>,
+                  <Link href={`/dashboard/market/${item.id}`} key="buy">
+                    <Button size="small" type="primary">
+                      ¥{item.price.toFixed(1)} 购买
+                    </Button>
+                  </Link>,
+                ]}
+              >
+                <List.Item.Meta
+                  title={item.title}
+                  description={
+                    <Space>
+                      <Rate disabled allowHalf value={item.avgRating} className="!text-sm" />
+                      <Text type="secondary">{item.salesCount} 销量</Text>
+                    </Space>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        )}
       </Card>
     </div>
   );
