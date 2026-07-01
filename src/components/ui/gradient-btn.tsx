@@ -22,21 +22,22 @@ const sizeClasses = {
 
 const variantClasses = {
   primary:
-    'bg-gradient-to-r from-purple-600 to-cyan-500 text-white hover:from-purple-500 hover:to-cyan-400 shadow-lg shadow-purple-500/25',
+    'bg-gradient-to-r from-brand-500 to-brand-400 text-white hover:from-brand-400 hover:to-brand-300 shadow-md shadow-brand-500/20',
   secondary:
-    'bg-white/10 text-white hover:bg-white/15 border border-white/10',
+    'bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] border border-[var(--border-default)]',
   outline:
-    'bg-transparent text-purple-400 border border-purple-500/30 hover:bg-purple-500/10',
+    'bg-transparent text-[var(--text-secondary)] border border-[var(--border-default)] hover:border-[var(--brand-400)] hover:text-[var(--brand-400)]',
   ghost:
-    'bg-transparent text-gray-300 hover:bg-white/5',
+    'bg-transparent text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-secondary)]',
+  /* Scene CTA variants — still use gradient, but softer */
   market:
-    'bg-gradient-to-r from-amber-500 to-rose-500 text-white hover:from-amber-400 hover:to-rose-400 shadow-lg shadow-amber-500/25',
+    'bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-white hover:from-amber-400 hover:to-orange-400 shadow-md shadow-amber-500/20',
   community:
-    'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-400 hover:to-cyan-400 shadow-lg shadow-emerald-500/25',
+    'bg-gradient-to-r from-cyan-500/90 to-blue-500/90 text-white hover:from-cyan-400 hover:to-blue-400 shadow-md shadow-cyan-500/20',
   create:
-    'bg-gradient-to-r from-purple-600 to-violet-500 text-white hover:from-purple-500 hover:to-violet-400 shadow-lg shadow-purple-500/25',
+    'bg-gradient-to-r from-violet-500/90 to-purple-500/90 text-white hover:from-violet-400 hover:to-purple-400 shadow-md shadow-violet-500/20',
   sell:
-    'bg-gradient-to-r from-indigo-500 to-pink-500 text-white hover:from-indigo-400 hover:to-pink-400 shadow-lg shadow-indigo-500/25',
+    'bg-gradient-to-r from-indigo-500/90 to-pink-500/90 text-white hover:from-indigo-400 hover:to-pink-400 shadow-md shadow-indigo-500/20',
 };
 
 export default function GradientBtn({

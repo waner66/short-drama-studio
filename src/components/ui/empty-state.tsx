@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import GradientBtn from './gradient-btn';
 
 interface EmptyStateProps {
@@ -22,29 +22,38 @@ export default function EmptyState({
   actions,
   className = '',
 }: EmptyStateProps) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { setShow(true); }, []);
+
   return (
-    <div className={`flex flex-col items-center justify-center py-16 ${className}`}>
+    <div
+      className={`flex flex-col items-center justify-center py-16 px-4 transition-opacity duration-500 ${show ? 'opacity-100' : 'opacity-0'} ${className}`}
+    >
       {icon ? (
-        <div className="mb-6 text-gray-600">{icon}</div>
+        <div className="mb-5 text-[var(--text-muted)]/40">{icon}</div>
       ) : (
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white/[0.03] border border-white/[0.06]">
-          <svg className="h-10 w-10 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+          <svg className="w-8 h-8 text-[var(--text-muted)]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
           </svg>
         </div>
       )}
-      <h3 className="text-lg font-semibold text-gray-300">{title}</h3>
+      <h3 className="text-base font-semibold text-[var(--text-secondary)]">{title}</h3>
       {description && (
-        <p className="mt-2 max-w-md text-center text-sm text-gray-500">{description}</p>
+        <p className="mt-1.5 max-w-sm text-center text-sm text-[var(--text-muted)] leading-relaxed">
+          {description}
+        </p>
       )}
-      {actions && (
+      {actions ? (
         <div className="mt-6">{actions}</div>
-      )}
-      {!actions && actionLabel && onAction && (
+      ) : actionLabel && onAction ? (
         <div className="mt-6">
-          <GradientBtn onClick={onAction}>{actionLabel}</GradientBtn>
+          <GradientBtn onClick={onAction} variant="primary" size="sm">
+            {actionLabel}
+          </GradientBtn>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

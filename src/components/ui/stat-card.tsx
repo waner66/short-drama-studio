@@ -7,17 +7,18 @@ interface StatCardProps {
   value: string | number;
   icon?: ReactNode;
   trend?: number;
+  trendLabel?: string;
   suffix?: string;
   className?: string;
   accent?: 'purple' | 'cyan' | 'pink' | 'amber' | 'green';
 }
 
-const accentColors = {
-  purple: 'from-purple-500/20 to-purple-600/5 text-purple-400',
-  cyan: 'from-cyan-500/20 to-cyan-600/5 text-cyan-400',
-  pink: 'from-pink-500/20 to-pink-600/5 text-pink-400',
-  amber: 'from-amber-500/20 to-amber-600/5 text-amber-400',
-  green: 'from-emerald-500/20 to-emerald-600/5 text-emerald-400',
+const accentColors: Record<string, string> = {
+  purple: 'bg-violet-500/10 text-violet-400',
+  cyan:   'bg-cyan-500/10 text-cyan-400',
+  pink:   'bg-pink-500/10 text-pink-400',
+  amber:  'bg-amber-500/10 text-amber-400',
+  green:  'bg-emerald-500/10 text-emerald-400',
 };
 
 export default function StatCard({
@@ -25,41 +26,55 @@ export default function StatCard({
   value,
   icon,
   trend,
+  trendLabel,
   suffix,
   className = '',
   accent = 'purple',
 }: StatCardProps) {
-  const colors = accentColors[accent];
-
   return (
     <div
       className={`
-        relative overflow-hidden rounded-2xl border border-white/10
-        bg-gradient-to-br ${colors.split(' ')[0]} ${colors.split(' ')[1]}
-        backdrop-blur-xl p-5 transition-all duration-300
-        hover:-translate-y-0.5 hover:border-purple-500/20
+        surface-card p-5 transition-shadow duration-200
+        hover:shadow-[var(--shadow-elevated)]
         ${className}
       `}
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-gray-400">{title}</p>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-white">{value}</span>
-            {suffix && <span className="text-sm text-gray-500">{suffix}</span>}
-          </div>
-          {trend !== undefined && (
-            <p className={`mt-1 text-xs ${trend >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}%
-            </p>
-          )}
-        </div>
+      {/* Title row */}
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs text-[var(--text-muted)] font-medium tracking-wide uppercase">{title}</p>
         {icon && (
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 ${colors.split(' ')[2]}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${accentColors[accent]}`}>
             {icon}
           </div>
         )}
       </div>
+
+      {/* Value */}
+      <div className="flex items-baseline gap-1">
+        <span className="text-[28px] font-bold text-[var(--text-primary)] leading-tight tracking-tight">
+          {value}
+        </span>
+        {suffix && <span className="text-sm text-[var(--text-muted)]">{suffix}</span>}
+      </div>
+
+      {/* Trend indicator */}
+      {trend !== undefined && (
+        <div className="mt-2 flex items-center gap-1.5">
+          {trend >= 0 ? (
+            <svg viewBox="0 0 12 12" className="w-3 h-3 text-emerald-400" fill="none">
+              <path d="M6 2.5v7M3.5 5L6 2.5 8.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 12 12" className="w-3 h-3 text-red-400" fill="none">
+              <path d="M6 9.5v-7M3.5 7L6 9.5 8.5 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+          <span className={`text-xs font-medium ${trend >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            {trend >= 0 ? '+' : ''}{trend}%
+          </span>
+          {trendLabel && <span className="text-xs text-[var(--text-muted)]">{trendLabel}</span>}
+        </div>
+      )}
     </div>
   );
 }
