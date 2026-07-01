@@ -21,6 +21,9 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
+        // 保存 token 和用户信息到 localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         message.success('登录成功！');
         window.location.href = '/dashboard';
       } else {

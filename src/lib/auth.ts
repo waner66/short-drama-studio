@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'short-drama-studio-jwt-2026-supabase'
+  process.env.JWT_SECRET || 'short-drama-studio-dev-secret-key-2026'
 );
 
 export interface AuthUser {

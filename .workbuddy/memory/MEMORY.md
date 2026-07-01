@@ -1,31 +1,32 @@
-# 短剧制作App - 项目记忆
+# 短剧工坊 (Short Drama Studio) 项目笔记
 
-## 项目定位
-- 纯 Web 端（Next.js 14 App Router + React 18）
-- 国内市场（通义千问 + 通义万相 + 支付宝/微信支付 + 阿里云部署）
-- 新用户赠送少量免费额度
+## 项目概述
+- 定位：短剧创作交易平台（AI创作 + 模板市场 + 社区）
+- 技术栈：Next.js 14 + Prisma + PostgreSQL (Supabase) + Ant Design
+- 仓库：github.com/waner66/short-drama-studio (Vercel部署)
+- 部署 URL：short-drama-studio-gamma.vercel.app
 
-## 技术栈
-- 前端: React 18 + Next.js 14 + Ant Design 5 + TailwindCSS 3 + Zustand + React Query
-- 动画: Framer Motion
-- 主题: 自定义 ThemeProvider (暗黑/亮色双主题)
-- 字体: Plus Jakarta Sans + Space Grotesk + Noto Sans SC
-- 后端: Next.js API Routes + Python FastAPI (视频处理)
-- 数据库: PostgreSQL 16 + Prisma ORM + Redis (缓存/队列)
-- 存储: 阿里云 OSS + CDN
-- AI: 通义千问 Qwen-Max / 通义万相 / CosyVoice TTS
+## Phase 进度
+| Phase | Commit | 内容 |
+|-------|--------|------|
+| 1 | a845d3a | 基础搭建 + UI改造 |
+| A-D | 3fc5ff0 | UI全面美术升级 |
+| 4 | - | Python FastAPI视频服务 |
+| 5 | - | 支付SDK集成(支付宝/微信) |
+| 6 | - | 数据库迁移+18个API补全 |
+| 7 | - | Vercel+Supabase部署准备 |
+| 2 | 8f7e388 | 交易闭环(下单→支付→收益) |
+| 3 | aec377a | 前端去Mock化(12 API + 8页面) |
 
-## 项目结构
-- src/app/ - Next.js App Router 页面 (17 功能页面 + 5 管理后台)
-- src/components/ui/ - 通用 UI 组件 (glass-card, gradient-btn, scroll-reveal, loading-skeleton 等)
-- src/components/business/ - 业务组件 (character-card, template-card, creator-strip 等)
-- src/lib/ - 工具库 (prisma, auth-store, api, ai-service, quota, theme-context)
-- src/lib/store/ - 本地数据层 (localStorage CRUD)
-- src/hooks/ - React Hooks
-- src/types/ - TypeScript 类型定义
-- prisma/ - 数据库 Schema (12 张表)
+## Phase 3 关键交付
+- **新建12个API**: community/feed, community/creators, dashboard/stats, creator/[id], creator/[id]/follow, user/profile(GET+PUT), user/stats, user/purchases, admin/stats, admin/orders, admin/users, admin/templates(GET+PATCH)
+- **8个页面去Mock**: 首页、社区广场、创作者主页、个人中心(3Tab)、管理后台x4
+- 社区feed聚合三种事件(上架/购买/评价)按时间线排列
+- 关注功能: Follow模型upsert模式
+- 模板审核: PATCH approve/reject
 
-## 开发规范
-- 驼峰命名、TypeScript 严格模式
-- API: RESTful + /api/* 路由
-- 状态: Zustand (客户端) + React Query (服务端)
+## 待做(Phase 4候选)
+- 项目/角色/剧本/分镜编辑页 → 仍用localStorage/local-state (内部工具，非对外)
+- 视频生成打通(通义万相API key)
+- 消息通知系统
+- 角色模板市场

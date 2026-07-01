@@ -23,40 +23,18 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      let user;
-      try {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          user = data.user;
-          localStorage.setItem('token', data.token);
-        } else {
-          throw new Error(data.error);
-        }
-      } catch {
-        const { userService } = await import('@/lib/store/data-service');
-        const storedUser = userService.register(
-          values.username,
-          values.password,
-          values.email,
-          values.phone
-        );
-        user = {
-          id: storedUser.id,
-          username: storedUser.username,
-          email: storedUser.email || null,
-          phone: storedUser.phone || null,
-          avatarUrl: storedUser.avatarUrl || null,
-          role: storedUser.role,
-        };
-        localStorage.setItem('token', 'local-' + storedUser.id);
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || '注册失败');
       }
 
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       message.success('注册成功！已赠送免费额度，开始创作吧');
       setTimeout(() => {
         window.location.href = '/dashboard';

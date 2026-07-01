@@ -90,11 +90,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { theme } = useTheme();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try { setUser(JSON.parse(storedUser)); }
-      catch { router.push('/auth/login'); }
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // 无 token → 但如果已有 user 信息（如注册流程刚写入），短暂容错
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try { setUser(JSON.parse(storedUser)); } catch { /* ignore */ }
+      }
+      return;
     }
+
+    // 有 token → 调 API 验证有效性
+    fetch('/api/auth/me', {
+      headers: { 'Authorization': `Bearer ${token}` },
+    }).then((res) => {
+      if (!res.ok) {
+        // token 无效（过期/被篡改/密钥不匹配）→ 清除并跳转
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth/login');
+        return;
+      }
+      return res.json();
+    }).then((data) => {
+      if (!data) return;
+      // token 有效 → 用 localStorage 的 user 信息渲染
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try { setUser(JSON.parse(storedUser)); } catch { /* ignore */ }
+      } else {
+        // 如果 localStorage 里没 user 但 token 有效，用 API 返回的信息
+        setUser({ username: data.username });
+        localStorage.setItem('user', JSON.stringify({ username: data.username }));
+      }
+    }).catch(() => {
+      // 网络错误等，不强制登出（本地已有 user 信息的话）
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try { setUser(JSON.parse(storedUser)); } catch { router.push('/auth/login'); }
+      }
+    });
   }, [router]);
 
   /* active item detection */
