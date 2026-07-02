@@ -51,7 +51,44 @@ export async function GET() {
     detail: `NODE_ENV=${process.env.NODE_ENV || '未设置'}, VERCEL=${process.env.VERCEL || '否'}`,
   };
 
-  // 6. 打印所有 Supabase/DB 相关环境变量（排查用）
+  // 6. 检查 Supabase REST API（auth 登录/注册使用此方式）
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || 'https://tdeggpmxmgqgcrceymec.supabase.co';
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceKey) {
+      checks.supabase_rest = {
+        ok: false,
+        detail: 'SUPABASE_SERVICE_ROLE_KEY 未设置，登录/注册将无法工作',
+      };
+    } else {
+      const res = await fetch(`${supabaseUrl}/rest/v1/User?select=id&limit=1`, {
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+      });
+      if (res.ok) {
+        const users = await res.json();
+        checks.supabase_rest = {
+          ok: true,
+          detail: `Supabase REST API 正常，User 表存在，返回 ${users.length} 条`,
+        };
+      } else {
+        const errText = await res.text();
+        checks.supabase_rest = {
+          ok: false,
+          detail: `HTTP ${res.status}: ${errText.substring(0, 200)}`,
+        };
+      }
+    }
+  } catch (err: any) {
+    checks.supabase_rest = {
+      ok: false,
+      detail: err?.message || String(err),
+    };
+  }
+
+  // 7. 打印所有 Supabase/DB 相关环境变量（排查用）
   const dbEnvKeys = [
     'DATABASE_URL', 'DIRECT_URL', 'POOLER_DB_URL',
     'POSTGRES_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING', 'POSTGRES_URL_NO_SSL',

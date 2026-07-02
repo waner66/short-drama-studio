@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
-import { prisma } from '@/lib/prisma';
+import { findUser } from '@/lib/supabase-client';
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'short-drama-studio-dev-secret-key-2026'
@@ -20,15 +20,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '请输入手机号或邮箱' }, { status: 400 });
     }
 
-    // 查找用户
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          phone ? { phone } : null,
-          email ? { email } : null,
-        ].filter(Boolean) as any,
-      },
-    });
+    // 通过 Supabase REST API 查找用户
+    const user = await findUser(phone || undefined, email || undefined);
 
     if (!user || !user.passwordHash) {
       return NextResponse.json({ error: '账号或密码错误' }, { status: 401 });
