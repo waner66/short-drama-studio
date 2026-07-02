@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POOLER_DB_URL")
+  directUrl = env("POOLER_DB_URL")
 }
 
 // ==================== 用户模块 ====================
