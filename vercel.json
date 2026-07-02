@@ -5,6 +5,9 @@
   "outputDirectory": ".next",
   "regions": ["hkg1"],
   "env": {
-    "NEXT_PUBLIC_APP_NAME": "短剧工坊"
+    "NEXT_PUBLIC_APP_NAME": "短剧工坊",
+    "DATABASE_URL": "postgresql://postgres.tdeggpmxmgqgcrceymec:Xiaoxu011116%21@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require",
+    "DIRECT_URL": "postgresql://postgres:Xiaoxu011116%21@db.tdeggpmxmgqgcrceymec.supabase.co:5432/postgres?sslmode=require",
+    "JWT_SECRET": "short-drama-studio-jwt-2026-supabase"
   }
 }

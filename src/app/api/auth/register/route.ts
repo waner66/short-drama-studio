@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
       .setExpirationTime('7d')
       .sign(JWT_SECRET);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
+      success: true,
       token,
       user: {
         id: user.id,
@@ -87,6 +88,17 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
     });
+
+    // 设置 httpOnly cookie，与登录保持一致
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
+    });
+
+    return response;
   } catch (error: any) {
     const message = error?.message || String(error);
     console.error('Register error:', message);

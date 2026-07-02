@@ -12,13 +12,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { phone, email, password } = body;
 
+    // 输入验证
+    if (!password) {
+      return NextResponse.json({ error: '请输入密码' }, { status: 400 });
+    }
+    if (!phone && !email) {
+      return NextResponse.json({ error: '请输入手机号或邮箱' }, { status: 400 });
+    }
+
     // 查找用户
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          { phone: phone || undefined },
-          { email: email || undefined },
-        ].filter((condition) => condition.phone || condition.email),
+          phone ? { phone } : null,
+          email ? { email } : null,
+        ].filter(Boolean) as any,
       },
     });
 

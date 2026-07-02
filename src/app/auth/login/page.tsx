@@ -14,20 +14,25 @@ export default function LoginPage() {
   const onFinish = async (values: { phone?: string; email?: string; password: string }) => {
     setLoading(true);
     try {
+      // 只发送当前模式对应的字段
+      const payload = loginMode === 'phone'
+        ? { phone: values.phone, password: values.password }
+        : { email: values.email, password: values.password };
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && data.success) {
         // 保存 token 和用户信息到 localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         message.success('登录成功！');
         window.location.href = '/dashboard';
       } else {
-        message.error(data.error || '登录失败');
+        message.error(data.error || data.detail || '登录失败');
       }
     } catch {
       message.error('网络错误，请重试');
@@ -69,6 +74,7 @@ export default function LoginPage() {
             {loginMode === 'phone' ? (
               <Form.Item
                 name="phone"
+                preserve={false}
                 rules={[
                   { required: true, message: '请输入手机号' },
                   { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' },
@@ -83,6 +89,7 @@ export default function LoginPage() {
             ) : (
               <Form.Item
                 name="email"
+                preserve={false}
                 rules={[
                   { required: true, message: '请输入邮箱' },
                   { type: 'email', message: '请输入正确的邮箱格式' },
