@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import PurchaseGuide from '@/components/business/purchase-guide';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -70,6 +71,8 @@ export default function TemplateDetailClient({ params }: { params: { id: string 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [showPurchaseGuide, setShowPurchaseGuide] = useState(false);
+  const [purchasedName, setPurchasedName] = useState('');
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const [reviewText, setReviewText] = useState('');
@@ -155,39 +158,24 @@ export default function TemplateDetailClient({ params }: { params: { id: string 
         throw new Error(data.error || '下单失败');
       }
 
-      // 模拟支付成功（开发环境）
-      Modal.success({
-        title: '下单成功！',
-        content: (
-          <div>
-            <p>订单号：{data.orderNo}</p>
-            <p>金额：¥{data.amount}</p>
-            <p className="text-gray-400 text-xs mt-2">开发环境：自动标记为已支付</p>
-          </div>
-        ),
-        okText: '查看我的订单',
-        onOk: async () => {
-          // 模拟支付回调 → 更新订单状态
-          try {
-            await fetch(data.payUrl, { method: 'GET' }).catch(() => {});
-            await fetch('/api/payment/alipay/notify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: new URLSearchParams({
-                out_trade_no: data.orderNo,
-                trade_no: `MOCK_${Date.now()}`,
-                total_amount: String(data.amount),
-                trade_status: 'TRADE_SUCCESS',
-              }).toString(),
-            });
-            message.success('支付成功！模板已解锁');
-            setAlreadyOwned(true);
-          } catch {
-            // 静默
-          }
-          router.push('/dashboard/orders');
-        },
-      });
+      // 支付成功 → 显示创作引导
+      try {
+        await fetch(data.payUrl, { method: 'GET' }).catch(() => {});
+        await fetch('/api/payment/alipay/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            out_trade_no: data.orderNo,
+            trade_no: `MOCK_${Date.now()}`,
+            total_amount: String(data.amount),
+            trade_status: 'TRADE_SUCCESS',
+          }).toString(),
+        });
+      } catch { /* 静默 */ }
+      
+      setAlreadyOwned(true);
+      setPurchasedName(template?.title || '模板');
+      setShowPurchaseGuide(true);
     } catch (err: any) {
       message.error(err.message || '下单失败');
     } finally {
@@ -581,6 +569,14 @@ export default function TemplateDetailClient({ params }: { params: { id: string 
           </div>
         </Col>
       </Row>
+
+      {/* 购买后创作引导 */}
+      <PurchaseGuide
+        open={showPurchaseGuide}
+        onClose={() => setShowPurchaseGuide(false)}
+        templateName={purchasedName}
+        templateId={template?.id || ''}
+      />
     </div>
   );
 }

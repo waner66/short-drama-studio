@@ -20,6 +20,7 @@ import {
 import GlassCard from '@/components/ui/glass-card';
 import Badge from '@/components/ui/badge';
 import GradientBtn from '@/components/ui/gradient-btn';
+import { CardSkeleton } from '@/components/ui/loading-skeleton';
 
 const { Title, Text } = Typography;
 
@@ -118,6 +119,7 @@ export default function DashboardPage() {
   const [communityItems, setCommunityItems] = useState<CommunityItem[]>([]);
   const [topCreators, setTopCreators] = useState<CreatorItem[]>([]);
   const [stats, setStats] = useState({ templates: 0, creators: 0, revenue: 0 });
+  const [loadingData, setLoadingData] = useState(true);
 
   const animatedTemplates = useCountUp(stats.templates, 600);
   const animatedCreators = useCountUp(stats.creators, 600);
@@ -145,6 +147,7 @@ export default function DashboardPage() {
         creators: st.creators || 0,
         revenue: st.revenue || 0,
       });
+      setLoadingData(false);
     }
     loadData();
   }, []);
@@ -231,7 +234,11 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {hotTemplates.length > 0 ? (
+          {loadingData ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+            </div>
+          ) : hotTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {hotTemplates.slice(0, 6).map((tpl) => (
                 <Link key={tpl.id} href="/dashboard/market" className="no-underline group">

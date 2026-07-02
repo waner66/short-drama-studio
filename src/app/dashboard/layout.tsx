@@ -34,6 +34,7 @@ import Link from 'next/link';
 import { useTheme } from '@/lib/theme-context';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import MobileSidebar from '@/components/ui/mobile-sidebar';
+import OnboardingGuide from '@/components/business/onboarding-guide';
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -280,6 +281,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </main>
       </div>
+
+      {/* 新用户引导 */}
+      <OnboardingGuide />
     </div>
   );
 }
