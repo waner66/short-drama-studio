@@ -1,15 +1,22 @@
 import { PrismaClient } from '@prisma/client';
 
-// Vercel IPv4 无法直连 Supabase（需要IPv6），
-// 用 Supabase Session Pooler（端口5432，IPv4兼容）
-if (process.env.POOLER_DB_URL) {
-  process.env.DATABASE_URL = process.env.POOLER_DB_URL;
-}
-
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function getDatabaseUrl(): string {
+  // Vercel IPv4 无法直连 Supabase（IPv6），使用 Transaction Pooler（端口6543）
+  // 优先用 POOLER_DB_URL 直接传给 PrismaClient，绕过 Supabase 集成对 DATABASE_URL 的覆盖
+  if (process.env.POOLER_DB_URL) {
+    return process.env.POOLER_DB_URL;
+  }
+  return process.env.DATABASE_URL!;
+}
+
+const dbUrl = getDatabaseUrl();
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  datasourceUrl: dbUrl,
+});
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
