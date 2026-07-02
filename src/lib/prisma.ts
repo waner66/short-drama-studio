@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
-// Vercel 上 Supabase 集成自动注入 DATABASE_URL（直连IPv6，不可用），
-// 用独立注入的 POOLER_DATABASE_URL 覆盖（Pooler地址，IPv4兼容）
-if (process.env.POOLER_DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.POOLER_DATABASE_URL;
+// Vercel 上 Supabase 集成自动注入 DATABASE_URL（Pooler不可用），
+// 用 DIRECT_DB_URL 直连标准端口5432（绕过Pooler的IPv6/认证问题）
+if (process.env.DIRECT_DB_URL) {
+  process.env.DATABASE_URL = process.env.DIRECT_DB_URL;
 }
 
 const globalForPrisma = globalThis as unknown as {
