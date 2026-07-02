@@ -12,7 +12,7 @@ export async function GET() {
   }
   checks.db_env = {
     ok: true,
-    detail: dbUrl.replace(/\/\/.*@/, '//***:***@'), // 隐藏密码
+    detail: dbUrl.replace(/(\/\/)([^:]+):([^@]+)@/, '$1$2:***@'), // 隐藏密码但显示用户名
   };
 
   // 2. 检查 Prisma 数据库连接
@@ -63,8 +63,8 @@ export async function GET() {
   for (const key of dbEnvKeys) {
     const val = process.env[key];
     if (val) {
-      // Hide passwords
-      dbEnvDump[key] = val.replace(/\/\/[^@]*@/, '//***:***@');
+      // Hide passwords, show username
+      dbEnvDump[key] = val.replace(/(\/\/)([^:]+):([^@]+)@/, '$1$2:***@');
     } else {
       dbEnvDump[key] = '(未设置)';
     }
