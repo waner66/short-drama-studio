@@ -51,7 +51,7 @@ export default function LoginPage() {
 
       {/* Back button */}
       <Link href="/" className="absolute top-6 left-6 z-10">
-        <Button type="text" icon={<ArrowLeftOutlined />} className="!text-[#6b6b8a] hover:!text-white">
+        <Button type="text" icon={<ArrowLeftOutlined />} className="!text-[var(--text-muted)] hover:!text-white">
           返回首页
         </Button>
       </Link>
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </Link>
           <div className="text-center mb-8">
             <Title level={3} className="!text-white !mb-2">欢迎回来</Title>
-            <Text className="!text-[#6b6b8a]">登录你的短剧工坊账号</Text>
+            <Text className="!text-[var(--text-muted)]">登录你的短剧工坊账号</Text>
           </div>
 
           <Form layout="vertical" onFinish={onFinish} size="large">
@@ -81,9 +81,9 @@ export default function LoginPage() {
                 ]}
               >
                 <Input
-                  prefix={<PhoneOutlined className="!text-[#6b6b8a]" />}
+                  prefix={<PhoneOutlined className="!text-[var(--text-muted)]" />}
                   placeholder="手机号"
-                  className="!h-12 !bg-[#0e0e20] !border-[#1e1e3a] !text-white !rounded-xl"
+                  className="!h-12 !bg-[var(--surface-ground)] !border-[var(--border-subtle)] !text-white !rounded-xl"
                 />
               </Form.Item>
             ) : (
@@ -96,9 +96,9 @@ export default function LoginPage() {
                 ]}
               >
                 <Input
-                  prefix={<UserOutlined className="!text-[#6b6b8a]" />}
+                  prefix={<UserOutlined className="!text-[var(--text-muted)]" />}
                   placeholder="邮箱地址"
-                  className="!h-12 !bg-[#0e0e20] !border-[#1e1e3a] !text-white !rounded-xl"
+                  className="!h-12 !bg-[var(--surface-ground)] !border-[var(--border-subtle)] !text-white !rounded-xl"
                 />
               </Form.Item>
             )}
@@ -108,7 +108,7 @@ export default function LoginPage() {
               rules={[{ required: true, message: '请输入密码' }]}
             >
               <Input.Password
-                prefix={<LockOutlined className="!text-[#6b6b8a]" />}
+                prefix={<LockOutlined className="!text-[var(--text-muted)]" />}
                 placeholder="密码"
                 className="!h-12 !rounded-xl"
               />
@@ -137,15 +137,15 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          <Divider className="!border-[#1e1e3a]" plain>
-            <Text className="!text-[#6b6b8a] text-xs">其他登录方式</Text>
+          <Divider className="!border-[var(--border-subtle)]" plain>
+            <Text className="!text-[var(--text-muted)] text-xs">其他登录方式</Text>
           </Divider>
 
           <div className="text-center mb-6">
             <Button
               icon={<WechatOutlined />}
               size="large"
-              className="!rounded-xl !h-11 !bg-[#0e0e20] !border-[#1e1e3a] !text-[#9494b8] hover:!border-green-500 hover:!text-green-400 !px-8"
+              className="!rounded-xl !h-11 !bg-[var(--surface-ground)] !border-[var(--border-subtle)] !text-[var(--text-secondary)] hover:!border-green-500 hover:!text-green-400 !px-8"
               disabled
             >
               微信登录 (即将上线)
@@ -153,7 +153,7 @@ export default function LoginPage() {
           </div>
 
           <div className="text-center">
-            <Text className="!text-[#6b6b8a]">
+            <Text className="!text-[var(--text-muted)]">
               还没有账号？{' '}
               <Link href="/auth/register" className="!text-brand-400 hover:!text-brand-300 font-medium">
                 立即注册

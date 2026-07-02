@@ -30,3 +30,12 @@
 - 视频生成打通(通义万相API key)
 - 消息通知系统
 - 角色模板市场
+
+## 认证架构 (2026-07-02 更新)
+- **重大变更**: 登录/注册从 Prisma 直连切换到 Supabase REST API (HTTP/IPv4)
+- **原因**: Vercel IPv4 无法直连 Supabase PostgreSQL (IPv6 only)
+- **新文件**: `src/lib/supabase-client.ts` — 封装 PostgREST REST API
+- **影响**: login/register 路由改用 `findUser`/`createUser`
+- **注意**: Prisma 的 @default(cuid())/@updatedAt 不生效，需手动生成 id/time
+- 其他 API 路由（CRUD）仍使用 Prisma（后续需统一迁移）
+- 构建: npm run build ✅

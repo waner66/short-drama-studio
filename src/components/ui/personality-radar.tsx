@@ -80,10 +80,10 @@ export default function PersonalityRadar({
         ))}
 
         <polygon points={polygonPoints}
-          fill="rgba(91,46,255,0.15)" stroke="#5b2eff" strokeWidth="1.5" />
+          fill="rgba(139,92,246,0.15)" stroke="var(--brand-500)" strokeWidth="1.5" />
 
         {dataPoints.map(p => (
-          <circle key={p.dim} cx={p.x} cy={p.y} r="4" fill="#5b2eff" stroke="white" strokeWidth="1.5" />
+          <circle key={p.dim} cx={p.x} cy={p.y} r="4" fill="var(--brand-500)" stroke="white" strokeWidth="1.5" />
         ))}
 
         {labelPoints.map(p => (

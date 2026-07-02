@@ -1,122 +1,170 @@
 'use client';
 
-import GlassCard from '../ui/glass-card';
+import React, { useState } from 'react';
+import type { OfficialTemplate } from '@/lib/data/character-templates';
+import './character-card.css';
 
-interface Character {
-  id: string;
-  name: string;
-  gender?: string;
-  age?: number | string;
-  role?: string;
-  personality?: string[];
-  style?: string;
-  avatarUrl?: string;
-  status?: 'draft' | 'complete';
-  projectCount?: number;
-}
+type CharacterCardProps = {
+  data: OfficialTemplate;
+  onClick?: (data: OfficialTemplate) => void;
+  onUse?: (data: OfficialTemplate) => void;
+  onFavorite?: (id: string) => void;
+  isFavorited?: boolean;
+};
 
-interface CharacterCardProps {
-  character: Character;
-  onClick?: () => void;
-  className?: string;
-}
+const genreThemeColors: Record<string, { accent: string; light: string; dark: string; glow: string }> = {
+  '甜宠恋爱':   { accent: '#ff6b9d', light: '#ffe0ec', dark: '#c44569', glow: 'rgba(255,107,157,0.35)' },
+  '悬疑推理':   { accent: '#5b6abf', light: '#e8eaf6', dark: '#3a4790', glow: 'rgba(91,106,191,0.35)' },
+  '古装仙侠':   { accent: '#d4a574', light: '#fef5ed', dark: '#8b5e3c', glow: 'rgba(212,165,116,0.35)' },
+  '校园青春':   { accent: '#48c9b0', light: '#e0f7f4', dark: '#1e8e7a', glow: 'rgba(72,201,176,0.35)' },
+  '逆袭爽文':   { accent: '#e67e22', light: '#fdf2e9', dark: '#ba4a00', glow: 'rgba(230,126,34,0.35)' },
+};
 
-const genderIcons: Record<string, string> = {
-  男: '♂',
-  女: '♀',
-  male: '♂',
-  female: '♀',
+const personalityLabels: Record<string, string> = {
+  extraversion: '外向性',
+  agreeableness: '宜人性',
+  conscientiousness: '尽责性',
+  neuroticism: '神经质',
+  openness: '开放性',
 };
 
 export default function CharacterCard({
-  character,
+  data,
   onClick,
-  className = '',
+  onUse,
+  onFavorite,
+  isFavorited = false,
 }: CharacterCardProps) {
-  const genderIcon = character.gender
-    ? genderIcons[character.gender] || ''
-    : '';
+  const [imageError, setImageError] = useState(false);
+  const theme = genreThemeColors[data.genre] || genreThemeColors['甜宠恋爱'];
 
-  const avatarGradient =
-    character.gender === '女' || character.gender === 'female'
-      ? 'from-pink-500/30 via-purple-500/20 to-cyan-500/10'
-      : 'from-purple-500/30 via-cyan-500/20 to-purple-500/10';
+  const d = data.defaultData;
+  const personalityScores = [
+    { key: 'extraversion', value: d.extraversion, emoji: '🎭' },
+    { key: 'agreeableness', value: d.agreeableness, emoji: '🤝' },
+    { key: 'conscientiousness', value: d.conscientiousness, emoji: '🎯' },
+    { key: 'neuroticism', value: d.neuroticism, emoji: '🌊' },
+    { key: 'openness', value: d.openness, emoji: '💡' },
+  ];
 
   return (
-    <GlassCard hover onClick={onClick} className={`p-0 overflow-hidden ${className}`}>
-      {/* Avatar Area */}
-      <div className={`h-32 bg-gradient-to-br ${avatarGradient} relative flex items-center justify-center`}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05),transparent)]" />
-        {character.avatarUrl ? (
-          <img
-            src={character.avatarUrl}
-            alt={character.name}
-            className="h-24 w-24 rounded-full border-2 border-white/20 object-cover"
-          />
-        ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-3xl font-bold text-white/60">
-            {character.name.charAt(0)}
+    <div
+      className={`character-card ${theme.accent ? '' : ''}`}
+      style={{ '--card-accent': theme.accent, '--card-light': theme.light, '--card-dark': theme.dark, '--card-glow': theme.glow } as React.CSSProperties}
+      onClick={() => onClick?.(data)}
+    >
+      {/* ===== 封面区 ===== */}
+      <div className="cc-cover" style={{ background: data.coverGradient }}>
+        {/* 装饰光晕 */}
+        <div className="cc-cover-aura" />
+        <div className="cc-cover-circle cc-cover-circle-1" />
+        <div className="cc-cover-circle cc-cover-circle-2" />
+
+        {/* Emoji */}
+        {!imageError && (
+          <div className="cc-cover-emoji-wrap">
+            <span className="cc-cover-emoji">{data.coverEmoji}</span>
           </div>
         )}
-        {character.status === 'complete' && (
-          <span className="absolute top-3 right-3 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
-            已完成
+
+        {/* Archetype 金标 */}
+        <div className="cc-archetype-badge">
+          <span className="cc-archetype-icon">✦</span>
+          {d.archetype}
+        </div>
+
+        {/* 底部渐变遮罩 */}
+        <div className="cc-cover-gradient-mask" />
+      </div>
+
+      {/* ===== 信息区 ===== */}
+      <div className="cc-body">
+        {/* 名字 + 价格 */}
+        <div className="cc-header">
+          <h3 className="cc-name">{data.name}</h3>
+          <span className={`cc-price ${data.price === 0 ? 'free' : 'paid'}`}>
+            {data.price === 0 ? '免费' : `¥${data.price}`}
           </span>
-        )}
-      </div>
-
-      {/* Info Area */}
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-white text-lg">{character.name}</h3>
-          {genderIcon && (
-            <span className="text-sm text-gray-400">{genderIcon}</span>
-          )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400">
-          {character.age && <span>{character.age}岁</span>}
-          {character.role && (
-            <>
-              {character.age && <span className="text-gray-600">·</span>}
-              <span>{character.role}</span>
-            </>
-          )}
+        {/* 基本信息条 */}
+        <div className="cc-meta-strip">
+          <span className="cc-meta-item">
+            <span className="cc-meta-dot" style={{ background: d.gender === '女' ? '#ff6b9d' : '#4a90d9' }} />
+            {d.gender}
+          </span>
+          <span className="cc-meta-sep" />
+          <span className="cc-meta-item">{d.age}岁</span>
+          <span className="cc-meta-sep" />
+          <span className="cc-meta-item cc-meta-style">{d.style}</span>
         </div>
 
-        {character.personality && character.personality.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {character.personality.slice(0, 3).map((trait) => (
-              <span
-                key={trait}
-                className="rounded-md bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-400"
-              >
-                {trait}
-              </span>
+        {/* 描述 */}
+        <p className="cc-desc">{data.description}</p>
+
+        {/* 标签 */}
+        <div className="cc-tags">
+          {d.surfaceTraits.map((t, i) => (
+            <span key={`s-${i}`} className="cc-tag cc-tag-surface">{t}</span>
+          ))}
+          {d.surfaceTraits.length > 0 && d.innerTraits.length > 0 && (
+            <span className="cc-tag-divider">→</span>
+          )}
+          {d.innerTraits.map((t, i) => (
+            <span key={`i-${i}`} className="cc-tag cc-tag-inner">{t}</span>
+          ))}
+        </div>
+
+        {/* 大五人格迷你进度条 */}
+        <div className="cc-personality">
+          <div className="cc-personality-label">大五人格</div>
+          <div className="cc-personality-bars">
+            {personalityScores.map(p => (
+              <div key={p.key} className="cc-pbar-wrap" title={`${personalityLabels[p.key]}: ${p.value}/5`}>
+                <span className="cc-pbar-emoji">{p.emoji}</span>
+                <div className="cc-pbar-track">
+                  <div
+                    className="cc-pbar-fill"
+                    style={{
+                      width: `${(p.value / 5) * 100}%`,
+                      background: p.value >= 4 ? theme.accent : p.value >= 3 ? theme.dark : '#999',
+                    }}
+                  />
+                </div>
+              </div>
             ))}
-            {character.personality.length > 3 && (
-              <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-gray-500">
-                +{character.personality.length - 3}
-              </span>
-            )}
           </div>
-        )}
+        </div>
 
-        {character.style && (
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className="text-[10px] text-gray-500">风格：</span>
-            <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
-              {character.style}
-            </span>
+        {/* 口头禅 + 招牌动作 */}
+        <div className="cc-signatures">
+          <div className="cc-sig-item cc-sig-catchphrase">
+            <span className="cc-sig-icon">💬</span>
+            <span className="cc-sig-text">{d.catchphrase}</span>
           </div>
-        )}
+          <div className="cc-sig-item cc-sig-action">
+            <span className="cc-sig-icon">🎬</span>
+            <span className="cc-sig-text">{d.signatureAction}</span>
+          </div>
+        </div>
 
-        {character.projectCount !== undefined && character.projectCount > 0 && (
-          <div className="mt-3 pt-3 border-t border-white/5 text-xs text-gray-500">
-            {character.projectCount} 个关联项目
-          </div>
-        )}
+        {/* 底部操作栏 */}
+        <div className="cc-actions">
+          <button
+            className="cc-btn-use"
+            style={{ background: theme.accent }}
+            onClick={(e) => { e.stopPropagation(); onUse?.(data); }}
+          >
+            使用此模板
+          </button>
+          <button
+            className={`cc-btn-fav ${isFavorited ? 'active' : ''}`}
+            onClick={(e) => { e.stopPropagation(); onFavorite?.(data.id); }}
+          >
+            {isFavorited ? '❤️' : '🤍'}
+          </button>
+        </div>
       </div>
-    </GlassCard>
+    </div>
   );
 }

@@ -197,6 +197,13 @@ h1, h2, h3, h4, h5, h6 {
   background-clip: text;
 }
 
+.gradient-text-warm {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Surface card — simple solid card, no blur */
 .surface-card {
   background: var(--surface-card);
@@ -494,4 +501,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ant-pagination-item-active a {
   color: #fff !important;
+}
+
+/* ===== Accessibility ===== */
+
+/* 降动效支持 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 全局焦点可见 */
+:focus-visible {
+  outline: 2px solid var(--brand-500) !important;
+  outline-offset: 2px !important;
+}
+
+/* 跳转到内容（可跳过导航） */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--brand-500);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 16px;
 }

@@ -70,7 +70,7 @@ export default function ProjectsPage() {
               <GlassCard key={project.id} hover className="group">
                 {/* 标题 & 状态 */}
                 <div className="flex items-start justify-between mb-3">
-                  <Link href={`/dashboard/projects/${project.id}`} className="font-bold text-white group-hover:text-[#5b2eff] transition-colors truncate flex-1 mr-2">
+                  <Link href={`/dashboard/projects/${project.id}`} className="font-bold text-white group-hover:text-brand-500 transition-colors truncate flex-1 mr-2">
                     {project.title}
                   </Link>
                   <span className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full ${st.bg} ${st.color}`}>
@@ -97,7 +97,7 @@ export default function ProjectsPage() {
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${progress}%`,
-                        background: 'linear-gradient(90deg, #5b2eff, #00d4aa)',
+                        background: 'linear-gradient(90deg, var(--brand-500), #00d4aa)',
                       }}
                     />
                   </div>
@@ -113,7 +113,7 @@ export default function ProjectsPage() {
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
                   <Link
                     href={`/dashboard/projects/${project.id}`}
-                    className="text-sm text-gray-400 hover:text-[#5b2eff] transition-colors flex items-center gap-1"
+                    className="text-sm text-gray-400 hover:text-brand-500 transition-colors flex items-center gap-1"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

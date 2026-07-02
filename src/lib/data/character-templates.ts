@@ -1,7 +1,44 @@
 /**
- * 官方角色模板数据 - 20个预设
+ * 官方角色模板数据 - 20个预设 (V2 视觉增强版)
  * 覆盖 甜宠/悬疑/古装/校园/爽文 五大类型
+ * 新增 AI视频生成字段、专属emoji+渐变配色
  */
+
+export interface KeyVisualScene {
+  title: string;
+  description: string;
+  emoji: string;
+}
+
+export interface CharacterDefaultData {
+  gender: string;
+  age: number;
+  style: string;
+  archetype: string;
+  surfaceTraits: string[];
+  innerTraits: string[];
+  arcDescription: string;
+  catchphrase: string;
+  signatureAction: string;
+  appearanceDesc: string;
+  backstory: string;
+  personality: string;
+  extraversion: number;
+  agreeableness: number;
+  conscientiousness: number;
+  neuroticism: number;
+  openness: number;
+  weakness: string;
+  desire: string;
+  voiceTone: string;
+  // ===== 新增 AI 视频生成字段 =====
+  visualPromptTemplate: string;
+  keyVisualScenes: KeyVisualScene[];
+  costumeStyle: string;
+  facialFeatures: string;
+  lightingStyle: string;
+  cameraAngles: string;
+}
 
 export interface OfficialTemplate {
   id: string;
@@ -12,28 +49,9 @@ export interface OfficialTemplate {
   price: number;
   tags: string[];
   coverColor: string;
-  defaultData: {
-    gender: string;
-    age: number;
-    style: string;
-    archetype: string;
-    surfaceTraits: string[];
-    innerTraits: string[];
-    arcDescription: string;
-    catchphrase: string;
-    signatureAction: string;
-    appearanceDesc: string;
-    backstory: string;
-    personality: string;
-    extraversion: number;
-    agreeableness: number;
-    conscientiousness: number;
-    neuroticism: number;
-    openness: number;
-    weakness: string;
-    desire: string;
-    voiceTone: string;
-  };
+  coverEmoji: string;
+  coverGradient: string;
+  defaultData: CharacterDefaultData;
 }
 
 export const officialTemplates: OfficialTemplate[] = [
@@ -47,6 +65,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['热门', '新手推荐', '霸总', '反差萌'],
     coverColor: '#1a1a2e',
+    coverEmoji: '💼',
+    coverGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)',
     defaultData: {
       gender: '男', age: 30, style: '写实', archetype: '霸总',
       surfaceTraits: ['冷酷', '强势', '不近人情'],
@@ -61,6 +81,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '不擅表达情感，容易用霸道方式关心人',
       desire: '找到一个真正理解自己的人',
       voiceTone: '低沉磁性，语速慢，句末带些许命令语气',
+      visualPromptTemplate: '一位30岁的亚洲男性，身高188cm，剑眉星目，身穿定制黑色西装金色袖扣，站在摩天大楼顶层落地窗前俯瞰城市夜景。柔和侧光从右侧打来，面部轮廓如雕塑。表情冷峻但眼神深处藏着一丝孤独，单手插兜，姿态掌控一切。4K电影感，写实风格，景深模糊城市灯光背景。',
+      keyVisualScenes: [
+        { title: '会议室杀伐', description: '长会议桌主位，骨节分明的手指轻敲桌面，全场噤声', emoji: '📋' },
+        { title: '雨中守护', description: '暴雨中脱下西装外套披在女主肩上，自己全身湿透却面无表情', emoji: '🌧️' },
+        { title: '天台告白', description: '城市霓虹天际线前，终于放下所有防备说出"我需要你"', emoji: '🌃' },
+        { title: '暗中注视', description: '公司停车场暗处，远远看着女主安全上车后才转身离开', emoji: '👀' },
+      ],
+      costumeStyle: '高级定制深色西装为主，黑/深灰/藏蓝三色轮换，袖口金色袖扣为固定标志，偶尔解开领口两颗扣子暗示内心松动',
+      facialFeatures: '剑眉入鬓，鼻梁高挺，薄唇紧抿成习惯性直线，眼尾微挑带凌厉感',
+      lightingStyle: '低对比度冷调打光（blue tint），面部轮廓用硬光塑造雕塑感，场景偏向昏暗/夜晚氛围，关键情感时刻才出现暖光',
+      cameraAngles: '仰拍塑造权威感（会议室/天台），平拍（独处时流露脆弱），跟随长镜头（走向女主时），特写（手指/眼神细节）',
     },
   },
   {
@@ -72,6 +103,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['热门', '女主', '甜宠', '逆袭'],
     coverColor: '#ff6b9d',
+    coverEmoji: '🌸',
+    coverGradient: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f8a5c2 100%)',
     defaultData: {
       gender: '女', age: 24, style: '写实', archetype: '甜宠女主',
       surfaceTraits: ['温柔', '善良', '有些小迷糊'],
@@ -86,6 +119,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '容易心软，有时过于迁就他人',
       desire: '证明自己的能力，获得真正的独立',
       voiceTone: '温柔清亮，尾音微微上扬',
+      visualPromptTemplate: '一位24岁的亚洲女性，身高165cm，杏眼圆脸温柔笑容，长发及肩微卷，穿着淡粉色碎花连衣裙。站在洒满阳光的咖啡店窗边，手中捧着一本翻旧的书。柔和的自然光从窗格洒落，光斑点缀在脸颊和发梢上。表情温暖又带着一丝倔强，眼神望向窗外的远方。4K电影感，日系清新色调。',
+      keyVisualScenes: [
+        { title: '清晨赶地铁', description: '抱着文件夹在人群中奔跑，丸子头松了一缕，嘴角却挂着不服输的笑', emoji: '🏃‍♀️' },
+        { title: '深夜加班', description: '办公室只剩她一人，屏幕光照亮认真的侧脸，桌上放着凉掉的咖啡', emoji: '💻' },
+        { title: '雨中相遇', description: '被雨淋湿站在公交站台，一件西装外套突然从背后披上', emoji: '☔' },
+        { title: '事业高光', description: '站在发布会演讲台前，聚光灯下自信挥洒，与第一幕判若两人', emoji: '✨' },
+      ],
+      costumeStyle: '前期平价温柔风（碎花裙/针织衫/白色帆布鞋），后期加入质感单品（丝巾/小高跟/廓形风衣），色调以米白/淡粉/婴儿蓝为主',
+      facialFeatures: '圆润杏眼，天生的笑眼弧度，鼻尖小巧微翘，嘴角自然上扬——即使不笑时也让人觉得亲切',
+      lightingStyle: '明亮柔和的自然光为主（清晨/午后），逆光营造发丝轮廓光，关键情感场景用暖金色调。整体日系清新调色（高亮、低饱和）。',
+      cameraAngles: '大量中近景捕捉微表情，手持跟拍增加生活感，仰拍（站在舞台/大楼前象征成长），对称构图（与霸总对峙时）',
     },
   },
   {
@@ -97,6 +141,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['男二', '深情', '守护', '虐恋'],
     coverColor: '#4a90d9',
+    coverEmoji: '💙',
+    coverGradient: 'linear-gradient(135deg, #4a90d9 0%, #2c3e8e 50%, #7bb3f0 100%)',
     defaultData: {
       gender: '男', age: 28, style: '写实', archetype: '深情男二',
       surfaceTraits: ['温柔', '阳光', '善解人意'],
@@ -111,6 +157,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '不会为自己争取，总是退让成全别人',
       desire: '希望女主幸福，即使那个人不是自己',
       voiceTone: '温和柔软，带着若有若无的包容感',
+      visualPromptTemplate: '一位28岁的亚洲男性，身高182cm，五官清秀线条柔和，穿着浅蓝色亚麻衬衫和卡其色休闲裤。站在樱花树下的老街巷口，手里握着一杯给女主买的温奶茶。午后阳光透过花瓣洒下斑驳光影，他微微侧头看向不远处，嘴角是那个标志性的温暖又无奈的笑容。4K电影感，日系透明感调色，暖金+淡蓝双色光。',
+      keyVisualScenes: [
+        { title: '童年约定', description: '两个小孩在老槐树下用小刀刻下"永远的好朋友"', emoji: '🌳' },
+        { title: '演唱会守护', description: '拥挤的人群中双臂为女主护出安全空间，自己却被挤得东倒西歪', emoji: '🎵' },
+        { title: '婚礼放手', description: '穿上最正式的西装，在婚礼角落举杯遥遥一敬，然后转身离开', emoji: '🥂' },
+        { title: '新生活开始', description: '独自坐在飞往异国的航班上，窗外云海翻涌，他第一次为自己笑了', emoji: '✈️' },
+      ],
+      costumeStyle: '简约休闲为主（纯色衬衫/针织开衫/白球鞋），色调以浅蓝/米白/浅灰等温柔色系为主，偶有浅粉点缀暗示内心柔软',
+      facialFeatures: '五官清秀柔和无攻击性，眼睛不大但笑起来呈月牙形，酒窝若隐若现，是那种越看越舒服的长相',
+      lightingStyle: '大量逆光+柔光营造梦幻感（象征他永远在女主身后），全景自然光，独处场景转冷蓝调表达孤独。整体高调低反差。',
+      cameraAngles: '大量侧面/四分之三侧脸（象征"守望者"视角），缓慢推进的推镜头（情感积压时），远景（独自离开时营造孤独感）',
     },
   },
   {
@@ -122,6 +179,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['女配', '反派', '洗白', '反转'],
     coverColor: '#c0392b',
+    coverEmoji: '💋',
+    coverGradient: 'linear-gradient(135deg, #c0392b 0%, #8b0000 40%, #e74c3c 100%)',
     defaultData: {
       gender: '女', age: 26, style: '写实', archetype: '恶毒女配',
       surfaceTraits: ['高傲', '刻薄', '不择手段'],
@@ -136,6 +195,18 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '被嫉妒和不安驱使，容易做出伤害自己也伤害他人的事',
       desire: '获得父亲的认可和真正的关爱',
       voiceTone: '冷冽尖锐，带些许讽刺的尾调',
+      visualPromptTemplate: '一位26岁的亚洲女性，身高170cm，身材高挑，利落短发（或大波浪），大红唇气场全开，身穿酒红色丝绒礼服，脖颈戴钻石锁骨链。站在豪华宴会厅的水晶灯下，红酒杯在指尖轻晃，嘴角挂着意味深长的弧度。顶光从水晶灯洒落，在面部形成戏剧性阴影，暗示表里不一。4K电影感，暗调奢华风，深红+金色调。',
+      keyVisualScenes: [
+        { title: '宴会对峙', description: '水晶灯下与女主正面交锋，红唇微勾却眼神闪烁', emoji: '🍷' },
+        { title: '深夜独饮', description: '卸下精致妆容坐在豪宅空荡的客厅，抱着膝盖看父亲的旧照片', emoji: '🥃' },
+        { title: '雨中崩溃', description: '暴雨中在街边蹲下哭泣，精致的妆容花了，第一次露出脆弱', emoji: '🌧️' },
+        { title: '阳光新生', description: '剪掉长发换上简单白T恤，在阳光下走进大学校园重新开始', emoji: '🌤️' },
+        { title: '童年闪回', description: '7岁的她拿着满分试卷跑向书房，父亲却关上门说"我忙着呢"', emoji: '📄' },
+      ],
+      costumeStyle: '前期奢华攻击性（丝绒礼服/皮草披肩/超高跟鞋/大红唇），中后期逐渐弱化（颜色变浅/剪裁变柔和/唇色变淡），象征放下武装',
+      facialFeatures: '高颧骨+锋利下颌线构成攻击性轮廓，眼线上挑显刻薄，但素颜时眼尾下垂暴露真实年龄的脆弱感',
+      lightingStyle: '前期用底部补光制造威胁感（经典反派打光），中间用分裂光（半明半暗象征双面），后期转明亮自然光。暗红色调为主。',
+      cameraAngles: '前期大量仰拍+荷兰角制造压迫感/扭曲感，崩溃场景手持晃动镜头，转变后用平拍+柔焦表达卸下伪装',
     },
   },
   {
@@ -147,6 +218,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['闺蜜', '搞笑', '助攻', '调节剂'],
     coverColor: '#f39c12',
+    coverEmoji: '🍿',
+    coverGradient: 'linear-gradient(135deg, #f39c12 0%, #e67e22 40%, #f1c40f 100%)',
     defaultData: {
       gender: '女', age: 24, style: '写实', archetype: '搞笑担当',
       surfaceTraits: ['大大咧咧', '话多', '爱吃', '热情'],
@@ -161,6 +234,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '太爱八卦，有时好心办坏事',
       desire: '帮闺蜜找到幸福，自己顺便找到饭搭子',
       voiceTone: '语速快，音调高，说话时经常自己先笑起来',
+      visualPromptTemplate: '一位24岁的亚洲女性，身高160cm，微胖可爱型，蓬松丸子头配黄色宽松卫衣，手里抱着一大袋膨化食品。瘫在出租屋的懒人沙发上，一边往嘴里塞零食一边手舞足蹈地给对面的闺蜜分析感情线。午后阳光从旧窗帘缝隙洒进来，空气中有飘浮的微小尘埃。表情夸张生动时而瞪眼时而大笑，完全不顾形象。4K电影感，温暖生活化调色。',
+      keyVisualScenes: [
+        { title: '火锅密谋', description: '红油翻滚的火锅前，夹着肉还不忘在白纸上画"恋爱作战图"', emoji: '🍲' },
+        { title: '助攻翻车', description: '精心安排的"偶遇"演砸了，躲在树后偷看的表情比男女主还紧张', emoji: '🌳' },
+        { title: '深夜谈心', description: '闺蜜失恋时，擦掉平时嘻嘻哈哈的表情，认真说出最暖的话', emoji: '🌙' },
+        { title: '自己恋爱了', description: '被一直斗嘴的男闺蜜表白，手里的冰淇淋掉了，脸通红说不出话', emoji: '🍦' },
+      ],
+      costumeStyle: '极致舒适风（oversize卫衣/运动裤/拖鞋），暖色调为主（黄/橙/粉色），印有可爱文字或图案的T恤是标志',
+      facialFeatures: '圆脸婴儿肥，大眼睛表情浮夸面部动作大，笑起来会皱鼻子，永远挂着食物残渣（奶油/饼干屑）',
+      lightingStyle: '明亮温暖的高调光为主，自然光+室内暖灯，调色偏暖黄/暖粉，所有场景都像加了阳光滤镜',
+      cameraAngles: '大量中景跟随+快速变焦推拉（配合语速制造喜剧节奏），偶尔主观镜头（从她手中零食袋的视角），夸张的鱼眼特写（情绪爆炸时）',
     },
   },
   {
@@ -172,6 +256,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 19.9,
     tags: ['治愈', '暖男', '救赎', '温柔'],
     coverColor: '#27ae60',
+    coverEmoji: '🩺',
+    coverGradient: 'linear-gradient(135deg, #27ae60 0%, #1e8449 40%, #58d68d 100%)',
     defaultData: {
       gender: '男', age: 32, style: '写实', archetype: '温柔医生',
       surfaceTraits: ['沉稳', '儒雅', '耐心'],
@@ -186,6 +272,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '过于自责，无法原谅自己过去的失败',
       desire: '真正放下过去，重新学会爱与被爱',
       voiceTone: '低沉柔和，语速平稳，每一句话都像在轻声安抚',
+      visualPromptTemplate: '一位32岁的亚洲男性，身高178cm，清瘦儒雅，白色衬衫搭配金丝边眼镜，手指修长干净。坐在心理诊室的窗边扶手椅上，午后阳光斜照入室，微尘在光柱中缓缓飘浮。手边放着一杯冒着热气的绿茶，他微微侧首望向窗外的银杏树，表情平静温柔，但眼底深处藏着一丝旁人难以察觉的忧郁。4K电影感，日式治愈系调色，柔焦+暖白平衡。',
+      keyVisualScenes: [
+        { title: '诊室倾听', description: '坐在患者对面微微前倾，目光专注而包容，记录的手指却微微停顿', emoji: '🏥' },
+        { title: '雨中寻人', description: '得知女主失踪后冲进雨夜，金丝眼镜被雨水模糊也顾不上擦', emoji: '🌧️' },
+        { title: '墓前告白', description: '多年后第一次独自来到初恋墓前，放下花束轻声说"我原谅自己了"', emoji: '💐' },
+        { title: '银杏树下', description: '秋日银杏叶落如金雨，他终于自然地牵起了女主的手', emoji: '🍂' },
+      ],
+      costumeStyle: '儒雅知性风（白/淡蓝衬衫+卡其裤/深灰西裤），偶尔浅色针织开衫增加温柔感，金丝眼镜是灵魂单品',
+      facialFeatures: '五官端正偏清秀，眉目舒展给人以安心感，戴眼镜时更显温文儒雅，摘下眼镜时看起来年轻许多甚至有些无措',
+      lightingStyle: '柔和的自然漫射光为主（避免硬影），色调温暖偏黄/偏金，大量使用窗光创造安静氛围，情感时刻用金色逆光',
+      cameraAngles: '固定机位长镜头（呼应他的沉稳节奏），中景（诊室对话），特写（修长手指/推眼镜/眼睫毛微颤），缓慢摇镜（跟随他的目光）',
     },
   },
 
@@ -199,6 +296,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 19.9,
     tags: ['悬疑', '杀手', '救赎', '暗黑'],
     coverColor: '#2c3e50',
+    coverEmoji: '🗡️',
+    coverGradient: 'linear-gradient(135deg, #2c3e50 0%, #1a252f 50%, #34495e 100%)',
     defaultData: {
       gender: '男', age: 29, style: '写实', archetype: '冷酷杀手',
       surfaceTraits: ['冷血', '寡言', '高效', '独来独往'],
@@ -213,6 +312,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '不擅社交，对情感几乎一无所知，容易用暴力思维解决问题',
       desire: '体验一次普通人的人生',
       voiceTone: '极简，一个词不多说，低沉沙哑如砂纸摩擦',
+      visualPromptTemplate: '一位29岁的亚洲男性，身高185cm，黑色连帽衫兜帽微遮眉眼，身形修长如猎豹静止。独自站在霓虹灯牌闪烁的雨夜小巷，手中刀刃反射着冷光。雨水沿额前碎发滴落，眼神如鹰隼锁定镜头——冰冷、专注、没有一丝多余情绪。青蓝色霓虹从侧面投射，半边脸藏在阴影中。4K电影感，赛博朋克暗黑风，低饱和度冷色调。',
+      keyVisualScenes: [
+        { title: '暗夜潜行', description: '雨夜都市天台，黑色身影在霓虹灯海中无声掠过', emoji: '🌃' },
+        { title: '初次触碰', description: '女主不小心碰到他满是伤疤的手背，他第一次条件反射地缩回——不是因为痛', emoji: '✋' },
+        { title: '超市初体验', description: '第一次逛超市，面对整排酸奶陷入选择困难，眼神像在执行暗杀任务', emoji: '🛒' },
+        { title: '最后的任务', description: '挡在女主身前的背影，手中武器指向曾经的同伴', emoji: '🛡️' },
+      ],
+      costumeStyle: '极致实用主义（黑/深灰为主），前期连帽衫+工装裤+战术靴，后期加入女主买的浅色单品（灰色毛衣/白T恤）象征变化',
+      facialFeatures: '眉眼距离近眼窝深邃，高挺鹰钩鼻，薄唇紧抿很少有任何弧度，左眉有一道旧刀疤——唯一的"表情"',
+      lightingStyle: '暗调高反差（chiaroscuro），大量使用阴影切割面部（半边明半边暗），霓虹灯彩色点缀（青蓝+红），情感升温时逐渐引入自然光',
+      cameraAngles: '大量主观镜头（从杀手视角看世界），快速剪辑（动作场景），突然的静止长镜头（遇到女主时暗示内心暂停），低角度（展现压迫感）',
     },
   },
   {
@@ -224,6 +334,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 19.9,
     tags: ['谋士', '权谋', '商战', '高智商'],
     coverColor: '#8e44ad',
+    coverEmoji: '♟️',
+    coverGradient: 'linear-gradient(135deg, #8e44ad 0%, #6c3483 40%, #af7ac5 100%)',
     defaultData: {
       gender: '男', age: 35, style: '写实', archetype: '腹黑谋士',
       surfaceTraits: ['沉稳', '深不可测', '谈笑风生'],
@@ -238,6 +350,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '不信任他人，总是独自承担一切，容易把身边人也当成棋子',
       desire: '赢得这场博弈，证明自己是天下第一谋士',
       voiceTone: '从容不迫，每句话都像在讲一个意味深长的故事',
+      visualPromptTemplate: '一位35岁的亚洲男性，身高180cm，身穿深紫色中式盘扣长衫，指间夹着一枚白玉棋子。坐在古色古香的檀木棋局前，棋盘上黑白交错已至中盘。侧光从雕花木窗斜射入室，照亮半边面容，另一半隐在暗处——恰如他永远只说一半的真话。嘴角微扬带着似笑非笑的弧度，眼神如古井深不见底。4K电影感，暗金+紫檀色调，中式古典美学。',
+      keyVisualScenes: [
+        { title: '棋局定乾坤', description: '雨夜独自对弈，落下一子后窗外惊雷乍响——胜负已分', emoji: '⚡' },
+        { title: '茶室交锋', description: '与对手品茶，三言两语间已完成一轮商业谈判的心理博弈', emoji: '🍵' },
+        { title: '暗中布局', description: '深夜书房满墙线索红线相连的照片和文件——十五年的大棋即将收网', emoji: '📋' },
+        { title: '破防时刻', description: '被信任的人背叛，第一次打翻了手边的茶杯，眼神中闪过一丝真实的愤怒', emoji: '💔' },
+      ],
+      costumeStyle: '中式精英风（盘扣长衫/定制中山装），深色系为主（藏蓝/深紫/墨绿），面料考究（丝绸/绸缎暗纹），白玉配饰为固定标志',
+      facialFeatures: '五官端正儒雅，但眉眼间有不怒自威的气势，笑时眼尾有细纹（算计太多），嘴唇薄而嘴角常挂若有若无的弧度',
+      lightingStyle: '分区打光——通常半明半暗（暗示他只展示一半），棋盘场景顶光勾勒手指和棋子，谈判场景侧光制造戏剧张力',
+      cameraAngles: '俯拍（棋局/俯瞰全局），环轨拍摄（对峙时营造博弈感），推镜头（关键落子时），对切（对话博弈场景）',
     },
   },
   {
@@ -249,6 +372,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 29.9,
     tags: ['反派', '反转', '深藏不露', '悬疑'],
     coverColor: '#000000',
+    coverEmoji: '🎭',
+    coverGradient: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%)',
     defaultData: {
       gender: '男', age: 38, style: '写实', archetype: '腹黑反派',
       surfaceTraits: ['友善', '低调', '乐于助人'],
@@ -263,6 +388,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '偏执到病态的复仇欲望，把自己的人生完全献给了仇恨',
       desire: '让那些毁掉他人生的人也尝尝失去一切的滋味',
       voiceTone: '温和普通得让人完全联想不到任何危险',
+      visualPromptTemplate: '一位38岁的亚洲男性，身高178cm，相貌普通到放进人群就消失，穿着灰色夹克站在街角便利店门口。他正朝路过的邻居温和地点头微笑，左手提着购物袋，右手却插在口袋里紧握着一把旧钥匙——那是十五年前他家的钥匙。冬日灰白天空下，他的影子被拉得很长，而那个微笑在转身后0.3秒内消失殆尽。4K电影感，低饱和冷灰调，质感如北欧黑色电影。',
+      keyVisualScenes: [
+        { title: '微笑面具', description: '办公室里帮同事修电脑，笑容温暖得无可挑剔——电脑屏幕上却是监控画面', emoji: '💻' },
+        { title: '地下密室', description: '深夜打开衣柜后的暗门，满墙照片、红线、报纸剪报——十五年的等待', emoji: '🗂️' },
+        { title: '身份暴露', description: '被人发现时缓缓转过身，那个温和善良的表情彻底不见了，像换了一个人', emoji: '😶' },
+        { title: '最后独白', description: '一切结束后的审讯室里，平静地说出全部真相，最后问："如果是你，你会原谅吗？"', emoji: '🪑' },
+      ],
+      costumeStyle: '极致普通化（灰/棕/深蓝基础款），绝不穿任何让人记住的单品，材质普通剪裁平庸，像一个"没有风格"的人',
+      facialFeatures: '五官完全对称但毫无特色——所有比例都在平均值，唯一不协调的是眼神：平静时的温顺和暴露时的冰冷判若两人',
+      lightingStyle: '日常场景用平淡甚至无聊的均匀光（让他隐入背景），关键暴露时刻突然转为极端的暗调高反差（chiaroscuro），红光是复仇场景的视觉主题',
+      cameraAngles: '大量中远景让他融在人群/环境里，暴露后转为极度贴近的特写（捕捉眼神变化），缓慢的推拉镜头制造不安感',
     },
   },
   {
@@ -274,6 +410,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['侦探', '天才', '高智商', '轻喜剧'],
     coverColor: '#2980b9',
+    coverEmoji: '🔎',
+    coverGradient: 'linear-gradient(135deg, #2980b9 0%, #1a5276 40%, #5dade2 100%)',
     defaultData: {
       gender: '女', age: 22, style: '写实', archetype: '天才少女',
       surfaceTraits: ['安静', '古怪', '不善交际'],
@@ -288,6 +426,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '严重的社交障碍，无法与人进行日常寒暄',
       desire: '用推理能力帮助弱者，同时克服自己的心理障碍',
       voiceTone: '平时小声结巴，推理时变得流畅有力判若两人',
+      visualPromptTemplate: '一位22岁的亚洲女性，身高158cm，短发微乱，巨大黑框眼镜几乎遮住半张脸。蹲在犯罪现场的警戒线旁，手中放大镜贴近地面，另一只手在速写本上飞速记录。身后是忙碌的警探和闪烁的警灯，但她完全沉浸在自己的微观世界里。蓝红警灯交替在她脸上闪烁，眼镜反射出放大镜里的细节。4K电影感，冷调+警灯色光交替。',
+      keyVisualScenes: [
+        { title: '图书管理员日常', description: '推着书车穿梭在书架间，但视线却在分析每个借阅者——"你昨天没睡好，和男朋友吵架了"', emoji: '📚' },
+        { title: '推理爆发', description: '在众人面前开始推理，从结巴到流利，手指在白板上飞速画出关联线', emoji: '🧩' },
+        { title: '社交练习', description: '对着镜子反复练习"你好，今天天气不错"——然后出门见到邻居还是说了句"气压1023百帕"', emoji: '🪞' },
+        { title: '第一个朋友', description: '搭档递给她一杯热可可，她盯着杯子看了30秒，然后极小声地说了"谢谢"', emoji: '☕' },
+      ],
+      costumeStyle: '实用极简（T恤+牛仔裤+帆布鞋），颜色单调（灰/蓝/黑），黑框眼镜是本体，偶尔为了伪装任务穿不习惯的裙子会走路顺拐',
+      facialFeatures: '眼睛极亮极敏锐（被眼镜遮住是遗憾），眉头常因思考微蹙，嘴角只有在破解谜题时才出现转瞬即逝的得意弧度',
+      lightingStyle: '日常场景用平淡自然光，推理时刻灯光突然戏剧化（顶光聚焦她一个人），关键线索发现时用暖光打在线索上',
+      cameraAngles: '推理时大量主观镜头（她看到什么），微观特写（放大镜下的细节），快切蒙太奇（脑中推理过程可视化），从低角度仰拍（让娇小的她看起来有力量）',
     },
   },
 
@@ -301,6 +450,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['古装', '权谋', '皇族', '宫斗'],
     coverColor: '#d4a574',
+    coverEmoji: '👑',
+    coverGradient: 'linear-gradient(135deg, #d4a574 0%, #8b5e3c 40%, #f0c9a0 100%)',
     defaultData: {
       gender: '男', age: 28, style: '古风', archetype: '古代王爷',
       surfaceTraits: ['威严', '隐忍', '不怒自威'],
@@ -315,6 +466,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '过于隐忍，有时错失先机',
       desire: '夺取皇位，重整朝纲',
       voiceTone: '低沉威严，句句斟酌不疾不徐',
+      visualPromptTemplate: '一位28岁的亚洲男性，身高185cm，剑眉入鬓凤眼含威，身着玄色锦袍暗绣云纹，腰间白玉佩饰垂落。独自站在巍峨宫殿的丹墀之上，身后是巨大的山河屏风和燃烧的烛台。晨曦微光从殿门缝隙刺入，在地面拉开狭长的金色光带——他正站在这光暗交界处。单手背负，拇指轻抚玉扳指，目光望着殿外层层叠叠的宫墙飞檐。4K电影感，暗金+玄色中式古典调色。',
+      keyVisualScenes: [
+        { title: '朝堂对弈', description: '金銮殿上百官列队，他立于队列之中却似与所有人隔着一道无形的墙', emoji: '🏛️' },
+        { title: '书房密谋', description: '深夜书房烛火摇曳，他在案前看向手中名单，落笔圈出一个名字', emoji: '🕯️' },
+        { title: '雪中拔剑', description: '大雪纷飞的宫变之夜，他第一次在众人面前拔出腰间佩剑', emoji: '⚔️' },
+        { title: '登基加冕', description: '龙袍加身端坐龙椅，满朝文武跪拜，但他的目光穿过人群找着一个人', emoji: '🐉' },
+      ],
+      costumeStyle: '前期低调中暗藏贵气（玄色/藏蓝锦袍，暗纹刺绣不张扬），后期帝王威仪（明黄龙袍/赤色朝服），玉扳指+白玉佩贯穿全剧',
+      facialFeatures: '剑眉斜飞入鬓、凤眼含威不怒自威，高挺悬胆鼻，薄唇紧抿时威严、微扬时危险',
+      lightingStyle: '大量使用宫殿建筑的天然明暗分割（梁柱/门窗投射的几何阴影），烛火暖光与月色冷光交替，朝堂用顶光塑造神圣感',
+      cameraAngles: '对称严谨的几何构图（体现宫廷秩序），缓慢横移长镜头（走过宫墙长廊），仰拍（登基/大殿场景），俯瞰（人物如棋盘棋子）',
     },
   },
   {
@@ -326,6 +488,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['仙侠', '成长', '女主', '修炼'],
     coverColor: '#7c3aed',
+    coverEmoji: '⚔️',
+    coverGradient: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 40%, #a78bfa 100%)',
     defaultData: {
       gender: '女', age: 18, style: '古风', archetype: '修仙少女',
       surfaceTraits: ['胆怯', '柔弱', '不起眼'],
@@ -340,6 +504,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '资质太差，修炼速度比常人慢十倍',
       desire: '成为最强仙尊，保护所有在乎的人',
       voiceTone: '初期细弱蚊蝇，后期清冽如剑鸣',
+      visualPromptTemplate: '一位18岁的亚洲少女，身高160cm，面容清秀素面朝天，身着朴素的青灰色布衣，站在青云峰巅的悬崖边。晨雾翻涌如海，她的衣袂被山风吹得猎猎作响，握着一柄最普通的铁剑——剑柄上缠着磨旧的布条。第一缕朝阳穿透云海照在她脸上，那一瞬间她的眼中燃起了不服输的光。4K电影感，仙侠水墨风，蓝紫+金色晨曦调色。',
+      keyVisualScenes: [
+        { title: '入门测试', description: '测灵石前所有人嘲笑她是废柴五灵根，她握紧拳头指甲掐进掌心', emoji: '💎' },
+        { title: '深夜苦修', description: '别人睡觉时她在瀑布下挥剑一万次，满手血泡缠上布条继续', emoji: '🌊' },
+        { title: '秘境突破', description: '生死关头顿悟剑意，周身灵气如漩涡汇聚——废柴第一次让人侧目', emoji: '🌀' },
+        { title: '踏云登仙', description: '飞升时刻万剑齐鸣，她回望凡间露出淡然微笑，转身踏入天光之中', emoji: '☁️' },
+      ],
+      costumeStyle: '初期粗布麻衣（青灰/素白），中期逐渐加入仙门元素（淡紫/浅蓝纱衣），后期仙气出尘（月白羽衣/流云广袖）。服装质感随修为提升',
+      facialFeatures: '清秀但不出众，脸上永远有修炼留下的擦伤或青紫（前期），眼神从躲闪→坚定→淡然，后期眉心出现若有若无的仙印纹路',
+      lightingStyle: '大量自然光（体现天地灵气），朝阳/夕阳逆光拍摄修炼场景，关键突破时刻用灵气光芒（蓝紫/金色）做特效光源，整体偏明亮清新',
+      cameraAngles: '大量跟拍手持（修炼过程），动态仰拍（飞升/突破），远景+无人机航拍（青云峰全貌），慢镜（剑招/法术动作）',
     },
   },
   {
@@ -351,6 +526,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['武侠', '侠女', '飒爽', '江湖'],
     coverColor: '#e74c3c',
+    coverEmoji: '🏹',
+    coverGradient: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 40%, #f1948a 100%)',
     defaultData: {
       gender: '女', age: 25, style: '古风', archetype: '侠女',
       surfaceTraits: ['豪爽', '正义', '武功高强'],
@@ -365,6 +542,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '冲动鲁莽，常因意气用事陷入困境',
       desire: '完成父亲的遗愿，找到真正属于自己的江湖地位',
       voiceTone: '中气十足掷地有声，笑起来爽朗毫不遮掩',
+      visualPromptTemplate: '一位25岁的亚洲女性，身高170cm，英姿飒爽红绸束发，大红劲装银饰轻甲，腰间雪白长剑剑气内敛。立身于秋日枫林之中，风过红叶纷飞如火焰，她单手按剑微微侧首，像是听到了远处传来的呼救声。斜阳穿透枫叶洒下金红碎光，在她侧脸上投射出斑驳光影。4K电影感，武侠水墨+浓墨重彩，红金+墨绿调色。',
+      keyVisualScenes: [
+        { title: '酒肆出手', description: '一碗酒还在手中转，看恶霸欺人被一掌震飞——酒未洒一滴', emoji: '🍶' },
+        { title: '雨中决战', description: '暴雨中与仇人在长街对峙，雨水沿剑脊流下，剑鸣如龙吟', emoji: '⛈️' },
+        { title: '月下思父', description: '独自坐在屋顶上对着月亮喝酒，终于露出罕见的落寞神情', emoji: '🌙' },
+        { title: '聚义厅', description: '召集散落江湖的同道，举杯高呼"此生不负侠义二字"', emoji: '🏮' },
+      ],
+      costumeStyle: '实用武侠风（红色为主色调），劲装轻甲便于打斗，银饰点缀不过度装饰，父亲的旧剑穗系在剑柄上从不离身',
+      facialFeatures: '剑眉星目英气逼人，五官线条偏硬朗但不失女性美感，时常微微扬起的嘴角自带三分洒脱',
+      lightingStyle: '大光比硬光塑造硬朗质感（正午烈日/月下冷光），打斗场景大量使用环境光影（竹影/水光反射），情感场景用金色黄昏逆光',
+      cameraAngles: '大量动态跟拍（打斗长镜头），升格慢镜（拔剑/出招关键瞬间），航拍（骑马奔驰/江湖全景），低角度仰拍（英雄气概）',
     },
   },
   {
@@ -376,6 +564,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 19.9,
     tags: ['仙侠', '师徒', '禁欲', '宠溺'],
     coverColor: '#1e3a5f',
+    coverEmoji: '🌙',
+    coverGradient: 'linear-gradient(135deg, #1e3a5f 0%, #0c1a2e 40%, #2c5282 100%)',
     defaultData: {
       gender: '男', age: 999, style: '古风', archetype: '神秘导师',
       surfaceTraits: ['清冷', '疏离', '不苟言笑'],
@@ -390,6 +580,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '过于保护徒弟，为了她可以不惜违抗天道规则',
       desire: '打破天道束缚，与所爱之人长相厮守',
       voiceTone: '清冷如冰泉流淌，唯独叫徒弟名字时多了几分温软',
+      visualPromptTemplate: '一位外表28岁的千年上仙（实际999岁），身高188cm，白发如瀑垂至腰际，冰蓝眼眸深邃如万年寒潭，一袭月白云纹道袍纤尘不染。独自立于万丈雪山之巅的古松下，周身萦绕着若有若无的淡蓝色灵力微光。拂袖背手，衣袂在极寒之风中纹丝不动。他望着云海下方缭绕的凡间烟火，眼中有万年不变的漠然——直到听见远处传来一声"师父"。4K电影感，仙侠极简美学，冷白+冰蓝调色。',
+      keyVisualScenes: [
+        { title: '初见收徒', description: '雪山之巅，他低头看着那个冻得瑟瑟发抖却倔强不肯走的女孩，千年不变的眼眸第一次漾起涟漪', emoji: '❄️' },
+        { title: '月下授剑', description: '月华如水的竹林，手把手纠正她的剑招，清冷的声线不自觉地放柔了', emoji: '🎋' },
+        { title: '天道反噬', description: '为救徒弟逆天改命，承受天雷加身，白衣被鲜血染红半边却仍将她护在怀中', emoji: '⚡' },
+        { title: '舍仙入凡', description: '斩断仙根放弃千年修为，白发变青丝，冰蓝眼眸变回黑色——在她面前做一个凡人', emoji: '🕊️' },
+      ],
+      costumeStyle: '极简仙风——月白/银灰道袍为主，流云广袖不染纤尘，发冠简约（玉簪/银冠），全身上下不超过三种颜色',
+      facialFeatures: '冰蓝眼眸是核心视觉标志（清冷时如万年寒冰，动情时如初融春水），五官精致到不真实的地步，表情变化极小但眼波流转间已道尽千年',
+      lightingStyle: '大量冷光（月光/冰雪反射/灵力光晕），偶尔用暖光制造反差（与小徒弟有关的时刻），整体偏冷白高调但有丰富的明暗层次',
+      cameraAngles: '大量俯拍（站在巅峰的视觉隐喻），缓慢的摇镜和拉远（呼应千年时光感），前景虚化的花瓣/雪瓣创造仙气，只有面对徒弟时才出现中近景甚至特写',
     },
   },
 
@@ -403,6 +604,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['校园', '学霸', '学神', '甜宠'],
     coverColor: '#3498db',
+    coverEmoji: '📚',
+    coverGradient: 'linear-gradient(135deg, #3498db 0%, #1e6fa0 40%, #85c1e9 100%)',
     defaultData: {
       gender: '男', age: 20, style: '写实', archetype: '校园学霸',
       surfaceTraits: ['高冷', '孤僻', '毒舌'],
@@ -417,6 +620,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '情商为零，完全不会表达关心，全靠行动',
       desire: '被当成一个普通人看待，而不只是学神',
       voiceTone: '语速快且精准，不带任何感情修饰，但给女主讲题时会不自觉地放慢',
+      visualPromptTemplate: '一位20岁的亚洲男性，身高183cm，黑色短发干净利落，戴着银色半框眼镜，穿着整洁的白校服衬衫。独自坐在图书馆靠窗的角落位置，面前摊开一本厚如砖头的数学竞赛题集。午后阳光透过百叶窗在桌面和侧脸上投下条纹状光斑，他手中的笔没有停顿，镜片反射着草稿纸上的公式。表情淡漠仿佛与世隔绝，但桌上放着的第二杯未开封的草莓牛奶暴露了某个秘密。4K电影感，日系校园清透调色。',
+      keyVisualScenes: [
+        { title: '图书馆初遇', description: '她碰掉了他的一叠草稿纸，他冷冷抬头——然后蹲下来帮她一起捡', emoji: '📖' },
+        { title: '天台讲题', description: '学校天台，夕阳下坐在水泥地上给女主讲函数，草稿纸上画满了歪歪扭扭的坐标系', emoji: '🌇' },
+        { title: '运动会破防', description: '第一次参加班级接力赛跑掉眼镜，却笑着冲过终点线——同班三年他们第一次见他笑', emoji: '🏃' },
+        { title: '毕业告白', description: '递给女主的"同学录"是一本手写的数学情书，每一页都是一个心形函数图像', emoji: '💌' },
+      ],
+      costumeStyle: '极简学园风（白衬衫/校服+深色长裤），偶尔周末穿纯色卫衣，颜色以蓝/白/灰为主——"搭配不在他的CPU处理范围"',
+      facialFeatures: '五官端正但缺乏表情管理（面瘫），银色半框眼镜是本体，思考时习惯推眼镜，镜片后面的眼睛其实很好看只是没人有机会对视',
+      lightingStyle: '大量窗光+百叶窗条纹光（象征框架/秩序），图书馆和教室用柔和顶光，天台/操场用金色夕阳，整体清透明亮偏蓝调',
+      cameraAngles: '固定机位（对应他稳定的节奏），大量中景+桌上俯拍（做题/写字），偶尔手持晃动（运动会/情感破防时）',
     },
   },
   {
@@ -428,6 +642,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['校园', '元气', '女主', '成长'],
     coverColor: '#f1c40f',
+    coverEmoji: '☀️',
+    coverGradient: 'linear-gradient(135deg, #f1c40f 0%, #d4a017 40%, #f9e79f 100%)',
     defaultData: {
       gender: '女', age: 19, style: '写实', archetype: '元气少女',
       surfaceTraits: ['开朗', '活力', '乐观'],
@@ -442,6 +658,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '有时太过乐观忽略现实困难，面对挫折容易陷入自责',
       desire: '考上梦想的大学，让妈妈为她骄傲',
       voiceTone: '活力十足音调多变，听起来像永远在笑',
+      visualPromptTemplate: '一位19岁的亚洲女孩，身高162cm，齐刘海高马尾随风飞扬，白色校服领口微敞袖子卷到手肘，手腕上荧光色运动手环格外显眼。正从教学楼的坡道上全力奔跑——嘴里叼着一片吐司，左手按着飘起的裙摆，右手朝前方巴士站的朋友用力挥舞。清晨阳光从她身后打来，整个人像镀了一圈金边，马尾在空中划出活力的弧度。4K电影感，日系校园青春调色，暖金+天蓝。',
+      keyVisualScenes: [
+        { title: '迟到狂奔', description: '校门即将关闭的最后三秒，她以一个完美的滑铲冲了进去——然后撞到了学生会长的后背', emoji: '🏃‍♀️' },
+        { title: '考前通宵', description: '深夜便利店门口，头顶贴着退热贴还在背单词，泡面桶堆成了小山', emoji: '🍜' },
+        { title: '运动会高光', description: '班级接力赛最后一棒，她拼尽全力追赶最终以半步之差拿了第二——却笑着把所有队员搂在一起', emoji: '🏅' },
+        { title: '录取通知书', description: '颤抖着撕开信封看到"录取"二字，抱着妈妈在邮局门口又哭又笑原地转圈', emoji: '✉️' },
+      ],
+      costumeStyle: '活力运动风（校服永远穿不整齐+运动鞋+运动手环），彩色发圈/卡通袜子是细节标配，颜色明亮（黄/橙/粉）',
+      facialFeatures: '圆脸大眼睛永远亮晶晶的，笑容灿烂到露后槽牙的那种，哭起来也是毫不遮掩的嚎啕大哭——所有情绪都写在脸上',
+      lightingStyle: '始终高亮度的暖色调（像永远被阳光偏爱），逆光奔跑是她的标志性镜头，即使夜晚场景也有暖色街灯相伴',
+      cameraAngles: '手持跟拍（奔跑/日常活动），动态摇镜（从她的视角看世界），偶尔主观镜头（倒下的视角接住满眼的蓝天樱花），大量中景',
     },
   },
   {
@@ -453,6 +680,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['校园', '叛逆', '救赎', '校霸'],
     coverColor: '#95a5a6',
+    coverEmoji: '🏍️',
+    coverGradient: 'linear-gradient(135deg, #95a5a6 0%, #5d6d7e 40%, #abb2b9 100%)',
     defaultData: {
       gender: '男', age: 19, style: '写实', archetype: '叛逆少年',
       surfaceTraits: ['叛逆', '嚣张', '打架', '逃学'],
@@ -467,6 +696,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '用错误的方式寻求关注，容易冲动犯错',
       desire: '有一个真正在乎自己的人出现',
       voiceTone: '故意压低的叛逆腔调，偶尔卸下防备时会流露出少年的温柔',
+      visualPromptTemplate: '一位19岁的亚洲男生，身高180cm，头发微乱染了几缕褪色的蓝，校服敞开露出里面的乐队T恤，左手腕铆钉手环，左眉一道淡淡的疤痕非但没有破坏反而增添了故事感。独自坐在学校天台的栏杆边缘（背对镜头），落日在他轮廓上镀了一圈橙金色。他似乎在等人，又不确定那人会不会来，手指无意识地转着那根从未点燃过的烟。远处操场传来篮球队训练的喊声，但他像被隔绝在另一个世界里。4K电影感，日系青春伤痛调色，橙金+灰蓝。',
+      keyVisualScenes: [
+        { title: '天台孤影', description: '午休时全校最热闹的地方在他眼里却是最孤独的角落——直到有人推开了天台的门', emoji: '🏫' },
+        { title: '雨中打架', description: '暴雨中为了素不相识的学弟以一敌三，满脸是血却在对方逃走后才倒下', emoji: '🥊' },
+        { title: '补课日常', description: '被女主"绑架"到图书馆补课，抓耳挠腮比打架还难受，但余光一直在偷看她', emoji: '📝' },
+        { title: '告别染发', description: '毕业那天染回了黑发，站在校门口等女主，手里攥着两个被汗水浸湿的电影票', emoji: '🎬' },
+      ],
+      costumeStyle: '叛逆青年风（oversize校服敞开穿+乐队/动漫T恤+破洞牛仔裤），配饰夸张（铆钉手环/金属项链/耳钉），黑/灰/暗红为主',
+      facialFeatures: '五官有少年特有的锐利线条，左眉疤痕是标志，平时眼神凶巴巴的但其实不敢对视超过3秒——因为会脸红',
+      lightingStyle: '前期大量黄昏/阴天光线（与他的灰色心境呼应），后期逐渐引入明亮晨光和教室暖灯，调色从偏冷灰→偏暖金',
+      cameraAngles: '大量天台俯拍和远景（表现孤独感），打斗场景手持晃动，与女主相处时逐渐出现稳定的中近景和特写',
     },
   },
 
@@ -480,6 +720,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 0,
     tags: ['爽文', '逆袭', '男主', '热血'],
     coverColor: '#e67e22',
+    coverEmoji: '🚀',
+    coverGradient: 'linear-gradient(135deg, #e67e22 0%, #ba4a00 40%, #f0b27a 100%)',
     defaultData: {
       gender: '男', age: 25, style: '写实', archetype: '逆袭男主',
       surfaceTraits: ['隐忍', '平凡', '被低估'],
@@ -494,6 +736,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '记仇太深，有时对过去的伤害始终放不下',
       desire: '让那些看不起自己的人跪在脚下',
       voiceTone: '起初低沉压抑，后期充满自信和力量',
+      visualPromptTemplate: '一位25岁的亚洲男性，身高178cm，前期穿着洗得发白的旧T恤和地摊牛仔裤，站在豪华酒店门口被保安拦下。他缓缓抬起头——脸上没有愤怒只有一种平静到可怕的坚定。身后是霓虹灿烂的都市夜景，而他被隔绝在光之外。一个雨滴落在他脸上滑落，如同泪水，但他的眼神却在那一刻变得锐利如刀。4K电影感，冷暖光对比，暗部丰富层次。',
+      keyVisualScenes: [
+        { title: '被踩在脚下', description: '雨中跪在地上捡散落的简历，一只皮鞋踩在上面，他抬头看见前女友坐在豪车里', emoji: '📄' },
+        { title: '系统觉醒', description: '午夜出租屋，老旧手机屏幕突然闪烁幽蓝光芒——"逆袭系统已激活"', emoji: '💡' },
+        { title: '第一次打脸', description: '商场里前女友挽着富二代迎面走来——他身后跟着十个黑衣保镖，淡淡说"让开"', emoji: '🔄' },
+        { title: '王者归来', description: '昔日同学聚会，所有人以为他还是那个废柴——直到会所经理亲自推开门喊"老板"', emoji: '👑' },
+      ],
+      costumeStyle: '巨大反差——前期廉价地摊货（灰/棕/黑色，洗到发白），后期高级定制（深色西装/名牌休闲），但手腕上一直戴着母亲的旧手表',
+      facialFeatures: '前期眼袋重、面色黯淡（社会毒打痕迹），中期眼神开始有光，后期整个人气质质变（发型/皮肤/眼神全方位逆袭）',
+      lightingStyle: '前期用阴天/暗室/地下室的低光照+冷色调（表达低谷），中期冷暖交替（斗争阶段），后期用各种明亮的硬光和金色调（王者归来）',
+      cameraAngles: '前期多用俯拍和远景（表现渺小），转折点出现仰拍（第一次站起来），后期大量低角度仰拍+跟拍（王者气场）',
     },
   },
   {
@@ -505,6 +758,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 19.9,
     tags: ['复仇', '女王', '虐渣', '女主'],
     coverColor: '#c0392b',
+    coverEmoji: '👠',
+    coverGradient: 'linear-gradient(135deg, #c0392b 0%, #7b241c 40%, #e74c3c 100%)',
     defaultData: {
       gender: '女', age: 28, style: '写实', archetype: '复仇女王',
       surfaceTraits: ['优雅', '冷静', '美艳'],
@@ -519,6 +774,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '被复仇驱使容易走极端，差点失去真正重要的东西',
       desire: '复仇成功，拿回属于自己的一切',
       voiceTone: '柔中带刺不卑不亢，每个字都精准如手术刀',
+      visualPromptTemplate: '一位28岁的亚洲女性，身高168cm，惊艳的红唇搭配精干的短发，身着剪裁完美的黑色高定西装裙。站在顶级宴会厅的旋转楼梯最顶端，单手轻扶红木扶手，水晶灯在她头顶洒下钻石般的光芒。楼下是她前夫和闺蜜的婚礼现场。她嘴角那一抹微笑优雅而致命——这将是他们最后一次笑。背景虚化中宾客全部仰头注视，空气凝固。4K电影感，暗红+黑金色调，时尚大片质感。',
+      keyVisualScenes: [
+        { title: '狱中时光', description: '铁窗里她摸着无名指上已经摘下的戒指留下的白印，一滴泪落入冰冷的水泥地', emoji: '🔗' },
+        { title: '出狱变身', description: '高跟鞋踏出监狱大门的第一声，墨镜下的眼神已与三年前判若两人', emoji: '🕶️' },
+        { title: '宴会亮相', description: '前夫婚礼上，她作为最大股东推门而入——全场转身，新娘的红酒杯掉在地上', emoji: '🍷' },
+        { title: '放过自己', description: '复仇成功后站在海边，终于脱下高跟鞋赤脚踩进沙滩，第一次为自己笑了', emoji: '🌊' },
+      ],
+      costumeStyle: '黑/深红/墨绿为主的高级定制风，剪裁精准到每一毫米，配饰简约但极贵（卡地亚手表/梵克雅宝项链），高跟鞋是武器不是鞋',
+      facialFeatures: '五官精致如雕刻，红唇是她最标志性的武器，眼神平静却暗藏杀机，笑起来的时候反而最令人胆寒',
+      lightingStyle: '大量暗调+局部重点光（高反差时尚打光），红/金色点缀，宴会/谈判场景用顶光+侧光塑造雕塑感，独处时用柔和窗光流露真实',
+      cameraAngles: '大量仰拍（楼梯/大楼前/法庭上——权力象征），慢镜（入场/转身/摘墨镜），对切（与仇人对峙时），环轨（宴会惊艳亮相）',
     },
   },
   {
@@ -530,6 +796,8 @@ export const officialTemplates: OfficialTemplate[] = [
     price: 9.9,
     tags: ['扮猪吃虎', '反转', '打脸', '爽文'],
     coverColor: '#27ae60',
+    coverEmoji: '🦊',
+    coverGradient: 'linear-gradient(135deg, #27ae60 0%, #1a7a40 40%, #58d68d 100%)',
     defaultData: {
       gender: '男', age: 26, style: '写实', archetype: '扮猪吃虎',
       surfaceTraits: ['谦虚', '低调', '不起眼', '和善'],
@@ -544,6 +812,17 @@ export const officialTemplates: OfficialTemplate[] = [
       weakness: '低调过头，有时错失本该抓住的机会',
       desire: '过不被任何人打扰的平静生活',
       voiceTone: '永远平和听不出情绪起伏，像在说一件与自己无关的事',
+      visualPromptTemplate: '一位26岁的亚洲男性，身高175cm，穿着最普通的灰T恤和运动裤，坐在街边大排档吃着一碗15块的牛肉面。周围是嘈杂的市井烟火，没人会多看他一眼。但他的眼睛——当电视上出现一条国际新闻时，他抬头的瞬间瞳孔微缩，嘴角出现了一个转瞬即逝的了然于心的弧度。那不是一个普通人会对世界局势作出的反应。4K电影感，市井写实与超然并存的矛盾美学，自然光+烟火色调。',
+      keyVisualScenes: [
+        { title: '融入人群', description: '早高峰地铁上被人群挤来挤去全程一言不发，但他的余光在0.5秒内数清了车厢里所有可疑的人', emoji: '🚇' },
+        { title: '被迫出手', description: '旧友生命受到威胁，他放下手中的鸡蛋，轻叹一声，下一秒画面定格在倒地的敌人和他完全没乱的衣服', emoji: '💨' },
+        { title: '身份揭晓', description: '昔日同伴跪在他面前喊出那个尘封十年的代号，周围的人全部倒吸冷气后退三步', emoji: '😱' },
+        { title: '重新归隐', description: '一切结束后，他又回到了那家大排档，老板问去哪了，他笑着说是回了趟老家', emoji: '🍜' },
+      ],
+      costumeStyle: '极致平民化——最普通的T恤/衬衫+运动裤/牛仔裤，颜色单调（灰/白/藏蓝），绝不穿任何品牌Logo，但衣服意外的总是平整干净',
+      facialFeatures: '五官普通到没有任何特征——大众脸、大众发型、连眼镜都是最常见的款式，唯一不普通的是眼睛深处的平静和偶尔一闪的锐利寒光',
+      lightingStyle: '日常场景用平淡写实光（融入环境），出手时刻转为戏剧化高反差（瞬间气场变化），事后恢复平淡——用光变化暗示身份切换',
+      cameraAngles: '大量中远景把他融入人群（隐藏），偶尔插入极速推镜头到特写（暴露实力的瞬间），俯拍（保护旧友时笼罩全场），平拍（日常市井生活）',
     },
   },
 ];

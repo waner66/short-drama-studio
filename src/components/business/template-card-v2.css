@@ -1,0 +1,331 @@
+/* ===========================================
+   Template Card V2 - 升级版模板卡片
+   =========================================== */
+
+.template-card-v2 {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+  will-change: transform;
+}
+
+.template-card-v2:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(138, 92, 246, 0.08);
+  border-color: rgba(138, 92, 246, 0.25);
+}
+
+[data-theme='dark'] .template-card-v2 {
+  background: rgba(15, 15, 25, 0.6);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ===== 封面区域 ===== */
+.card-cover-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.template-card-v2:hover .card-cover-img {
+  transform: scale(1.08);
+}
+
+/* 渐变封面 */
+.card-cover-gradient {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-cover-emoji {
+  font-size: 64px;
+  line-height: 1;
+  z-index: 2;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.template-card-v2:hover .card-cover-emoji {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* 装饰圆圈 */
+.card-cover-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.card-cover-circle-1 {
+  width: 120px;
+  height: 120px;
+  top: -30px;
+  right: -30px;
+}
+
+.card-cover-circle-2 {
+  width: 80px;
+  height: 80px;
+  bottom: -20px;
+  left: -20px;
+}
+
+/* ===== 类型角标 ===== */
+.card-type-badge-wrapper {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+}
+
+.card-type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+  backdrop-filter: blur(10px);
+}
+
+/* ===== Hover 遮罩 + 操作按钮 ===== */
+.card-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 4;
+}
+
+.template-card-v2:hover .card-hover-overlay {
+  opacity: 1;
+}
+
+.card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  transform: translateY(8px);
+  opacity: 0;
+}
+
+.template-card-v2:hover .card-action-btn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.template-card-v2:hover .card-action-fav {
+  transition-delay: 0.05s;
+}
+
+.card-action-use {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(138, 92, 246, 0.4);
+}
+
+.card-action-use:hover {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  box-shadow: 0 6px 24px rgba(138, 92, 246, 0.6);
+  transform: translateY(-2px) !important;
+}
+
+.card-action-fav {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  padding: 10px 14px;
+}
+
+.card-action-fav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px) !important;
+}
+
+/* ===== 价格标签 ===== */
+.card-price-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+}
+
+.price-free {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(10px);
+}
+
+.price-paid {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(245, 158, 11, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(10px);
+}
+
+/* ===== 信息区域 ===== */
+.card-info {
+  padding: 18px;
+}
+
+.card-name {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+[data-theme='dark'] .card-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.card-description {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .card-description {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 属性标签（场景的氛围/时代，剧情的题材） */
+.card-attrs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.card-attr-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .card-attr-tag {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* 标签 */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(138, 92, 246, 0.1);
+  color: rgba(167, 139, 250, 0.9);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(138, 92, 246, 0.15);
+}
+
+[data-theme='dark'] .card-tag {
+  background: rgba(138, 92, 246, 0.08);
+  color: rgba(167, 139, 250, 0.8);
+}
+
+.card-tag-more {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 640px) {
+  .card-cover-wrapper {
+    height: 160px;
+  }
+
+  .card-cover-emoji {
+    font-size: 48px;
+  }
+
+  .card-info {
+    padding: 14px;
+  }
+
+  .card-name {
+    font-size: 14px;
+  }
+
+  .card-description {
+    font-size: 12px;
+    -webkit-line-clamp: 1;
+  }
+
+  .card-action-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}

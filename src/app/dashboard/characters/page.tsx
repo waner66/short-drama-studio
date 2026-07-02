@@ -59,7 +59,7 @@ export default function CharactersPage() {
               placeholder="搜索角色名称..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="w-full h-10 pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#5b2eff] transition-colors"
+              className="w-full h-10 pl-10 pr-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition-colors"
             />
           </div>
           <div className="flex gap-1.5">
@@ -69,7 +69,7 @@ export default function CharactersPage() {
                 onClick={() => setGenderFilter(opt.value)}
                 className={`px-4 py-2 rounded-lg text-sm transition-all ${
                   genderFilter === opt.value
-                    ? 'bg-[#5b2eff] text-white'
+                    ? 'bg-brand-500 text-white'
                     : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -103,7 +103,7 @@ export default function CharactersPage() {
                   {character.avatarUrl ? (
                     <img src={character.avatarUrl} alt={character.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#5b2eff] to-[#00d4aa] flex items-center justify-center text-2xl font-bold text-white">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-[#00d4aa] flex items-center justify-center text-2xl font-bold text-white">
                       {character.name[0]}
                     </div>
                   )}
@@ -111,7 +111,7 @@ export default function CharactersPage() {
 
                 {/* 信息 */}
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-white group-hover:text-[#5b2eff] transition-colors">{character.name}</h3>
+                  <h3 className="font-bold text-white group-hover:text-brand-500 transition-colors">{character.name}</h3>
                   <span className={`text-xs px-1.5 py-0.5 rounded ${character.gender === '男' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'}`}>
                     {character.gender === '男' ? '♂' : '♀'}
                   </span>

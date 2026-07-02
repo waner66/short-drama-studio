@@ -142,7 +142,7 @@ export default function ScenesClient() {
               <div className="flex flex-col items-center flex-shrink-0">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                   scene.status === 'COMPLETED' ? 'bg-[#00d4aa] text-black' :
-                  scene.status === 'IN_PROGRESS' ? 'bg-[#5b2eff] text-white' :
+                  scene.status === 'IN_PROGRESS' ? 'bg-brand-500 text-white' :
                   'bg-white/10 text-gray-500'
                 }`}>
                   {scene.status === 'COMPLETED' ? '✓' : scene.number}
@@ -183,7 +183,7 @@ export default function ScenesClient() {
                   {scene.characters.map((name) => (
                     <span key={name} className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">{name}</span>
                   ))}
-                  <button className="text-xs text-[#5b2eff] hover:text-[#7b5eff]">+ 添加</button>
+                  <button className="text-xs text-brand-500 hover:text-[#7b5eff]">+ 添加</button>
                 </div>
 
                 {/* 道具 */}
@@ -204,7 +204,7 @@ export default function ScenesClient() {
                 <div className="flex items-center justify-between pt-3 border-t border-white/5">
                   <Link
                     href={`/dashboard/projects/${id}/storyboard`}
-                    className="text-sm text-[#5b2eff] hover:text-[#7b5eff] transition-colors flex items-center gap-1"
+                    className="text-sm text-brand-500 hover:text-[#7b5eff] transition-colors flex items-center gap-1"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM14 16a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" />

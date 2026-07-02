@@ -7,7 +7,7 @@ interface SkeletonProps {
 function SkeletonBlock({ className = '' }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-lg bg-white/[0.04] ${className}`}
+      className={`animate-pulse rounded-lg bg-[var(--surface-elevated)] ${className}`}
     />
   );
 }
@@ -18,7 +18,7 @@ interface CardSkeletonProps {
 
 export function CardSkeleton({ className = '' }: CardSkeletonProps) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.02] p-6 ${className}`}>
+    <div className={`rounded-2xl border border-white/10 bg-[var(--surface-elevated)] p-6 ${className}`}>
       <SkeletonBlock className="h-4 w-2/3 mb-4" />
       <SkeletonBlock className="h-8 w-1/2 mb-3" />
       <SkeletonBlock className="h-3 w-full mb-2" />
@@ -54,7 +54,7 @@ interface TableSkeletonProps {
 
 export function TableSkeleton({ rows = 5, cols = 4, className = '' }: TableSkeletonProps) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.02] p-4 ${className}`}>
+    <div className={`rounded-2xl border border-white/10 bg-[var(--surface-elevated)] p-4 ${className}`}>
       <div className="flex gap-4 mb-4 pb-4 border-b border-white/5">
         {Array.from({ length: cols }).map((_, i) => (
           <SkeletonBlock key={i} className="h-4 flex-1" />

@@ -120,7 +120,7 @@ export default function ProjectDetailClient() {
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               activeTab === tab.key
-                ? 'bg-[#5b2eff] text-white shadow-lg shadow-[#5b2eff]/20'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
             }`}
           >
@@ -144,7 +144,7 @@ export default function ProjectDetailClient() {
                   className="h-full rounded-full transition-all duration-700"
                   style={{
                     width: `${project.progress}%`,
-                    background: 'linear-gradient(90deg, #5b2eff, #00d4aa)',
+                    background: 'linear-gradient(90deg, var(--brand-500), #00d4aa)',
                   }}
                 />
               </div>
@@ -169,11 +169,11 @@ export default function ProjectDetailClient() {
                   href={`/dashboard/characters/${ch.id}`}
                   className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5b2eff] to-[#00d4aa] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-[#00d4aa] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {ch.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-white group-hover:text-[#5b2eff] transition-colors truncate">
+                    <div className="text-sm font-medium text-white group-hover:text-brand-500 transition-colors truncate">
                       {ch.name}
                     </div>
                     <div className="text-xs text-gray-500">{ch.role}</div>
@@ -187,7 +187,7 @@ export default function ProjectDetailClient() {
               ))}
             </div>
             <div className="mt-3 pt-3 border-t border-white/5">
-              <Link href="/dashboard/characters" className="text-sm text-[#5b2eff] hover:text-[#7b5eff] transition-colors">
+              <Link href="/dashboard/characters" className="text-sm text-brand-500 hover:text-[#7b5eff] transition-colors">
                 + 管理角色
               </Link>
             </div>
@@ -199,7 +199,7 @@ export default function ProjectDetailClient() {
               {recentActivity.map((act, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    act.user === 'AI' ? 'bg-[#5b2eff]' : 'bg-[#00d4aa]'
+                    act.user === 'AI' ? 'bg-brand-500' : 'bg-[#00d4aa]'
                   }`} />
                   <span className="text-gray-300">{act.action}</span>
                   <span className="text-gray-600 ml-auto text-xs">{act.time}</span>

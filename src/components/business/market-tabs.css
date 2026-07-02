@@ -1,0 +1,212 @@
+/* ============================================
+   Market Tabs - 视觉出彩的 Tab 切换组件
+   ============================================ */
+
+.market-tabs-wrapper {
+  position: relative;
+  margin-bottom: 32px;
+}
+
+/* 背景光晕装饰 */
+.market-tabs-bg-glow {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 80px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(138, 92, 246, 0.12) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Tab 容器 - 胶囊形状 */
+.market-tabs {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  z-index: 1;
+}
+
+[data-theme='dark'] .market-tabs {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* 单个 Tab 按钮 */
+.market-tab-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.market-tab-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .market-tab-btn {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme='dark'] .market-tab-btn:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 选中态 */
+.market-tab-btn.active {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(138, 92, 246, 0.5);
+}
+
+/* Emoji 图标 */
+.tab-emoji {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+
+.market-tab-btn.active .tab-emoji {
+  transform: scale(1.15);
+}
+
+/* Emoji bounce 动画 */
+.tab-emoji.bounce {
+  animation: tabBounce 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tabBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.35); }
+  50%  { transform: scale(0.95); }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1.15); }
+}
+
+/* 标签文字 */
+.tab-label {
+  letter-spacing: 0.02em;
+}
+
+/* 选中光晕效果 */
+.tab-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(138, 92, 246, 0.2) 0%,
+    transparent 70%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== 滑动指示器 ===== */
+.market-tab-indicator {
+  position: absolute;
+  bottom: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #8a5cf6, #a78bfa, #c084fc);
+  box-shadow:
+    0 0 12px rgba(138, 92, 246, 0.5),
+    0 0 24px rgba(138, 92, 246, 0.2);
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ===== Tab 描述文字 ===== */
+.market-tab-description {
+  margin-top: 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  letter-spacing: 0.03em;
+  animation: fadeInUp 0.4s ease;
+}
+
+[data-theme='dark'] .market-tab-description {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 640px) {
+  .market-tabs {
+    padding: 4px;
+    gap: 2px;
+    border-radius: 16px;
+  }
+
+  .market-tab-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    gap: 5px;
+    border-radius: 13px;
+  }
+
+  .tab-emoji {
+    font-size: 16px;
+  }
+
+  .tab-label {
+    font-size: 13px;
+  }
+
+  .market-tab-description {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .market-tab-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .tab-label {
+    display: none;  /* 超小屏幕只显示 emoji */
+  }
+
+  .market-tab-btn.active .tab-label {
+    display: inline;  /* 选中时显示文字 */
+  }
+}

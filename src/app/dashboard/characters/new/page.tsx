@@ -207,7 +207,7 @@ function NewCharacterPage() {
             <button
               onClick={() => setMode('manual')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                mode === 'manual' ? 'bg-[#5b2eff] text-white' : 'text-gray-400 hover:text-white'
+                mode === 'manual' ? 'bg-brand-500 text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
               手动填写
@@ -215,7 +215,7 @@ function NewCharacterPage() {
             <button
               onClick={() => setMode('ai')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${
-                mode === 'ai' ? 'bg-[#5b2eff] text-white' : 'text-gray-400 hover:text-white'
+                mode === 'ai' ? 'bg-brand-500 text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +257,7 @@ function NewCharacterPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="例：林小羽"
-                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
                 autoFocus
               />
             </div>
@@ -271,7 +271,7 @@ function NewCharacterPage() {
                     onClick={() => setForm({ ...form, gender: g })}
                     className={`flex-1 rounded-lg text-sm font-medium transition-all ${
                       form.gender === g
-                        ? 'bg-[#5b2eff] text-white'
+                        ? 'bg-brand-500 text-white'
                         : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -293,7 +293,7 @@ function NewCharacterPage() {
                     onClick={() => setForm({ ...form, ageType: opt.k, age: opt.k === 'young' ? 22 : opt.k === 'adult' ? 35 : 50 })}
                     className={`flex-1 rounded-lg text-sm transition-all ${
                       form.ageType === opt.k
-                        ? 'bg-[#5b2eff] text-white'
+                        ? 'bg-brand-500 text-white'
                         : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -309,7 +309,7 @@ function NewCharacterPage() {
                 min={1} max={120}
                 value={form.age}
                 onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
-                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
               />
             </div>
           </div>
@@ -326,7 +326,7 @@ function NewCharacterPage() {
                     onClick={() => togglePersonality(p)}
                     className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                       selected
-                        ? 'bg-[#5b2eff]/20 border border-[#5b2eff]/50 text-[#5b2eff]'
+                        ? 'bg-brand-500/20 border border-brand-500/50 text-brand-500'
                         : 'bg-white/5 border border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
                     }`}
                   >
@@ -345,7 +345,7 @@ function NewCharacterPage() {
               onChange={(e) => setForm({ ...form, appearance: e.target.value })}
               rows={2}
               placeholder="描述角色的外貌特征..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
             />
           </div>
 
@@ -357,7 +357,7 @@ function NewCharacterPage() {
               onChange={(e) => setForm({ ...form, backstory: e.target.value })}
               rows={3}
               placeholder="角色的身世和经历..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
             />
           </div>
         </div>

@@ -90,12 +90,12 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-[#f0f0ff] overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--surface-ground)] text-[var(--text-primary)] overflow-x-hidden">
       {/* ===== Navbar ===== */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-[#12122a]/90 backdrop-blur-xl border-b border-[#2a2a4a]/50'
+            ? 'bg-[var(--surface-card)]/90 backdrop-blur-xl border-b border-[#2a2a4a]/50'
             : 'bg-transparent'
         }`}
       >
@@ -108,7 +108,7 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/auth/login">
-              <Button type="text" className="!text-[#9494b8] hover:!text-white !font-medium">
+              <Button type="text" className="!text-[var(--text-secondary)] hover:!text-white !font-medium">
                 登录
               </Button>
             </Link>
@@ -151,7 +151,7 @@ export default function HomePage() {
             <span className="gradient-text"> 剧组</span>
           </Title>
 
-          <Paragraph className="!text-lg !text-[#9494b8] max-w-2xl mx-auto !mb-10 animate-slide-up">
+          <Paragraph className="!text-lg !text-[var(--text-secondary)] max-w-2xl mx-auto !mb-10 animate-slide-up">
             AI 赋能短剧创作全流程——从<span className="text-brand-400 font-semibold">人物设定</span>、
             <span className="text-accent-500 font-semibold">场景搭建</span>、到
             <span className="text-amber-400 font-semibold">剧本生成</span>，
@@ -173,7 +173,7 @@ export default function HomePage() {
             <Link href="/dashboard/market">
               <Button
                 size="large"
-                className="!h-14 !px-10 !text-lg !font-medium !rounded-2xl !bg-[#1a1a3e] !border-[#2a2a4a] !text-[#f0f0ff] hover:!border-brand-500 hover:!text-brand-400"
+                className="!h-14 !px-10 !text-lg !font-medium !rounded-2xl !bg-[var(--surface-elevated)] !border-[#2a2a4a] !text-[var(--text-primary)] hover:!border-brand-500 hover:!text-brand-400"
               >
                 浏览社区模板
                 <ArrowRightOutlined className="ml-2" />
@@ -192,7 +192,7 @@ export default function HomePage() {
                 <div className="text-2xl font-bold text-white" style={{ fontFamily: '"Space Grotesk", sans-serif' }}>
                   {s.num}
                 </div>
-                <div className="text-xs text-[#6b6b8a] mt-1">{s.label}</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">{s.label}</div>
               </div>
             ))}
           </div>
@@ -208,7 +208,7 @@ export default function HomePage() {
           <Title level={2} className="!text-4xl md:!text-5xl !font-bold !text-white !mb-4" style={{ fontFamily: '"Space Grotesk", "Noto Sans SC", sans-serif' }}>
             一站式<span className="gradient-text">短剧创作</span>工作流
           </Title>
-          <Paragraph className="!text-[#9494b8] !text-lg max-w-xl mx-auto">
+          <Paragraph className="!text-[var(--text-secondary)] !text-lg max-w-xl mx-auto">
             从创意萌芽到成品输出，四大核心模块覆盖创作全生命周期
           </Paragraph>
         </div>
@@ -234,13 +234,13 @@ export default function HomePage() {
                     <Title level={3} className="!text-2xl !font-bold !text-white !mb-0">
                       {feat.title}
                     </Title>
-                    <span className="text-xs text-[#6b6b8a] font-medium px-2 py-0.5 rounded-full bg-[#1a1a3e] border border-[#2a2a4a]">
+                    <span className="text-xs text-[var(--text-muted)] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] border border-[#2a2a4a]">
                       {feat.subtitle}
                     </span>
                   </div>
                   <ul className="space-y-2 mb-6">
                     {feat.points.map((p, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm text-[#9494b8]">
+                      <li key={i} className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                         <span className="w-1 h-1 rounded-full bg-brand-400" />
                         {p}
                       </li>
@@ -283,7 +283,7 @@ export default function HomePage() {
                   {step.icon}
                 </div>
                 <div className="text-center">
-                  <div className="text-[#6b6b8a] text-xs font-medium mb-1">STEP {i + 1}</div>
+                  <div className="text-[var(--text-muted)] text-xs font-medium mb-1">STEP {i + 1}</div>
                   <div className="text-white font-bold text-lg">{step.label}</div>
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default function HomePage() {
           <Title level={2} className="!text-4xl md:!text-5xl !font-bold !text-white !mb-4" style={{ fontFamily: '"Space Grotesk", "Noto Sans SC", sans-serif' }}>
             灵感<span className="gradient-text-warm">碰撞</span>，社区驱动创作
           </Title>
-          <Paragraph className="!text-[#9494b8] !text-lg max-w-xl mx-auto">
+          <Paragraph className="!text-[var(--text-secondary)] !text-lg max-w-xl mx-auto">
             发现优质模板，关注创作达人，让每一次创作都有社区的陪伴
           </Paragraph>
         </div>
@@ -324,11 +324,11 @@ export default function HomePage() {
                 <span className="text-accent-500 font-bold text-sm">¥{tpl.price}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1 text-xs text-[#6b6b8a]">
+                <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                   <StarFilled className="text-yellow-500" />
                   {tpl.rating}
                 </span>
-                <span className="text-xs text-[#6b6b8a]">
+                <span className="text-xs text-[var(--text-muted)]">
                   <DownloadOutlined className="mr-1" />
                   {tpl.sales.toLocaleString()}
                 </span>
@@ -358,7 +358,7 @@ export default function HomePage() {
             <Title level={2} className="!text-3xl md:!text-4xl !font-bold !text-white !mb-4" style={{ fontFamily: '"Space Grotesk", "Noto Sans SC", sans-serif' }}>
               准备好创作你的<span className="gradient-text">第一部短剧</span>了吗？
             </Title>
-            <Paragraph className="!text-[#9494b8] !text-lg !mb-8 max-w-lg mx-auto">
+            <Paragraph className="!text-[var(--text-secondary)] !text-lg !mb-8 max-w-lg mx-auto">
               免费注册即可使用全部 AI 创作功能，加入 1,200+ 创作者社区。
             </Paragraph>
             <Link href="/auth/register">
@@ -382,9 +382,9 @@ export default function HomePage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center">
               <PlayCircleOutlined className="text-white text-sm" />
             </div>
-            <span className="text-[#6b6b8a] text-sm">短剧工坊 &copy; 2026</span>
+            <span className="text-[var(--text-muted)] text-sm">短剧工坊 &copy; 2026</span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-[#6b6b8a]">
+          <div className="flex items-center gap-6 text-sm text-[var(--text-muted)]">
             <span>AI人物设定</span>
             <span className="w-1 h-1 rounded-full bg-[#2a2a4a]" />
             <span>AI场景搭建</span>

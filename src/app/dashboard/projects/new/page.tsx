@@ -55,7 +55,7 @@ export default function NewProjectPage() {
             <div className={`flex items-center gap-2 ${step === i + 1 ? 'text-white' : 'text-gray-600'}`}>
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                 step > i + 1 ? 'bg-[#00d4aa] text-black' :
-                step === i + 1 ? 'bg-[#5b2eff] text-white' :
+                step === i + 1 ? 'bg-brand-500 text-white' :
                 'bg-white/10 text-gray-500'
               }`}>
                 {step > i + 1 ? '✓' : i + 1}
@@ -81,7 +81,7 @@ export default function NewProjectPage() {
                 value={form.title}
                 onChange={(e) => update('title', e.target.value)}
                 placeholder="给你的短剧起个名字..."
-                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
                 autoFocus
               />
             </div>
@@ -94,7 +94,7 @@ export default function NewProjectPage() {
                 onChange={(e) => update('description', e.target.value)}
                 rows={4}
                 placeholder="简单描述一下这个短剧的故事..."
-                className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
               />
             </div>
 
@@ -108,7 +108,7 @@ export default function NewProjectPage() {
                     onClick={() => update('genre', g)}
                     className={`px-4 py-2 rounded-lg text-sm transition-all ${
                       form.genre === g
-                        ? 'bg-[#5b2eff] text-white shadow-md shadow-[#5b2eff]/20'
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                         : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -128,12 +128,12 @@ export default function NewProjectPage() {
                     onClick={() => update('style', s)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
                       form.style === s
-                        ? 'bg-[#5b2eff] text-white shadow-md shadow-[#5b2eff]/20'
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                         : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <span className="w-2 h-2 rounded-full" style={{
-                      background: s === '写实' ? 'linear-gradient(135deg, #5b2eff, #00d4aa)' :
+                      background: s === '写实' ? 'linear-gradient(135deg, var(--brand-500), #00d4aa)' :
                                   s === '动漫' ? 'linear-gradient(135deg, #ff5ecf, #ff9a44)' :
                                   s === '水墨' ? 'linear-gradient(135deg, #94a3b8, #1e293b)' :
                                   s === '像素' ? 'linear-gradient(135deg, #fbbf24, #ef4444)' :
@@ -146,7 +146,7 @@ export default function NewProjectPage() {
             </div>
 
             {/* AI 辅助 */}
-            <div className="flex items-center justify-between p-4 bg-[#5b2eff]/10 border border-[#5b2eff]/20 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-brand-500/10 border border-brand-500/20 rounded-lg">
               <div>
                 <div className="text-sm font-medium text-white mb-0.5">AI 智能辅助</div>
                 <div className="text-xs text-gray-400">让 AI 帮你生成角色、剧本和分镜</div>
@@ -154,7 +154,7 @@ export default function NewProjectPage() {
               <button
                 onClick={() => update('aiAssist', !form.aiAssist)}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  form.aiAssist ? 'bg-[#5b2eff]' : 'bg-white/20'
+                  form.aiAssist ? 'bg-brand-500' : 'bg-white/20'
                 }`}
               >
                 <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${

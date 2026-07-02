@@ -108,7 +108,7 @@ export default function OrdersPage() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab.key
-                ? 'bg-[#5b2eff] text-white shadow-lg shadow-[#5b2eff]/20'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
             }`}
           >
@@ -172,7 +172,7 @@ export default function OrdersPage() {
                           {order.status === 'PAID' && (
                             <button
                               onClick={() => handleDownload(order.orderNo)}
-                              className="flex items-center gap-1.5 text-sm text-[#5b2eff] hover:text-[#7b5eff] transition-colors"
+                              className="flex items-center gap-1.5 text-sm text-brand-500 hover:text-[#7b5eff] transition-colors"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

@@ -8,11 +8,11 @@ import { ThemeProvider, useTheme } from "@/lib/theme-context";
 
 function getAntdTheme(isDark: boolean) {
   const darkTokens = {
-    colorPrimary: "#5b2eff",
+    colorPrimary: "#8b5cf6",
     colorSuccess: "#00d4aa",
     colorWarning: "#ffb020",
     colorError: "#ff5c6c",
-    colorInfo: "#5b2eff",
+    colorInfo: "#8b5cf6",
     borderRadius: 8,
     colorBgContainer: "#12122a",
     colorBgElevated: "#1a1a3e",
@@ -21,15 +21,15 @@ function getAntdTheme(isDark: boolean) {
     colorTextSecondary: "#9494b8",
     colorTextTertiary: "#6b6b8a",
     fontFamily:
-      '"Plus Jakarta Sans", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      '"Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   };
 
   const lightTokens = {
-    colorPrimary: "#5b2eff",
+    colorPrimary: "#8b5cf6",
     colorSuccess: "#00a87d",
     colorWarning: "#e89400",
     colorError: "#e5445a",
-    colorInfo: "#5b2eff",
+    colorInfo: "#8b5cf6",
     borderRadius: 8,
     colorBgContainer: "#ffffff",
     colorBgElevated: "#fafaff",
@@ -38,7 +38,7 @@ function getAntdTheme(isDark: boolean) {
     colorTextSecondary: "#5a5a7a",
     colorTextTertiary: "#9e9eb8",
     fontFamily:
-      '"Plus Jakarta Sans", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      '"Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   };
 
   return {

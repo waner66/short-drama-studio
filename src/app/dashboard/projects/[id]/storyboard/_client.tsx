@@ -187,7 +187,7 @@ export default function StoryboardClient() {
             onClick={() => setSelectedScene(sn)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               selectedScene === sn
-                ? 'bg-[#5b2eff] text-white shadow-lg shadow-[#5b2eff]/20'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
             }`}
           >
@@ -246,7 +246,7 @@ export default function StoryboardClient() {
                           <p className="text-xs text-gray-600 mt-0.5">运镜: {sb.cameraMovement} · 光: {sb.lighting}</p>
                         )}
                         {sb.dialogue && (
-                          <p className="text-xs text-[#5b2eff] mt-0.5 truncate">&ldquo;{sb.dialogue}&rdquo;</p>
+                          <p className="text-xs text-brand-500 mt-0.5 truncate">&ldquo;{sb.dialogue}&rdquo;</p>
                         )}
                       </div>
 
@@ -328,7 +328,7 @@ export default function StoryboardClient() {
                       <select
                         value={editForm.shotType}
                         onChange={(e) => setEditForm({ ...editForm, shotType: e.target.value as any })}
-                        className="h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs focus:outline-none focus:border-[#5b2eff]"
+                        className="h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs focus:outline-none focus:border-brand-500"
                       >
                         {Object.entries(SHOT_TYPES).map(([key, val]) => (
                           <option key={key} value={key}>{val.icon} {val.label}</option>
@@ -339,7 +339,7 @@ export default function StoryboardClient() {
                         min={1} max={60}
                         value={editForm.duration}
                         onChange={(e) => setEditForm({ ...editForm, duration: Number(e.target.value) })}
-                        className="w-16 h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs text-center focus:outline-none focus:border-[#5b2eff]"
+                        className="w-16 h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs text-center focus:outline-none focus:border-brand-500"
                       />
                       <span className="text-xs text-gray-500">秒</span>
                     </div>
@@ -349,14 +349,14 @@ export default function StoryboardClient() {
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                       rows={2}
                       placeholder="分镜描述..."
-                      className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5b2eff] resize-none"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 resize-none"
                       autoFocus
                     />
                     <input
                       value={editForm.dialogue || ''}
                       onChange={(e) => setEditForm({ ...editForm, dialogue: e.target.value })}
                       placeholder="对白（可选）"
-                      className="w-full h-8 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-[#5b2eff]"
+                      className="w-full h-8 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500"
                     />
                     <div className="flex justify-end gap-2">
                       <button
@@ -375,8 +375,8 @@ export default function StoryboardClient() {
 
       {/* 添加分镜 */}
       <div className="mt-3">
-        <GlassCard className="border-2 border-dashed border-white/10 hover:border-[#5b2eff]/30 cursor-pointer group text-center py-4">
-          <div className="text-gray-500 group-hover:text-[#5b2eff] transition-colors">
+        <GlassCard className="border-2 border-dashed border-white/10 hover:border-brand-500/30 cursor-pointer group text-center py-4">
+          <div className="text-gray-500 group-hover:text-brand-500 transition-colors">
             <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>

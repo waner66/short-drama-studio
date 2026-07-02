@@ -1,3 +1,5 @@
+export function generateStaticParams() { return [{ no: "DEFAULT001" }]; }
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';

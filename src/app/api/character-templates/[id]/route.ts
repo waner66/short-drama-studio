@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserId } from '@/lib/auth-helper';
 
+export function generateStaticParams() {
+  return [{ id: 'default' }];
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const t = await prisma.characterTemplate.findUnique({
     where: { id: params.id },

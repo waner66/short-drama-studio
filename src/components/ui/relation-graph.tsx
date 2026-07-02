@@ -91,7 +91,7 @@ export default function RelationGraph({ characters, relations, onAddRelation, cl
           onMouseDown={(e) => handleMouseDown(n.id, e)}
           onClick={() => onAddRelation && onAddRelation(n.id, n.id)}>
           <circle cx={n.x} cy={n.y} r="28" fill="var(--color-background-primary, #fff)"
-            stroke="#5b2eff" strokeWidth="2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))" />
+            stroke="var(--brand-500)" strokeWidth="2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))" />
           <text x={n.x} y={n.y - 2} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--color-text-primary, #1a1a2e)">
             {n.name.length > 3 ? n.name.slice(0, 3) + '..' : n.name}
           </text>

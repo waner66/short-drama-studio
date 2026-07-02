@@ -141,7 +141,7 @@ export default function ScriptEditorClient() {
             onClick={() => setActiveAct(i)}
             className={`px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               activeAct === i
-                ? 'bg-[#5b2eff] text-white shadow-lg shadow-[#5b2eff]/20'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
             }`}
           >
@@ -163,7 +163,7 @@ export default function ScriptEditorClient() {
                   {/* 场景序号 */}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     scene.status === 'COMPLETED' ? 'bg-[#00d4aa]/20 text-[#00d4aa]' :
-                    scene.status === 'IN_PROGRESS' ? 'bg-[#5b2eff]/20 text-[#5b2eff]' :
+                    scene.status === 'IN_PROGRESS' ? 'bg-brand-500/20 text-brand-500' :
                     'bg-white/10 text-gray-500'
                   }`}>
                     {scene.id.replace('s', '')}
@@ -179,7 +179,7 @@ export default function ScriptEditorClient() {
                     </div>
                     <p className="text-sm text-gray-400 mb-2">{scene.description}</p>
                     {'dialogue' in scene && scene.dialogue && (
-                      <div className="bg-[#5b2eff]/5 border-l-2 border-[#5b2eff]/30 rounded-r-lg p-3 text-sm text-gray-300 italic">
+                      <div className="bg-brand-500/5 border-l-2 border-brand-500/30 rounded-r-lg p-3 text-sm text-gray-300 italic">
                         &ldquo;{scene.dialogue}&rdquo;
                       </div>
                     )}
@@ -215,7 +215,7 @@ export default function ScriptEditorClient() {
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     rows={5}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#5b2eff] transition-colors resize-none mb-3 font-mono"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none mb-3 font-mono"
                     autoFocus
                   />
                   <div className="flex items-center justify-between">
@@ -237,8 +237,8 @@ export default function ScriptEditorClient() {
         })}
 
         {/* 添加场景 */}
-        <GlassCard className="border-2 border-dashed border-white/10 hover:border-[#5b2eff]/30 cursor-pointer group text-center py-6">
-          <div className="text-gray-500 group-hover:text-[#5b2eff] transition-colors">
+        <GlassCard className="border-2 border-dashed border-white/10 hover:border-brand-500/30 cursor-pointer group text-center py-6">
+          <div className="text-gray-500 group-hover:text-brand-500 transition-colors">
             <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>

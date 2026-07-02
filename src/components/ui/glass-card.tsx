@@ -26,9 +26,23 @@ export default function GlassCard({
   delay = 0,
   onClick,
 }: GlassCardProps) {
+  const interactive = !!onClick;
+  const handleKeyDown = interactive
+    ? (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }
+    : undefined;
+
   return (
     <motion.div
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive && !heading ? '点击查看详情' : undefined}
       initial={animate ? { opacity: 0, y: 16, scale: 0.98 } : undefined}
       whileInView={animate ? { opacity: 1, y: 0, scale: 1 } : undefined}
       viewport={animate ? { once: true, margin: '-30px' } : undefined}

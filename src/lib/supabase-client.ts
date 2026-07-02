@@ -2,9 +2,14 @@
  * Supabase REST API 客户端
  * 通过 HTTP 协议访问 Supabase PostgREST，绕过 IPv6 直连限制
  *
+ * 重要：Prisma 的 @default(cuid())、@updatedAt、@default(now()) 是客户端行为，
+ * 通过 REST API 直连时必须手动生成 id 和时间戳字段。
+ *
  * 表名对应 Prisma schema 中的 model 名（无 @@map 时直接使用 model 名）：
  *   User, UserQuota, UserSubscription
  */
+
+import { randomUUID } from "node:crypto";
 
 const SUPABASE_URL = "https://tdeggpmxmgqgcrceymec.supabase.co";
 const SERVICE_ROLE_KEY =
@@ -156,6 +161,7 @@ export async function findUserByUsername(username: string): Promise<SupabaseUser
 
 /**
  * 创建用户（仅 User 表）
+ * 注意：Prisma @default(cuid()) 不会在 REST API 中自动生效，需手动生成 id
  */
 export async function createUser(data: {
   username: string;
@@ -164,9 +170,13 @@ export async function createUser(data: {
   passwordHash: string;
   role?: string;
 }): Promise<SupabaseUser> {
+  const now = new Date().toISOString();
   return insertOne<SupabaseUser>("User", {
+    id: randomUUID(),
     ...data,
     role: data.role || "USER",
+    createdAt: now,
+    updatedAt: now,
   });
 }
 
@@ -180,12 +190,16 @@ export async function createUserQuota(data: {
   usedQuota?: number;
   resetPeriod?: string;
 }): Promise<any> {
+  const now = new Date().toISOString();
   return insertOne("UserQuota", {
+    id: randomUUID(),
     userId: data.userId,
     quotaType: data.quotaType,
     totalQuota: data.totalQuota,
     usedQuota: data.usedQuota ?? 0,
     resetPeriod: data.resetPeriod ?? "ONETIME",
+    createdAt: now,
+    updatedAt: now,
   });
 }
 
@@ -197,10 +211,15 @@ export async function createUserSubscription(data: {
   plan?: string;
   status?: string;
 }): Promise<any> {
+  const now = new Date().toISOString();
   return insertOne("UserSubscription", {
+    id: randomUUID(),
     userId: data.userId,
     plan: data.plan || "FREE",
     status: data.status || "ACTIVE",
+    startedAt: now,
+    createdAt: now,
+    updatedAt: now,
   });
 }
 

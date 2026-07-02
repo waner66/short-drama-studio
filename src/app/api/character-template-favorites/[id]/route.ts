@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export function generateStaticParams() {
+  return [{ id: 'default' }];
+}
+
 // DELETE /api/character-template-favorites/[id]
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   // 简化版：开发阶段无需认证

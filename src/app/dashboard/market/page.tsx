@@ -1,78 +1,366 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import './market-page.css';
 import PageHeader from '@/components/ui/page-header';
-import TemplateCard from '@/components/business/template-card';
 import GradientBtn from '@/components/ui/gradient-btn';
-import TagGroup from '@/components/ui/tag-group';
-import { Spin } from 'antd';
-import { LoadingOutlined, FireOutlined, ShopOutlined } from '@ant-design/icons';
+import MarketTabs, { type TabKey } from '@/components/business/market-tabs';
+import TemplateCardV2, { type TemplateCardV2Data } from '@/components/business/template-card-v2';
+import TemplateDetailDrawer from '@/components/business/template-detail-drawer';
+import CharacterCard from '@/components/business/character-card';
+import CharacterDetailDrawer from '@/components/business/character-detail-drawer';
+import { officialTemplates, type OfficialTemplate } from '@/lib/data/character-templates';
+import { sceneTemplates, type SceneTemplate } from '@/lib/data/scene-templates';
+import { plotTemplates, type PlotTemplate } from '@/lib/data/plot-templates';
 
-interface TemplateItem {
-  id: string; title: string; description?: string; price: number;
-  category?: string; avgRating: number; salesCount: number;
-  tags: string[]; creator?: { id?: string; username?: string; avatarUrl?: string; name?: string };
-  coverUrl?: string; publishedAt?: string;
+/* ================================================
+   数据转换：将三种模板转为统一的 TemplateCardV2Data
+   ================================================ */
+
+function characterToCard(tpl: OfficialTemplate): TemplateCardV2Data {
+  return {
+    id: tpl.id,
+    name: tpl.name,
+    description: tpl.description,
+    tags: tpl.tags,
+    price: tpl.price,
+    coverEmoji: getCharacterEmoji(tpl.genre),
+    coverGradient: tpl.coverColor.includes('gradient')
+      ? tpl.coverColor
+      : `linear-gradient(135deg, ${tpl.coverColor} 0%, ${adjustColor(tpl.coverColor, 30)} 100%)`,
+    genre: tpl.genre,
+    atmosphere: undefined,
+    era: undefined,
+  };
 }
 
-const categoryTags = [
+function sceneToCard(tpl: SceneTemplate): TemplateCardV2Data {
+  return {
+    id: tpl.id,
+    name: tpl.name,
+    description: tpl.description,
+    tags: tpl.tags,
+    price: 0, // 场景模板暂定免费
+    coverEmoji: tpl.coverEmoji,
+    coverGradient: tpl.coverGradient,
+    era: tpl.era,
+    atmosphere: tpl.atmosphere,
+    genre: undefined,
+  };
+}
+
+function plotToCard(tpl: PlotTemplate): TemplateCardV2Data {
+  return {
+    id: tpl.id,
+    name: tpl.name,
+    description: tpl.description,
+    tags: tpl.tags,
+    price: 0, // 剧情模板暂定免费
+    coverEmoji: tpl.coverEmoji,
+    coverGradient: tpl.coverGradient,
+    genre: tpl.genre,
+    atmosphere: undefined,
+    era: undefined,
+  };
+}
+
+function getCharacterEmoji(genre: string): string {
+  const map: Record<string, string> = {
+    '甜宠恋爱': '💕', '悬疑推理': '🔍', '古装仙侠': '🏯',
+    '校园青春': '🎓', '逆袭爽文': '🔥',
+  };
+  return map[genre] || '🎭';
+}
+
+function adjustColor(hex: string, amount: number): string {
+  // 简单的颜色调整函数，支持 hex 字符串的简单偏移
+  try {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.min(255, Math.max(0, ((num >> 16) & 0xff) + amount));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amount));
+    const b = Math.min(255, Math.max(0, (num & 0xff) + amount));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  } catch {
+    return hex;
+  }
+}
+
+/* ================================================
+   分类筛选配置（根据 Tab 动态变化）
+   ================================================ */
+
+const characterCategories = [
   { key: 'all', label: '全部', color: 'gray' as const },
-  { key: '甜宠恋爱', label: '甜宠', color: 'pink' as const },
-  { key: '古装仙侠', label: '古装', color: 'purple' as const },
-  { key: '悬疑推理', label: '悬疑', color: 'cyan' as const },
-  { key: '校园青春', label: '校园', color: 'green' as const },
-  { key: '逆袭爽文', label: '逆袭', color: 'amber' as const },
-  { key: '喜剧', label: '喜剧', color: 'green' as const },
-  { key: '科幻', label: '科幻', color: 'purple' as const },
+  { key: '甜宠恋爱', label: '💕 甜宠', color: 'pink' as const },
+  { key: '悬疑推理', label: '🔍 悬疑', color: 'cyan' as const },
+  { key: '古装仙侠', label: '🏯 古装', color: 'purple' as const },
+  { key: '校园青春', label: '🎓 校园', color: 'green' as const },
+  { key: '逆袭爽文', label: '🔥 逆袭', color: 'amber' as const },
+];
+
+const sceneCategories = [
+  { key: 'all', label: '全部', color: 'gray' as const },
+  { key: '浪漫', label: '💕 浪漫', color: 'pink' as const },
+  { key: '紧张', label: '⚡ 紧张', color: 'red' as const },
+  { key: '悲伤', label: '💧 悲伤', color: 'blue' as const },
+  { key: '欢乐', label: '🎉 欢乐', color: 'yellow' as const },
+  { key: '神秘', label: '🌙 神秘', color: 'purple' as const },
+  { key: '震撼', label: '🔥 震撼', color: 'orange' as const },
+];
+
+const plotCategories = [
+  { key: 'all', label: '全部', color: 'gray' as const },
+  { key: '甜宠恋爱', label: '💕 甜宠', color: 'pink' as const },
+  { key: '古装仙侠', label: '🏯 古装', color: 'purple' as const },
+  { key: '悬疑推理', label: '🔍 悬疑', color: 'cyan' as const },
+  { key: '校园青春', label: '🎓 校园', color: 'green' as const },
+  { key: '逆袭爽文', label: '🔥 逆袭', color: 'amber' as const },
+  { key: '都市现实', label: '🌆 都市', color: 'blue' as const },
+  { key: '科幻未来', label: '🚀 科幻', color: 'indigo' as const },
 ];
 
 const sortOptions = [
-  { key: 'hot', label: '热门推荐' },
-  { key: 'new', label: '最新上架' },
-  { key: 'top', label: '好评排行' },
-  { key: 'price_asc', label: '价格从低' },
+  { key: 'default', label: '默认排序' },
+  { key: 'name', label: '名称 A-Z' },
+  { key: 'price', label: '价格从低' },
 ];
 
+/* ================================================
+   主页面组件
+   ================================================ */
+
 export default function MarketPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // ==== 状态 ====
+  const tabFromUrl = (searchParams?.get('tab') || 'character') as TabKey;
+  const [activeTab, setActiveTab] = useState<TabKey>(tabFromUrl);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
-  const [sort, setSort] = useState('hot');
-  const [templates, setTemplates] = useState<TemplateItem[]>([]);
+  const [sort, setSort] = useState('default');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
-  const fetchData = (cat: string, srt: string, q: string) => {
+  // 抽屉状态
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState<TemplateCardV2Data | null>(null);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<string | null>(null);
+
+  // 角色专属抽屉状态
+  const [characterDrawerOpen, setCharacterDrawerOpen] = useState(false);
+  const [characterDrawerData, setCharacterDrawerData] = useState<OfficialTemplate | null>(null);
+
+  // 模拟加载骨架屏
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setLoading(false);
+      setTimeout(() => setShowSkeleton(false), 300);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [activeTab]);
+
+  // Tab切换时重置筛选
+  useEffect(() => {
+    setCategory('all');
+    setSearch('');
+    setSort('default');
     setLoading(true);
-    setError('');
-    const params = new URLSearchParams();
-    if (cat !== 'all') params.set('category', cat);
-    params.set('sort', srt);
-    if (q) params.set('search', q);
-    params.set('limit', '20');
+    setShowSkeleton(true);
+    setDrawerOpen(false);
+    setCharacterDrawerOpen(false);
+    const t = setTimeout(() => {
+      setLoading(false);
+      setTimeout(() => setShowSkeleton(false), 300);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [activeTab]);
 
-    fetch(`/api/templates?${params.toString()}`)
-      .then(r => { if (!r.ok) throw new Error('加载失败'); return r.json(); })
-      .then(d => setTemplates(d.data || []))
-      .catch(e => setError(e.message || '加载模板失败'))
-      .finally(() => setLoading(false));
-  };
+  // ==== 数据源 ====
+  const allData = useMemo(() => {
+    switch (activeTab) {
+      case 'character':
+        return officialTemplates.map(characterToCard);
+      case 'scene':
+        return sceneTemplates.map(sceneToCard);
+      case 'plot':
+        return plotTemplates.map(plotToCard);
+    }
+  }, [activeTab]);
 
-  useEffect(() => { fetchData(category, sort, search); }, [category, sort]);
+  // ==== 筛选逻辑 ====
+  const currentCategories = useMemo(() => {
+    switch (activeTab) {
+      case 'character': return characterCategories;
+      case 'scene': return sceneCategories;
+      case 'plot': return plotCategories;
+    }
+  }, [activeTab]);
 
-  const handleSearch = (val: string) => {
-    setSearch(val);
-    if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => fetchData(category, sort, val), 400);
-  };
+  const filteredData = useMemo(() => {
+    let result = [...allData];
+
+    // 搜索过滤
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(d =>
+        d.name.toLowerCase().includes(q) ||
+        d.description.toLowerCase().includes(q) ||
+        d.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    // 分类过滤
+    if (category !== 'all') {
+      if (activeTab === 'scene') {
+        result = result.filter(d => d.atmosphere === category);
+      } else {
+        result = result.filter(d => d.genre === category);
+      }
+    }
+
+    // 排序
+    if (sort === 'name') {
+      result.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+    } else if (sort === 'price') {
+      result.sort((a, b) => a.price - b.price);
+    }
+
+    return result;
+  }, [allData, search, category, sort, activeTab]);
+
+  // 角色Tab专用筛选（直接使用 OfficialTemplate，保留大五人格等富数据）
+  const filteredCharacterData = useMemo(() => {
+    let result = [...officialTemplates];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(d =>
+        d.name.toLowerCase().includes(q) ||
+        d.description.toLowerCase().includes(q) ||
+        d.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+    if (category !== 'all') {
+      result = result.filter(d => d.genre === category);
+    }
+    if (sort === 'name') {
+      result.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+    } else if (sort === 'price') {
+      result.sort((a, b) => a.price - b.price);
+    }
+    return result;
+  }, [search, category, sort]);
+
+  // ==== 事件处理 ====
+  const handleTabChange = useCallback((tab: TabKey) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', tab);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [router, pathname, searchParams]);
+
+  const handleCardClick = useCallback((data: TemplateCardV2Data) => {
+    setDrawerData(data);
+    setDrawerOpen(true);
+  }, []);
+
+  const handleUseTemplate = useCallback((data: TemplateCardV2Data) => {
+    const routes: Record<string, string> = {
+      character: '/dashboard/characters/templates',
+      scene: '/dashboard/scenes/new',
+      plot: '/dashboard/projects/new',
+    };
+    const route = routes[activeTab] || '/dashboard';
+    router.push(`${route}?template=${data.id}`);
+  }, [activeTab, router]);
+
+  const handleFavorite = useCallback((id: string) => {
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        setToast('已取消收藏');
+      } else {
+        next.add(id);
+        setToast('已添加收藏');
+      }
+      return next;
+    });
+    setTimeout(() => setToast(null), 2000);
+  }, []);
+
+  const handleCharacterCardClick = useCallback((data: OfficialTemplate) => {
+    setCharacterDrawerData(data);
+    setCharacterDrawerOpen(true);
+  }, []);
+
+  const handleCharacterUse = useCallback((data: OfficialTemplate) => {
+    router.push(`/dashboard/characters/templates?template=${data.id}`);
+  }, [router]);
+
+  // ==== 渲染骨架屏 ====
+  const renderSkeleton = () => (
+    <div className="skeleton-grid">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="skeleton-card">
+          <div className="skeleton-cover shimmer" />
+          <div className="skeleton-info">
+            <div className="skeleton-line shimmer" style={{ width: '70%', height: 16 }} />
+            <div className="skeleton-line shimmer" style={{ width: '90%', height: 12, marginTop: 8 }} />
+            <div className="skeleton-tags">
+              <div className="skeleton-tag shimmer" />
+              <div className="skeleton-tag shimmer" />
+              <div className="skeleton-tag shimmer" style={{ width: 40 }} />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // ==== 渲染空状态 ====
+  const renderEmpty = () => (
+    <div className="empty-state">
+      <div className="empty-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+          <path strokeLinecap="round" strokeLinejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <h3 className="empty-title">没有找到匹配的模板</h3>
+      <p className="empty-desc">试试调整搜索关键词或筛选条件</p>
+      <div className="empty-suggestions">
+        <span className="empty-suggest-label">试试这些：</span>
+        {currentCategories.slice(1, 5).map(cat => (
+          <button
+            key={cat.key}
+            className="empty-suggest-tag"
+            onClick={() => { setCategory(cat.key); setSearch(''); }}
+          >
+            {cat.label.replace(/^.{2}/, '')}
+          </button>
+        ))}
+      </div>
+      <button
+        className="empty-reset-btn"
+        onClick={() => { setSearch(''); setCategory('all'); setSort('default'); }}
+      >
+        清除所有筛选
+      </button>
+    </div>
+  );
 
   return (
     <div>
+      {/* ===== 页面标题 ===== */}
       <PageHeader
-        title="模板市场"
-        subtitle="浏览优质短剧模板，或上架自己的模板赚取收益"
-        breadcrumbs={[{ label: '发现首页', href: '/dashboard' }, { label: '模板市场' }]}
+        title="创造，属于你的世界"
+        subtitle="浏览优质短剧模板，快速启动创作"
+        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: '模板市场' }]}
         actions={
           <Link href="/dashboard/templates">
             <GradientBtn variant="sell">上架模板</GradientBtn>
@@ -80,122 +368,136 @@ export default function MarketPage() {
         }
       />
 
-      {/* ===== Featured Banner ===== */}
-      {!loading && templates.length > 0 && (
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] mb-6"
-          style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(249,115,22,0.05), rgba(139,92,246,0.04)), var(--surface-card)' }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-amber-400/5 blur-3xl" />
-          <div className="relative px-6 py-8">
-            <div className="flex items-center gap-2 text-amber-400 text-sm font-medium mb-2">
-              <FireOutlined /> 本周精选
-            </div>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">爆款模板精选</h2>
-            <p className="text-[var(--text-secondary)] text-sm mb-5 max-w-md">
-              社区评分最高、销量最好的短剧模板，助你快速打造下一部爆款
-            </p>
-            {/* Featured template cards — horizontal scroll */}
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
-              {templates.slice(0, 5).map((tpl) => (
-                <Link key={tpl.id} href={`/dashboard/market/${tpl.id}`} className="flex-shrink-0 no-underline">
-                  <div className="w-44 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] overflow-hidden hover:border-amber-500/30 transition-colors">
-                    <div className="h-24 bg-gradient-to-br from-amber-500/20 to-orange-400/10 flex items-center justify-center">
-                      <ShopOutlined className="text-amber-400/30 text-xl" />
-                    </div>
-                    <div className="p-3">
-                      <p className="text-[var(--text-primary)] text-xs font-semibold truncate">{tpl.title}</p>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <span className="text-[10px] text-[var(--text-muted)]">{tpl.salesCount || 0} 购买</span>
-                        <span className="text-xs font-bold text-amber-400">¥{typeof tpl.price === 'number' ? tpl.price.toFixed(1) : tpl.price}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ===== Tab 切换 ===== */}
+      <MarketTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {/* ===== Search + Filters ===== */}
-      <div className="mb-6 space-y-4">
-        {/* Search bar — prominent */}
-        <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--text-muted)]"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="搜索模板名称、标签、创作者..."
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-default)] pl-11 pr-4 py-3.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 transition-all"
-          />
+      {/* ===== 搜索栏 ===== */}
+      <div className="market-search-wrapper">
+        <svg className="market-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          placeholder="搜索模板名称、描述、标签..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="market-search-input"
+        />
+        {search && (
+          <button className="market-search-clear" onClick={() => setSearch('')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* ===== 分类筛选 + 排序 ===== */}
+      <div className="market-filters">
+        <div className="market-categories">
+          {currentCategories.map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setCategory(cat.key)}
+              className={`market-cat-btn ${category === cat.key ? 'active' : ''} cat-${cat.color}`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <TagGroup tags={categoryTags} selected={category} onSelect={setCategory} />
-          <div className="flex items-center gap-1 bg-[var(--surface-elevated)] rounded-xl p-1 border border-[var(--border-subtle)]">
-            {sortOptions.map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => setSort(opt.key)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
-                  sort === opt.key
-                    ? 'bg-amber-500/15 text-amber-400 shadow-sm'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+        <div className="market-sort-group">
+          {sortOptions.map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => setSort(opt.key)}
+              className={`market-sort-btn ${sort === opt.key ? 'active' : ''}`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ===== Template Grid ===== */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Spin indicator={<LoadingOutlined style={{ fontSize: 32, color: '#f59e0b' }} spin />} />
-        </div>
-      ) : error ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <p className="text-sm text-red-400 mb-2">{error}</p>
-          <button onClick={() => fetchData(category, sort, search)} className="text-xs text-[var(--brand-400)] hover:text-[var(--brand-300)]">
-            重试
-          </button>
-        </div>
-      ) : templates.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {templates.map((tmpl) => (
-            <TemplateCard
-              key={tmpl.id}
-              template={{
-                id: tmpl.id,
-                title: tmpl.title,
-                description: tmpl.description || '',
-                category: tmpl.category || '其他',
-                price: Number(tmpl.price),
-                rating: tmpl.avgRating || 0,
-                sales: tmpl.salesCount || 0,
-                tags: tmpl.tags || [],
-                creator: { name: tmpl.creator?.name || tmpl.creator?.username || '未知' },
-                coverUrl: tmpl.coverUrl,
-              }}
-            />
-          ))}
-        </div>
+      {/* ===== 结果计数 ===== */}
+      <div className="market-result-count">
+        共 <strong>{activeTab === 'character' ? filteredCharacterData.length : filteredData.length}</strong> 个模板
+        {category !== 'all' && (
+          <span className="market-filter-badge">
+            {currentCategories.find(c => c.key === category)?.label}
+            <button onClick={() => setCategory('all')} className="market-filter-remove">×</button>
+          </span>
+        )}
+      </div>
+
+      {/* ===== 模板网格 ===== */}
+      {showSkeleton ? (
+        renderSkeleton()
+      ) : activeTab === 'character' ? (
+        /* --- 人物Tab：使用角色专属卡片 --- */
+        filteredCharacterData.length > 0 ? (
+          <div className="market-grid">
+            {filteredCharacterData.map(data => (
+              <CharacterCard
+                key={data.id}
+                data={data}
+                onClick={handleCharacterCardClick}
+                onUse={handleCharacterUse}
+                onFavorite={handleFavorite}
+                isFavorited={favorites.has(data.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          renderEmpty()
+        )
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-[var(--text-muted)]">
-          <svg className="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <span className="text-sm">没有找到匹配的模板</span>
-          <button onClick={() => { setSearch(''); setCategory('all'); }}
-            className="mt-2 text-xs text-amber-400 hover:text-amber-300">
-            清除筛选条件
-          </button>
-        </div>
+        /* --- 场景/剧情Tab：使用通用模板卡片 --- */
+        filteredData.length > 0 ? (
+          <div className="market-grid">
+            {filteredData.map(data => (
+              <TemplateCardV2
+                key={data.id}
+                data={data}
+                type={activeTab}
+                onClick={handleCardClick}
+                onUse={handleUseTemplate}
+                onFavorite={handleFavorite}
+                isFavorited={favorites.has(data.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          renderEmpty()
+        )
+      )}
+
+      {/* ===== 详情抽屉 ===== */}
+      {activeTab === 'character' ? (
+        <CharacterDetailDrawer
+          open={characterDrawerOpen}
+          data={characterDrawerData}
+          onClose={() => setCharacterDrawerOpen(false)}
+          onUse={handleCharacterUse}
+          onFavorite={handleFavorite}
+          isFavorited={characterDrawerData ? favorites.has(characterDrawerData.id) : false}
+        />
+      ) : (
+        <TemplateDetailDrawer
+          open={drawerOpen}
+          data={drawerData}
+          type={activeTab}
+          onClose={() => setDrawerOpen(false)}
+          onUse={handleUseTemplate}
+          onFavorite={handleFavorite}
+          isFavorited={drawerData ? favorites.has(drawerData.id) : false}
+        />
+      )}
+
+      {/* ===== Toast 提示 ===== */}
+      {toast && (
+        <div className="market-toast">{toast}</div>
       )}
     </div>
   );

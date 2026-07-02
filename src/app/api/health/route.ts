@@ -88,7 +88,73 @@ export async function GET() {
     };
   }
 
-  // 7. 打印所有 Supabase/DB 相关环境变量（排查用）
+  // 7. 测试注册流程 — POST 写入 + DELETE 清理
+  try {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceKey) {
+      checks.register_test = {
+        ok: false,
+        detail: 'SUPABASE_SERVICE_ROLE_KEY 未设置',
+      };
+    } else {
+      const testId = crypto.randomUUID ? crypto.randomUUID() : 'test-' + Date.now();
+      const now = new Date().toISOString();
+      const createRes = await fetch(
+        `https://tdeggpmxmgqgcrceymec.supabase.co/rest/v1/User`,
+        {
+          method: 'POST',
+          headers: {
+            apikey: serviceKey,
+            Authorization: `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation',
+          },
+          body: JSON.stringify({
+            id: testId,
+            username: `_health_test_${Date.now()}`,
+            passwordHash: 'test',
+            role: 'USER',
+            createdAt: now,
+            updatedAt: now,
+          }),
+        }
+      );
+      const createdOk = createRes.ok;
+      const createBody = await createRes.text();
+
+      // 立即删除测试用户
+      let deletedOk = false;
+      if (createdOk) {
+        const delRes = await fetch(
+          `https://tdeggpmxmgqgcrceymec.supabase.co/rest/v1/User?id=eq.${testId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              apikey: serviceKey,
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          }
+        );
+        deletedOk = delRes.ok;
+      }
+
+      checks.register_test = {
+        ok: createdOk && deletedOk,
+        detail: createdOk
+          ? deletedOk
+            ? '注册写入+删除测试通过'
+            : '注册写入成功，但删除失败'
+          : `注册写入失败 HTTP ${createRes.status}: ${createBody.substring(0, 200)}`,
+      };
+    }
+  } catch (err: any) {
+    checks.register_test = {
+      ok: false,
+      detail: err?.message || String(err),
+    };
+  }
+
+  // 8. 打印所有 Supabase/DB 相关环境变量（排查用）
   const dbEnvKeys = [
     'DATABASE_URL', 'DIRECT_URL', 'POOLER_DB_URL',
     'POSTGRES_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING', 'POSTGRES_URL_NO_SSL',
