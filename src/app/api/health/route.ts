@@ -51,6 +51,26 @@ export async function GET() {
     detail: `NODE_ENV=${process.env.NODE_ENV || '未设置'}, VERCEL=${process.env.VERCEL || '否'}`,
   };
 
+  // 6. 打印所有 Supabase/DB 相关环境变量（排查用）
+  const dbEnvKeys = [
+    'DATABASE_URL', 'DIRECT_URL', 'POOLER_DB_URL',
+    'POSTGRES_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING', 'POSTGRES_URL_NO_SSL',
+    'POSTGRES_USER', 'POSTGRES_HOST', 'POSTGRES_PASSWORD', 'POSTGRES_DATABASE',
+    'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY',
+    'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  ];
+  const dbEnvDump: Record<string, string> = {};
+  for (const key of dbEnvKeys) {
+    const val = process.env[key];
+    if (val) {
+      // Hide passwords
+      dbEnvDump[key] = val.replace(/\/\/[^@]*@/, '//***:***@');
+    } else {
+      dbEnvDump[key] = '(未设置)';
+    }
+  }
+  checks.db_env_dump = { ok: true, detail: JSON.stringify(dbEnvDump) };
+
   const allOk = Object.values(checks).every((c) => c.ok);
 
   return NextResponse.json(
