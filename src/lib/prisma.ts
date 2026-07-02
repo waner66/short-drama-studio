@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
-// Supabase Vercel 集成自动注入 DATABASE_URL（直连IPv6），
-// POSTGRES_PRISMA_URL 是 Pooler 地址（IPv4兼容），优先使用
-if (process.env.POSTGRES_PRISMA_URL) {
-  process.env.DATABASE_URL = process.env.POSTGRES_PRISMA_URL;
+// Vercel 上 Supabase 集成自动注入 DATABASE_URL（直连IPv6，不可用），
+// 用独立注入的 POOLER_DATABASE_URL 覆盖（Pooler地址，IPv4兼容）
+if (process.env.POOLER_DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.POOLER_DATABASE_URL;
 }
 
 const globalForPrisma = globalThis as unknown as {
