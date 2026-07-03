@@ -7,27 +7,36 @@ import GlassCard from '@/components/ui/glass-card';
 import GradientBtn from '@/components/ui/gradient-btn';
 import EmptyState from '@/components/ui/empty-state';
 import TagGroup from '@/components/ui/tag-group';
-
-const mockCharacters = [
-  { id: '1', name: '林小羽', gender: '女', age: 22, personality: '活泼开朗、善良纯真', style: '写实', avatarUrl: null, isAiGenerated: true },
-  { id: '2', name: '陈墨', gender: '男', age: 28, personality: '冷静沉稳、心思缜密', style: '写实', avatarUrl: null, isAiGenerated: true },
-];
+import { CardSkeleton } from '@/components/ui/loading-skeleton';
 
 export default function CharactersPage() {
   const [searchText, setSearchText] = useState('');
   const [genderFilter, setGenderFilter] = useState('all');
-  const [characters, setCharacters] = useState<typeof mockCharacters>([]);
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      import('@/lib/store/data-service').then(({ characterService }) => {
-        const list = characterService.listByUser(user.id || 'anonymous');
-        setCharacters((list.length ? list : mockCharacters) as typeof mockCharacters);
-      });
-    } catch {
-      setCharacters(mockCharacters);
+    async function load() {
+      setLoading(true);
+      setError('');
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/characters', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          setCharacters(await res.json());
+        } else {
+          setError('加载角色失败');
+        }
+      } catch {
+        setError('网络错误，请重试');
+      } finally {
+        setLoading(false);
+      }
     }
+    load();
   }, []);
 
   const filtered = characters.filter((c) => {
@@ -81,7 +90,16 @@ export default function CharactersPage() {
       </GlassCard>
 
       {/* 角色列表 */}
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
+        </div>
+      ) : error ? (
+        <GlassCard className="text-center py-12">
+          <p className="text-red-400 mb-4">{error}</p>
+          <GradientBtn onClick={() => window.location.reload()}>重试</GradientBtn>
+        </GlassCard>
+      ) : filtered.length === 0 ? (
         <GlassCard>
           <EmptyState
             title="暂无角色"
