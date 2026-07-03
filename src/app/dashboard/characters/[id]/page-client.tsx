@@ -8,6 +8,7 @@ import StatCard from '@/components/ui/stat-card';
 import ScrollReveal from '@/components/ui/scroll-reveal';
 import TagGroup from '@/components/ui/tag-group';
 import AIGeneratePanel from '@/components/business/ai-generate-panel';
+import { ClipboardList, BookOpen, Sparkles, Link2, FolderOpen } from '@/components/ui/icons';
 
 const mockCharacter = {
   id: 'demo',
@@ -39,11 +40,11 @@ export default function CharacterDetailClient({ params }: { params: { id: string
   const [aiResult, setAiResult] = useState('');
 
   const sections = [
-    { key: 'overview', label: '概览', icon: '📋' },
-    { key: 'background', label: '背景故事', icon: '📖' },
-    { key: 'appearance', label: '外貌设定', icon: '✨' },
-    { key: 'relationships', label: '人物关系', icon: '🔗' },
-    { key: 'projects', label: '关联项目', icon: '📁' },
+    { key: 'overview', label: '概览', Icon: ClipboardList },
+    { key: 'background', label: '背景故事', Icon: BookOpen },
+    { key: 'appearance', label: '外貌设定', Icon: Sparkles },
+    { key: 'relationships', label: '人物关系', Icon: Link2 },
+    { key: 'projects', label: '关联项目', Icon: FolderOpen },
   ];
 
   return (
@@ -75,13 +76,13 @@ export default function CharacterDetailClient({ params }: { params: { id: string
               <button
                 key={sec.key}
                 onClick={() => setActiveSection(sec.key)}
-                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 whitespace-nowrap hover:scale-[1.02] ${
                   activeSection === sec.key
                     ? 'bg-purple-500/20 text-purple-400'
                     : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                <span>{sec.icon}</span>
+                <sec.Icon size={15} strokeWidth={2} />
                 {sec.label}
               </button>
             ))}

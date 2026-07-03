@@ -270,7 +270,7 @@ export default function MarketPage() {
 
   const handleUseTemplate = useCallback((data: TemplateCardV2Data) => {
     const routes: Record<string, string> = {
-      character: '/dashboard/characters/templates',
+      character: '/dashboard/characters/new',
       scene: '/dashboard/scenes/new',
       plot: '/dashboard/projects/new',
     };
@@ -299,7 +299,7 @@ export default function MarketPage() {
   }, []);
 
   const handleCharacterUse = useCallback((data: OfficialTemplate) => {
-    router.push(`/dashboard/characters/templates?template=${data.id}`);
+    router.push(`/dashboard/characters/new?template=${data.id}`);
   }, [router]);
 
   // ==== 渲染骨架屏 ====

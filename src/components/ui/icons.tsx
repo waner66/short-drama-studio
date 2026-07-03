@@ -1,0 +1,63 @@
+'use client';
+
+import {
+  ClipboardList,
+  BookOpen,
+  Sparkles,
+  Link2,
+  FolderOpen,
+  MessageSquare,
+  Clapperboard,
+  Heart,
+  Theater,
+  Handshake,
+  Target,
+  Waves,
+  Lightbulb,
+  Zap,
+  ArrowRight,
+  Plus,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
+
+export {
+  ClipboardList,
+  BookOpen,
+  Sparkles,
+  Link2,
+  FolderOpen,
+  MessageSquare,
+  Clapperboard,
+  Heart,
+  Theater,
+  Handshake,
+  Target,
+  Waves,
+  Lightbulb,
+  Zap,
+  ArrowRight,
+  Plus,
+  X,
+};
+
+/** Icon mapping object for dynamic lookups */
+export const iconMap: Record<string, LucideIcon> = {
+  ClipboardList,
+  BookOpen,
+  Sparkles,
+  Link2,
+  FolderOpen,
+  MessageSquare,
+  Clapperboard,
+  Heart,
+  Theater,
+  Handshake,
+  Target,
+  Waves,
+  Lightbulb,
+  Zap,
+  ArrowRight,
+  Plus,
+  X,
+};

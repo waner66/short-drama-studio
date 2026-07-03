@@ -1,5 +1,6 @@
 /* ============================================
    Market Page - 模板市场页面样式
+   All colors migrated to Design System CSS variables
    ============================================ */
 
 /* ===== 搜索栏 ===== */
@@ -15,31 +16,30 @@
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
   pointer-events: none;
 }
 
 .market-search-input {
   width: 100%;
   padding: 14px 44px 14px 48px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--surface-card);
+  color: var(--text-primary);
   font-size: 15px;
   outline: none;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
 }
 
 .market-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
 }
 
 .market-search-input:focus {
-  border-color: rgba(138, 92, 246, 0.4);
-  box-shadow: 0 0 0 3px rgba(138, 92, 246, 0.08);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--brand-400);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  background: var(--surface-elevated);
 }
 
 .market-search-clear {
@@ -51,8 +51,8 @@
   height: 32px;
   border-radius: 8px;
   border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -61,8 +61,8 @@
 }
 
 .market-search-clear:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--surface-overlay);
+  color: var(--text-primary);
 }
 
 /* ===== 筛选栏 ===== */
@@ -84,10 +84,10 @@
 
 .market-cat-btn {
   padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--surface-card);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -96,14 +96,14 @@
 }
 
 .market-cat-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-default);
 }
 
 .market-cat-btn.active {
   background: rgba(138, 92, 246, 0.12);
-  color: #a78bfa;
+  color: var(--brand-400);
   border-color: rgba(138, 92, 246, 0.3);
   font-weight: 600;
 }
@@ -170,8 +170,8 @@
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
 }
 
 .market-sort-btn {
@@ -179,7 +179,7 @@
   border: none;
   border-radius: 9px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -188,12 +188,12 @@
 }
 
 .market-sort-btn:hover {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .market-sort-btn.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--surface-elevated);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -204,11 +204,11 @@
   gap: 10px;
   margin-bottom: 20px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
 }
 
 .market-result-count strong {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-weight: 700;
 }
 
@@ -218,16 +218,16 @@
   gap: 6px;
   padding: 3px 10px;
   border-radius: 20px;
-  background: rgba(138, 92, 246, 0.12);
-  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--brand-400);
   font-size: 12px;
   font-weight: 500;
 }
 
 .market-filter-remove {
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
   border-radius: 50%;
   width: 16px;
   height: 16px;
@@ -242,8 +242,8 @@
 }
 
 .market-filter-remove:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--surface-overlay);
+  color: var(--text-primary);
 }
 
 /* ===== 模板网格 ===== */
@@ -279,16 +279,16 @@
 }
 
 .skeleton-card {
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
 }
 
 .skeleton-cover {
   width: 100%;
   height: 200px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-elevated);
 }
 
 .skeleton-info {
@@ -297,7 +297,7 @@
 
 .skeleton-line {
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-elevated);
   width: 100%;
   height: 14px;
 }
@@ -312,7 +312,7 @@
   width: 48px;
   height: 24px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-elevated);
 }
 
 /* Shimmer 动画 */
@@ -328,9 +328,10 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.04) 50%,
+    var(--surface-overlay) 50%,
     transparent 100%
   );
+  opacity: 0.5;
   animation: shimmer 1.8s infinite;
 }
 
@@ -355,25 +356,26 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-card);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--text-muted);
+  opacity: 0.4;
 }
 
 .empty-title {
   margin: 0 0 8px;
   font-size: 18px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
 }
 
 .empty-desc {
   margin: 0 0 24px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
 }
 
 .empty-suggestions {
@@ -387,32 +389,32 @@
 
 .empty-suggest-label {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
 }
 
 .empty-suggest-tag {
   padding: 5px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--surface-card);
+  color: var(--text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .empty-suggest-tag:hover {
-  border-color: rgba(138, 92, 246, 0.3);
-  color: #a78bfa;
-  background: rgba(138, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: var(--brand-400);
+  background: rgba(139, 92, 246, 0.08);
 }
 
 .empty-reset-btn {
   padding: 10px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -420,8 +422,8 @@
 }
 
 .empty-reset-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--surface-overlay);
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -435,13 +437,13 @@
   z-index: 2000;
   padding: 12px 24px;
   border-radius: 14px;
-  background: rgba(30, 30, 50, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   backdrop-filter: blur(20px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-elevated);
   animation: toastIn 0.3s ease, toastOut 0.3s ease 1.7s forwards;
 }
 

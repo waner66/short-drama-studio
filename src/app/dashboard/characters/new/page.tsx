@@ -1,19 +1,38 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  ClipboardList, Palette, Brain, Drama, Gem, TrendingUp,
+  FileText, Sparkles, Mars, Venus, Wand2,
+} from 'lucide-react';
 import PageHeader from '@/components/ui/page-header';
 import GlassCard from '@/components/ui/glass-card';
-import GradientBtn from '@/components/ui/gradient-btn';
+import RefinedButton, { SegmentedControl } from '@/components/ui/refined-button';
 import AiGeneratePanel from '@/components/business/ai-generate-panel';
-import PersonalityRadar from '@/components/ui/personality-radar';
+import FaceBuilder, { type FaceConfig } from '@/components/business/face-builder';
+import PersonalityRadarInteractive, { type PersonalityValues } from '@/components/business/personality-radar-interactive';
+import TraitTagCloud from '@/components/business/trait-tag-cloud';
+import DevelopmentArcEditor, { type ArcNode, DEFAULT_NODES } from '@/components/business/development-arc-editor';
+import CharacterAvatarPreview from '@/components/business/character-avatar-preview';
+import FormProgressRing from '@/components/business/form-progress-ring';
 import { officialTemplates } from '@/lib/data/character-templates';
 
 const PERSONALITIES = ['活泼开朗', '冷静沉稳', '温柔善良', '霸道强势', '腹黑狡诈', '幽默风趣', '天真可爱', '成熟稳重', '神秘高冷'];
+const AI_CHARACTER_TAGS = ['霸道总裁', '甜宠女主', '冷酷杀手', '温柔医生', '腹黑谋士', '侠女', '校园学霸', '古代王爷', '修仙少女', '逆袭女主'];
+
+const SURFACE_TRAITS = [
+  '活泼', '温柔', '霸道', '高冷', '幽默', '天真', '沉稳', '神秘',
+  '腹黑', '直率', '腼腆', '洒脱', '慵懒', '热情', '内敛', '毒舌',
+  '傲娇', '优雅', '狂野', '呆萌',
+];
+const INNER_TRAITS = [
+  '坚韧', '聪明', '善良', '执着', '敏感', '勇敢', '自卑', '骄傲',
+  '偏执', '隐忍', '忠诚', '叛逆', '矛盾', '通透', '纯粹', '孤独',
+  '炽热', '脆弱', '算计', '慈悲',
+];
 
 type CreateMode = 'manual' | 'ai';
-
-const AI_CHARACTER_TAGS = ['霸道总裁', '甜宠女主', '冷酷杀手', '温柔医生', '腹黑谋士', '侠女', '校园学霸', '古代王爷', '修仙少女', '逆袭女主'];
 
 function NewCharacterPage() {
   const router = useRouter();
@@ -24,6 +43,7 @@ function NewCharacterPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiResult, setAiResult] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     name: '',
     gender: '女' as string,
@@ -33,7 +53,6 @@ function NewCharacterPage() {
     appearance: '',
     backstory: '',
     style: '写实',
-    // 新增字段
     archetype: '' as string,
     narrativeRole: [] as string[],
     catchphrase: '',
@@ -49,9 +68,24 @@ function NewCharacterPage() {
     conscientiousness: 3,
     neuroticism: 3,
     openness: 3,
+    faceConfig: {
+      hairStyle: 'long' as FaceConfig['hairStyle'],
+      faceShape: 'oval' as FaceConfig['faceShape'],
+      expression: 'smile' as FaceConfig['expression'],
+      colorTheme: 'warm' as FaceConfig['colorTheme'],
+    },
+    developmentArc: [] as ArcNode[],
   });
 
-  // 从模板加载
+  useEffect(() => {
+    if (form.developmentArc.length === 0) {
+      setForm(prev => ({
+        ...prev,
+        developmentArc: DEFAULT_NODES.map(n => ({ ...n })),
+      }));
+    }
+  }, []);
+
   useEffect(() => {
     if (templateId) {
       const tpl = officialTemplates.find(t => t.id === templateId);
@@ -62,24 +96,24 @@ function NewCharacterPage() {
           name: '',
           gender: d.gender,
           age: d.age,
-          personality: [...d.surfaceTraits, ...d.innerTraits],
-          appearance: d.appearanceDesc,
-          backstory: d.backstory,
+          personality: [...(d.surfaceTraits || []), ...(d.innerTraits || [])],
+          appearance: d.appearanceDesc || '',
+          backstory: d.backstory || '',
           style: d.style,
-          archetype: d.archetype,
-          catchphrase: d.catchphrase,
-          signatureAction: d.signatureAction,
-          weakness: d.weakness,
-          desire: d.desire,
-          voiceTone: d.voiceTone,
-          surfaceTraits: d.surfaceTraits,
-          innerTraits: d.innerTraits,
-          arcDescription: d.arcDescription,
-          extraversion: d.extraversion,
-          agreeableness: d.agreeableness,
-          conscientiousness: d.conscientiousness,
-          neuroticism: d.neuroticism,
-          openness: d.openness,
+          archetype: d.archetype || '',
+          catchphrase: d.catchphrase || '',
+          signatureAction: d.signatureAction || '',
+          weakness: d.weakness || '',
+          desire: d.desire || '',
+          voiceTone: d.voiceTone || '',
+          surfaceTraits: d.surfaceTraits || [],
+          innerTraits: d.innerTraits || [],
+          arcDescription: d.arcDescription || '',
+          extraversion: d.extraversion || 3,
+          agreeableness: d.agreeableness || 3,
+          conscientiousness: d.conscientiousness || 3,
+          neuroticism: d.neuroticism || 3,
+          openness: d.openness || 3,
         }));
       }
     }
@@ -94,12 +128,34 @@ function NewCharacterPage() {
     }));
   };
 
+  const progressStats = useMemo(() => {
+    const fields = [
+      form.name,
+      form.gender,
+      form.age,
+      form.personality.length > 0,
+      form.appearance,
+      form.backstory,
+      form.archetype,
+      form.weakness,
+      form.desire,
+      form.surfaceTraits.length > 0,
+      form.innerTraits.length > 0,
+      form.developmentArc.length >= 3,
+    ];
+    const filled = fields.filter(f => {
+      if (typeof f === 'boolean') return f;
+      if (typeof f === 'number') return f > 0;
+      return f && f.length > 0;
+    }).length;
+    return { filled, total: fields.length };
+  }, [form]);
+
   const handleAiGenerate = (keyword: string) => {
     if (!keyword.trim()) return;
     setAiLoading(true);
     setAiPrompt(keyword);
 
-    // Mock AI generation — 解析关键词生成角色属性
     setTimeout(() => {
       const isMale = keyword.includes('男') || keyword.includes('王') || keyword.includes('杀手') || keyword.includes('总裁') || keyword.includes('王爷');
       const gender = isMale ? '男' : '女';
@@ -122,12 +178,10 @@ function NewCharacterPage() {
       }
       if (!name) name = gender === '男' ? '萧逸尘' : '苏晚晴';
 
-      // 年龄
       let ageType = 'young'; let age = 22;
       if (keyword.includes('中年') || keyword.includes('成熟')) { ageType = 'mature'; age = 45; }
       else if (keyword.includes('成年') || keyword.includes('总裁')) { ageType = 'adult'; age = 32; }
 
-      // 性格
       const personalityMap: Record<string, string[]> = {
         '霸': ['霸道强势', '冷静沉稳', '神秘高冷'],
         '甜': ['天真可爱', '活泼开朗', '温柔善良'],
@@ -147,7 +201,6 @@ function NewCharacterPage() {
       }
       if (personalities.length === 0) personalities = ['冷静沉稳', '温柔善良'];
 
-      // 外貌 + 背景
       const appearance = gender === '男'
         ? `${name === '冷昊天' || name === '墨渊' ? '剑眉星目' : '清秀儒雅'}，${ageType === 'young' ? '身形修长' : '成熟稳重'}，${keyword.includes('古') || keyword.includes('王') ? '身着深色长袍' : '身着现代时装'}，气场强大令人不敢直视。`
         : `${keyword.includes('甜') ? '甜美动人' : '明眸皓齿'}，${ageType === 'young' ? '身姿曼妙' : '气质优雅'}，${keyword.includes('古') || keyword.includes('仙') ? '一袭罗裙' : '时尚干练'}，举手投足间自带风采。`;
@@ -173,61 +226,89 @@ function NewCharacterPage() {
     }, 1500);
   };
 
-  const handleCreate = () => {
+  const handlePersonalityChange = (values: PersonalityValues) => {
+    setForm(prev => ({
+      ...prev,
+      extraversion: values.extraversion,
+      agreeableness: values.agreeableness,
+      conscientiousness: values.conscientiousness,
+      neuroticism: values.neuroticism,
+      openness: values.openness,
+    }));
+  };
+
+  const handleCreate = async () => {
     if (!form.name.trim()) return;
     setLoading(true);
-    setTimeout(() => {
-      try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        import('@/lib/store/data-service').then(({ characterService }) => {
-          characterService.create(user.id || 'anonymous', {
-            name: form.name,
-            gender: form.gender,
-            age: form.age,
-            personality: form.personality.join('、'),
-            style: form.style,
-            isAiGenerated: mode === 'ai',
-          });
-          setLoading(false);
-          router.push('/dashboard/characters');
-        });
-      } catch {
-        setLoading(false);
-        router.push('/dashboard/characters');
-      }
-    }, 800);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/characters', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: form.name,
+          gender: form.gender,
+          age: form.age,
+          personality: form.personality.join('、'),
+          backstory: form.backstory,
+          style: form.style,
+          isAiGenerated: mode === 'ai',
+          tags: [],
+          archetype: form.archetype || null,
+          narrativeRole: form.narrativeRole.length > 0 ? form.narrativeRole : null,
+          arcDescription: form.arcDescription || null,
+          surfaceTraits: form.surfaceTraits,
+          innerTraits: form.innerTraits,
+          catchphrase: form.catchphrase || null,
+          signatureAction: form.signatureAction || null,
+          weakness: form.weakness || null,
+          desire: form.desire || null,
+          voiceTone: form.voiceTone || null,
+          appearanceDesc: form.appearance,
+          imagePrompt: null,
+          templateId: templateId || null,
+          faceConfig: form.faceConfig,
+          developmentArc: form.developmentArc,
+        }),
+      });
+      if (!res.ok) throw new Error('创建失败');
+      setLoading(false);
+      router.push('/dashboard/characters');
+    } catch {
+      setLoading(false);
+      alert('创建角色失败，请重试');
+    }
+  };
+
+  const personalityValues: PersonalityValues = {
+    extraversion: form.extraversion,
+    agreeableness: form.agreeableness,
+    conscientiousness: form.conscientiousness,
+    neuroticism: form.neuroticism,
+    openness: form.openness,
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <PageHeader
         title="创建角色"
+        subtitle="可视化角色工坊 · 从捏脸到人设，全方位打造你的角色"
         actions={
-          <div className="flex bg-white/5 rounded-lg p-0.5">
-            <button
-              onClick={() => setMode('manual')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                mode === 'manual' ? 'bg-brand-500 text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              手动填写
-            </button>
-            <button
-              onClick={() => setMode('ai')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${
-                mode === 'ai' ? 'bg-brand-500 text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              AI 生成
-            </button>
-          </div>
+          <SegmentedControl
+            options={[
+              { value: 'manual' as CreateMode, label: '手动创建' },
+              { value: 'ai' as CreateMode, label: 'AI 生成', icon: <Sparkles className="w-3.5 h-3.5" /> },
+            ]}
+            value={mode}
+            onChange={setMode}
+          />
         }
       />
 
-      {/* AI 生成模式 */}
+      {/* ===== AI 生成模式 ===== */}
       {mode === 'ai' && (
         <div className="mb-6">
           <AiGeneratePanel
@@ -244,11 +325,41 @@ function NewCharacterPage() {
         </div>
       )}
 
-      {/* 表单主体 */}
-      <GlassCard>
-        <div className="space-y-5">
-          {/* 名字 */}
-          <div className="grid grid-cols-2 gap-4">
+      {/* ===== 区① 角色预览卡 + 完成度 ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-4 mb-4">
+        <CharacterAvatarPreview
+          name={form.name || '未命名角色'}
+          gender={form.gender}
+          age={form.age}
+          personality={form.personality}
+          archetype={form.archetype}
+          surfaceTraits={form.surfaceTraits}
+          innerTraits={form.innerTraits}
+          hairStyle={form.faceConfig.hairStyle}
+          faceShape={form.faceConfig.faceShape}
+          expression={form.faceConfig.expression}
+          colorTheme={form.faceConfig.colorTheme}
+        />
+        <div className="flex flex-col items-center justify-center gap-2">
+          <FormProgressRing filledFields={progressStats.filled} totalFields={progressStats.total} size={110} />
+          <p className="text-xs text-gray-500 text-center">
+            {progressStats.filled}/{progressStats.total} 项已完成
+          </p>
+          {progressStats.filled >= progressStats.total && (
+            <span className="text-xs text-green-400 font-medium">完整人设</span>
+          )}
+        </div>
+      </div>
+
+      {/* ===== 区② 基础信息 ===== */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <ClipboardList className="w-5 h-5 text-violet-400" />
+            <h3 className="text-base font-semibold text-white">基础信息</h3>
+            <span className="text-[10px] text-gray-500 ml-auto bg-white/5 px-2 py-0.5 rounded-full">第 1 步</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-2">
                 角色名字 <span className="text-red-400">*</span>
@@ -261,44 +372,46 @@ function NewCharacterPage() {
                 autoFocus
               />
             </div>
-            {/* 性别 */}
             <div>
               <label className="block text-sm text-gray-400 mb-2">性别</label>
               <div className="flex gap-2 h-10">
-                {['男', '女'].map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setForm({ ...form, gender: g })}
-                    className={`flex-1 rounded-lg text-sm font-medium transition-all ${
-                      form.gender === g
-                        ? 'bg-brand-500 text-white'
-                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    {g === '男' ? '♂' : '♀'} {g}
-                  </button>
-                ))}
+                <RefinedButton
+                  variant="tag-chip"
+                  selected={form.gender === '男'}
+                  accent="#6366f1"
+                  size="lg"
+                  onClick={() => setForm({ ...form, gender: '男' })}
+                  className="flex-1 justify-center"
+                >
+                  <Mars className="w-3.5 h-3.5" /> 男
+                </RefinedButton>
+                <RefinedButton
+                  variant="tag-chip"
+                  selected={form.gender === '女'}
+                  accent="#ec4899"
+                  size="lg"
+                  onClick={() => setForm({ ...form, gender: '女' })}
+                  className="flex-1 justify-center"
+                >
+                  <Venus className="w-3.5 h-3.5" /> 女
+                </RefinedButton>
               </div>
             </div>
-          </div>
-
-          {/* 年龄段 + 年龄 */}
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-2">年龄段</label>
               <div className="flex gap-1.5 h-10">
                 {[{ k: 'young', label: '青年' }, { k: 'adult', label: '成年' }, { k: 'mature', label: '中年' }].map((opt) => (
-                  <button
+                  <RefinedButton
                     key={opt.k}
+                    variant="tag-chip"
+                    selected={form.ageType === opt.k}
+                    accent="#8b5cf6"
+                    size="lg"
                     onClick={() => setForm({ ...form, ageType: opt.k, age: opt.k === 'young' ? 22 : opt.k === 'adult' ? 35 : 50 })}
-                    className={`flex-1 rounded-lg text-sm transition-all ${
-                      form.ageType === opt.k
-                        ? 'bg-brand-500 text-white'
-                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
-                    }`}
+                    className="flex-1 justify-center"
                   >
                     {opt.label}
-                  </button>
+                  </RefinedButton>
                 ))}
               </div>
             </div>
@@ -312,112 +425,224 @@ function NewCharacterPage() {
                 className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
               />
             </div>
-          </div>
-
-          {/* 性格 */}
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">性格标签（可多选）</label>
-            <div className="flex flex-wrap gap-2">
-              {PERSONALITIES.map((p) => {
-                const selected = form.personality.includes(p);
-                return (
-                  <button
-                    key={p}
-                    onClick={() => togglePersonality(p)}
-                    className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                      selected
-                        ? 'bg-brand-500/20 border border-brand-500/50 text-brand-500'
-                        : 'bg-white/5 border border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
-                    }`}
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-400 mb-2">角色原型</label>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {['霸总','甜宠女主','冷酷杀手','恶毒女配','搞笑担当','深情男二','腹黑反派','神秘导师'].map(a => (
+                  <RefinedButton
+                    key={a}
+                    variant="tag-chip"
+                    selected={form.archetype === a}
+                    accent="#a855f7"
+                    size="sm"
+                    onClick={() => setForm({ ...form, archetype: form.archetype === a ? '' : a })}
+                    className="justify-center"
                   >
-                    {selected && '✓ '}{p}
-                  </button>
-                );
-              })}
+                    {a}
+                  </RefinedButton>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* 外貌描述 */}
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">外貌描述</label>
-            <textarea
-              value={form.appearance}
-              onChange={(e) => setForm({ ...form, appearance: e.target.value })}
-              rows={2}
-              placeholder="描述角色的外貌特征..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
-            />
-          </div>
-
-          {/* 背景故事 */}
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">背景故事</label>
-            <textarea
-              value={form.backstory}
-              onChange={(e) => setForm({ ...form, backstory: e.target.value })}
-              rows={3}
-              placeholder="角色的身世和经历..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
-            />
           </div>
         </div>
+      </GlassCard>
 
-        {/* 高级人设区 */}
-        {form.archetype || templateId ? (
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-sm text-gray-300 font-medium">高级人设</span>
+      {/* ===== 区③ 人物捏脸 ===== */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <Palette className="w-5 h-5 text-pink-400" />
+            <h3 className="text-base font-semibold text-white">人物捏脸</h3>
+            <span className="text-[10px] text-gray-500 ml-auto bg-white/5 px-2 py-0.5 rounded-full">第 2 步</span>
+          </div>
+          <FaceBuilder
+            gender={form.gender}
+            value={form.faceConfig}
+            onChange={(cfg) => setForm({ ...form, faceConfig: cfg })}
+          />
+        </div>
+      </GlassCard>
+
+      {/* ===== 区④ 五维人格 + 性格标签 ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <GlassCard>
+          <div className="p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <Brain className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-base font-semibold text-white">五维人格</h3>
+              <span className="text-[10px] text-gray-500 ml-auto bg-white/5 px-2 py-0.5 rounded-full">拖拽调参</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">角色原型</label>
-                <select value={form.archetype} onChange={e => setForm({ ...form, archetype: e.target.value })}
-                  className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm">
-                  <option value="">不选择</option>
-                  {['霸总','甜宠女主','冷酷杀手','恶毒女配','搞笑担当','深情男二','腹黑反派','神秘导师'].map(a =>
-                    <option key={a} value={a}>{a}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">口头禅</label>
-                <input value={form.catchphrase} onChange={e => setForm({ ...form, catchphrase: e.target.value })}
-                  placeholder="角色的经典台词..."
-                  className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm" />
-              </div>
+            <PersonalityRadarInteractive
+              value={personalityValues}
+              onChange={handlePersonalityChange}
+              size={260}
+            />
+          </div>
+        </GlassCard>
+        <div className="flex flex-col gap-4">
+          <GlassCard>
+            <div className="p-5">
+              <TraitTagCloud
+                title="表层性格"
+                icon={<Drama className="w-4 h-4" />}
+                accent="#f97316"
+                availableTags={SURFACE_TRAITS}
+                selected={form.surfaceTraits}
+                onChange={(tags) => setForm({ ...form, surfaceTraits: tags })}
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <div>
-                <label className="block text-xs text-red-400 mb-1">核心弱点</label>
-                <input value={form.weakness} onChange={e => setForm({ ...form, weakness: e.target.value })}
-                  placeholder="角色的致命弱点"
-                  className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs text-green-400 mb-1">核心欲望</label>
-                <input value={form.desire} onChange={e => setForm({ ...form, desire: e.target.value })}
-                  placeholder="角色最渴望的东西"
-                  className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm" />
-              </div>
+          </GlassCard>
+          <GlassCard>
+            <div className="p-5">
+              <TraitTagCloud
+                title="内核性格"
+                icon={<Gem className="w-4 h-4" />}
+                accent="#8b5cf6"
+                availableTags={INNER_TRAITS}
+                selected={form.innerTraits}
+                onChange={(tags) => setForm({ ...form, innerTraits: tags })}
+              />
             </div>
-            <div className="mt-3">
-              <label className="block text-xs text-gray-500 mb-1">人物弧光</label>
-              <input value={form.arcDescription} onChange={e => setForm({ ...form, arcDescription: e.target.value })}
-                placeholder="例：从封闭内心到敞开心扉"
-                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm" />
+          </GlassCard>
+        </div>
+      </div>
+
+      {/* 传统性格标签（多选） */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <label className="block text-sm text-gray-400 mb-2">性格标签（可多选）</label>
+          <div className="flex flex-wrap gap-2">
+            {PERSONALITIES.map((p) => {
+              const selected = form.personality.includes(p);
+              return (
+                <RefinedButton
+                  key={p}
+                  variant="tag-chip"
+                  selected={selected}
+                  accent="#8b5cf6"
+                  size="md"
+                  onClick={() => togglePersonality(p)}
+                >
+                  {p}
+                </RefinedButton>
+              );
+            })}
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* ===== 区⑤ 角色发展线 ===== */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <TrendingUp className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-base font-semibold text-white">角色发展线</h3>
+            <span className="text-[10px] text-gray-500 ml-auto bg-white/5 px-2 py-0.5 rounded-full">第 3 步</span>
+          </div>
+          <DevelopmentArcEditor
+            value={form.developmentArc}
+            onChange={(nodes) => setForm({ ...form, developmentArc: nodes })}
+          />
+        </div>
+      </GlassCard>
+
+      {/* ===== 区⑥ 深度设定 ===== */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <FileText className="w-5 h-5 text-amber-400" />
+            <h3 className="text-base font-semibold text-white">深度设定</h3>
+            <span className="text-[10px] text-gray-500 ml-auto bg-white/5 px-2 py-0.5 rounded-full">第 4 步</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">外貌描述</label>
+              <textarea
+                value={form.appearance}
+                onChange={(e) => setForm({ ...form, appearance: e.target.value })}
+                rows={3}
+                placeholder="描述角色的外貌特征..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">背景故事</label>
+              <textarea
+                value={form.backstory}
+                onChange={(e) => setForm({ ...form, backstory: e.target.value })}
+                rows={3}
+                placeholder="角色的身世和经历..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-red-400 mb-2">核心弱点</label>
+              <input
+                value={form.weakness}
+                onChange={(e) => setForm({ ...form, weakness: e.target.value })}
+                placeholder="角色的致命弱点"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-red-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-green-400 mb-2">核心欲望</label>
+              <input
+                value={form.desire}
+                onChange={(e) => setForm({ ...form, desire: e.target.value })}
+                placeholder="角色最渴望的东西"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-green-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">口头禅</label>
+              <input
+                value={form.catchphrase}
+                onChange={(e) => setForm({ ...form, catchphrase: e.target.value })}
+                placeholder="角色的经典台词..."
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">标志动作</label>
+              <input
+                value={form.signatureAction}
+                onChange={(e) => setForm({ ...form, signatureAction: e.target.value })}
+                placeholder="角色的标志性动作"
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-400 mb-2">人物弧光描述</label>
+              <input
+                value={form.arcDescription}
+                onChange={(e) => setForm({ ...form, arcDescription: e.target.value })}
+                placeholder="例：从封闭内心到敞开心扉，从懦弱到勇敢..."
+                className="w-full h-10 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500 transition-colors"
+              />
             </div>
           </div>
-        ) : null}
+        </div>
+      </GlassCard>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
-          <button
+      {/* ===== 底部操作栏 ===== */}
+      <GlassCard>
+        <div className="p-5 flex justify-end gap-3">
+          <RefinedButton
+            variant="ghost-glass"
             onClick={() => router.back()}
-            className="px-5 py-2.5 text-sm text-gray-400 hover:text-white bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
           >
             取消
-          </button>
-          <GradientBtn onClick={handleCreate} loading={loading} disabled={!form.name.trim()}>
+          </RefinedButton>
+          <RefinedButton
+            variant="primary"
+            size="lg"
+            icon={<Wand2 className="w-4 h-4" />}
+            loading={loading}
+            disabled={!form.name.trim()}
+            onClick={handleCreate}
+          >
             {loading ? '创建中...' : '创建角色'}
-          </GradientBtn>
+          </RefinedButton>
         </div>
       </GlassCard>
     </div>
@@ -426,7 +651,7 @@ function NewCharacterPage() {
 
 export default function NewCharacterPageWrapper() {
   return (
-    <Suspense fallback={<div className="max-w-2xl mx-auto py-20 text-center text-gray-400">加载中...</div>}>
+    <Suspense fallback={<div className="max-w-5xl mx-auto py-20 text-center text-gray-400">加载中...</div>}>
       <NewCharacterPage />
     </Suspense>
   );

@@ -1,5 +1,7 @@
 'use client';
 
+import { X } from '@/components/ui/icons';
+
 interface Tag {
   key: string;
   label: string;
@@ -27,12 +29,12 @@ const tagColors: Record<string, string> = {
 };
 
 const selectedColors: Record<string, string> = {
-  purple: 'bg-purple-500/30 text-purple-300 border-purple-400/40',
-  cyan: 'bg-cyan-500/30 text-cyan-300 border-cyan-400/40',
-  pink: 'bg-pink-500/30 text-pink-300 border-pink-400/40',
-  amber: 'bg-amber-500/30 text-amber-300 border-amber-400/40',
-  green: 'bg-emerald-500/30 text-emerald-300 border-emerald-400/40',
-  gray: 'bg-white/15 text-gray-300 border-white/20',
+  purple: 'bg-purple-500/30 text-purple-300 border-purple-400/40 ring-1 ring-purple-400/20',
+  cyan: 'bg-cyan-500/30 text-cyan-300 border-cyan-400/40 ring-1 ring-cyan-400/20',
+  pink: 'bg-pink-500/30 text-pink-300 border-pink-400/40 ring-1 ring-pink-400/20',
+  amber: 'bg-amber-500/30 text-amber-300 border-amber-400/40 ring-1 ring-amber-400/20',
+  green: 'bg-emerald-500/30 text-emerald-300 border-emerald-400/40 ring-1 ring-emerald-400/20',
+  gray: 'bg-white/15 text-gray-300 border-white/20 ring-1 ring-white/10',
 };
 
 export default function TagGroup({
@@ -61,6 +63,7 @@ export default function TagGroup({
             className={`
               inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium
               transition-all duration-200
+              hover:scale-105
               ${active ? selectedColors[color] : tagColors[color]}
               ${onSelect ? 'cursor-pointer' : ''}
             `}
@@ -72,11 +75,10 @@ export default function TagGroup({
                   e.stopPropagation();
                   onClose(tag.key);
                 }}
-                className="ml-0.5 hover:opacity-70"
+                className="ml-0.5 hover:opacity-70 p-px rounded-sm hover:bg-white/10 transition-colors"
+                aria-label={`移除 ${tag.label}`}
               >
-                <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                <X size={12} strokeWidth={3} />
               </button>
             )}
           </span>

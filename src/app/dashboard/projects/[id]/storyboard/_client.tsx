@@ -3,11 +3,15 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import PageHeader from '@/components/ui/page-header';
+import { AnimatePresence, motion, Reorder } from 'framer-motion';
 import GlassCard from '@/components/ui/glass-card';
 import GradientBtn from '@/components/ui/gradient-btn';
-import StatCard from '@/components/ui/stat-card';
+import StatCardEnhanced from '@/components/ui/stat-card-enhanced';
 import AiGeneratePanel from '@/components/business/ai-generate-panel';
+import NeonText from '@/components/ui/neon-text';
+import ParticleBg from '@/components/ui/particle-bg';
+import GlowTrail from '@/components/ui/glow-trail';
+import FloatingElements from '@/components/ui/floating-elements';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcut';
 
 interface Storyboard {
@@ -57,6 +61,384 @@ function groupByScene(boards: Storyboard[]): { sceneNumber: number; boards: Stor
     map.set(b.sceneNumber, existing);
   });
   return Array.from(map.entries()).map(([sceneNumber, boards]) => ({ sceneNumber, boards }));
+}
+
+/* ---- Cinematic Timeline Visual ---- */
+function CinematicTimeline({
+  boards,
+  selectedScene,
+  onSelectScene,
+  totalDuration,
+}: {
+  boards: Storyboard[];
+  selectedScene: number;
+  onSelectScene: (n: number) => void;
+  totalDuration: number;
+}) {
+  const sceneNumbers = [...new Set(boards.map((b) => b.sceneNumber))].sort();
+  const maxDuration = Math.max(...sceneNumbers.map(sn =>
+    boards.filter(b => b.sceneNumber === sn).reduce((sum, b) => sum + b.duration, 0)
+  ), 1);
+
+  return (
+    <div className="relative mb-6 surface-card border rounded-xl p-4 overflow-hidden">
+      {/* Letterbox bars */}
+      <div className="absolute inset-x-0 top-0 h-2 bg-black/60 z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-2 bg-black/60 z-10" />
+
+      {/* Timeline track */}
+      <div className="flex items-end gap-2 h-24 pt-4 pb-3 relative">
+        {/* Time ruler */}
+        {sceneNumbers.map((sn) => {
+          const sceneBoards = boards.filter(b => b.sceneNumber === sn);
+          const sceneDuration = sceneBoards.reduce((sum, b) => sum + b.duration, 0);
+          const heightPct = (sceneDuration / maxDuration) * 100;
+          const isActive = selectedScene === sn;
+          const allDone = sceneBoards.every(b => b.status === 'COMPLETED');
+
+          return (
+            <motion.button
+              key={sn}
+              onClick={() => onSelectScene(sn)}
+              whileHover={{ scaleY: 1.08 }}
+              whileTap={{ scaleY: 0.95 }}
+              className="relative flex-1 min-w-[40px] rounded-t-lg cursor-pointer transition-colors group"
+              style={{
+                height: Math.max(heightPct, 25) + '%',
+                background: isActive
+                  ? 'var(--brand-500)'
+                  : allDone
+                    ? 'linear-gradient(180deg, var(--brand-green) 0%, var(--brand-green)/40 100%)'
+                    : 'linear-gradient(180deg, var(--surface-overlay) 0%, var(--surface-ground) 100%)',
+                boxShadow: isActive ? '0 0 20px rgba(99, 102, 241, 0.4)' : undefined,
+                borderLeft: '1px solid rgba(255,255,255,0.05)',
+                borderRight: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              {/* Shot dots */}
+              <div className="absolute inset-0 flex flex-col justify-end items-center gap-1 pb-1">
+                {sceneBoards.map((b, i) => (
+                  <div
+                    key={b.id}
+                    className={`rounded transition-all ${
+                      b.status === 'COMPLETED'
+                        ? 'w-2 h-2 bg-white/80'
+                        : 'w-1.5 h-1.5 bg-white/30'
+                    }`}
+                    title={`S${b.sceneNumber} #${b.shotNumber}`}
+                  />
+                ))}
+              </div>
+
+              {/* Scene label */}
+              <div className="absolute -bottom-5 left-0 right-0 text-center">
+                <span className={`text-[10px] font-bold whitespace-nowrap transition-colors ${
+                  isActive ? 'text-brand-400' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
+                }`}>
+                  场景{sn}
+                </span>
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Total duration */}
+      <div className="flex items-center justify-end mt-4 text-xs text-[var(--text-muted)]">
+        <span className="flex items-center gap-1">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          总时长 {totalDuration}s &middot; {sceneNumbers.length} 个场景 &middot; {boards.length} 个镜头
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ---- Shot Type Visual Label ---- */
+function ShotTypeLabel({ type }: { type: Storyboard['shotType'] }) {
+  const st = SHOT_TYPES[type] || SHOT_TYPES.MEDIUM;
+  return (
+    <motion.span
+      whileHover={{ scale: 1.05 }}
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${st.color}`}
+    >
+      <span>{st.icon}</span>
+      <span>{st.label}</span>
+    </motion.span>
+  );
+}
+
+/* ---- Cinematic Frame Preview ---- */
+function CinematicFrame({
+  sb,
+  isEditing,
+  onEdit,
+  onAiGen,
+  onRemove,
+  dragHandleProps,
+  editForm,
+  onEditFormChange,
+  onSave,
+  onCancel,
+}: {
+  sb: Storyboard;
+  isEditing: boolean;
+  onEdit: () => void;
+  onAiGen: () => void;
+  onRemove: () => void;
+  dragHandleProps?: any;
+  editForm: Partial<Storyboard>;
+  onEditFormChange: (f: Partial<Storyboard>) => void;
+  onSave: (id: string) => void;
+  onCancel: () => void;
+}) {
+  const st = SHOT_TYPES[sb.shotType] || SHOT_TYPES.MEDIUM;
+  const isGenLoading = sb.aiGenStatus === 'loading';
+  const isGenDone = sb.aiGenStatus === 'done';
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, y: -10 }}
+      transition={{ duration: 0.25 }}
+      className={`relative group ${
+        sb.status === 'COMPLETED'
+          ? 'border-l-2 border-l-[var(--brand-green)]'
+          : 'border-l-2 border-l-transparent'
+      }`}
+    >
+      <GlassCard hover={!isEditing} className="overflow-hidden">
+        {!isEditing ? (
+          <div>
+            {/* Cinematic aspect ratio preview frame */}
+            <div className="relative overflow-hidden rounded-lg mb-3 bg-black/40 border border-[var(--border-subtle)]"
+              style={{ aspectRatio: '16/9' }}
+            >
+              {/* Letterbox bars */}
+              <div className="absolute inset-x-0 top-0 h-[12%] bg-black/80 z-10" />
+              <div className="absolute inset-x-0 bottom-0 h-[12%] bg-black/80 z-10" />
+
+              {/* Content area */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {isGenDone && sb.thumbnail ? (
+                  <img src={sb.thumbnail} alt={sb.description} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center px-6">
+                    <div className="text-3xl mb-2">{st.icon}</div>
+                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
+                      {sb.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Scene/timecode overlay */}
+              <div className="absolute top-2 left-3 z-20 flex items-center gap-2">
+                <span className="text-[10px] font-mono text-white/60 bg-black/40 px-1.5 py-0.5 rounded">
+                  S{sb.sceneNumber}·{String(sb.shotNumber).padStart(2, '0')}
+                </span>
+              </div>
+
+              {/* Duration overlay */}
+              <div className="absolute bottom-2 right-3 z-20">
+                <span className="text-[10px] font-mono text-white/60 bg-black/40 px-1.5 py-0.5 rounded">
+                  {sb.duration}s
+                </span>
+              </div>
+            </div>
+
+            {/* Shot info row */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Drag handle */}
+              <div
+                className="cursor-grab active:cursor-grabbing text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors shrink-0"
+                {...dragHandleProps}
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                </svg>
+              </div>
+
+              {/* Shot number badge */}
+              <div
+                className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+                style={{
+                  background: (st.color.includes('brand') ? 'var(--brand-500)' : `var(--${st.color.split('-')[1] || 'brand'}-500)`) + '20',
+                }}
+              >
+                <span className={st.color.split(' ')[0]}>{sb.shotNumber}</span>
+              </div>
+
+              {/* Description */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-[var(--text-primary)] leading-relaxed">{sb.description}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {sb.cameraMovement && (
+                    <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      {sb.cameraMovement}
+                    </span>
+                  )}
+                  {sb.lighting && (
+                    <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      {sb.lighting}
+                    </span>
+                  )}
+                </div>
+                {sb.dialogue && (
+                  <div className="mt-1.5 flex items-start gap-1.5">
+                    <span className="text-brand-400 text-xs shrink-0 mt-0.5">&#x275D;</span>
+                    <p className="text-xs text-[var(--text-secondary)] italic">{sb.dialogue}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Shot type */}
+              <div className="shrink-0">
+                <ShotTypeLabel type={sb.shotType} />
+              </div>
+
+              {/* AI Gen button */}
+              <div className="shrink-0">
+                {isGenLoading ? (
+                  <span className="flex items-center gap-1 text-xs text-purple-400 animate-pulse px-2 py-1">
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  </span>
+                ) : (
+                  <button
+                    onClick={onAiGen}
+                    className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-all ${
+                      isGenDone
+                        ? 'bg-[var(--brand-green)]/15 text-[var(--brand-green)] border border-[var(--brand-green)]/20'
+                        : 'text-[var(--text-muted)] hover:text-purple-400 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20'
+                    }`}
+                    title={isGenDone ? '已生成' : 'AI生成画面'}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    {isGenDone ? '已生成' : '生图'}
+                  </button>
+                )}
+              </div>
+
+              {/* Status */}
+              <div className="shrink-0">
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  className={`text-xs px-2.5 py-1 rounded-full inline-flex items-center gap-1 ${
+                    sb.status === 'COMPLETED'
+                      ? 'bg-[var(--brand-green)]/15 text-[var(--brand-green)]'
+                      : 'bg-[var(--surface-elevated)] text-[var(--text-muted)]'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    sb.status === 'COMPLETED'
+                      ? 'bg-[var(--brand-green)] animate-pulse'
+                      : 'bg-[var(--text-muted)]'
+                  }`} />
+                  {sb.status === 'COMPLETED' ? '完成' : '草稿'}
+                </motion.span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-0.5 shrink-0">
+                <button
+                  onClick={onEdit}
+                  className="p-2 text-[var(--text-muted)] hover:text-brand-400 hover:bg-brand-500/10 rounded-lg transition-all"
+                  title="编辑"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={onRemove}
+                  className="p-2 text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                  title="删除"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Edit mode */
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[var(--text-muted)] bg-[var(--surface-ground)] px-2 py-1 rounded">
+                  S{sb.sceneNumber} #{sb.shotNumber}
+                </span>
+              </div>
+              <select
+                value={editForm.shotType}
+                onChange={(e) => onEditFormChange({ ...editForm, shotType: e.target.value as any })}
+                className="h-8 bg-[var(--surface-ground)] border border-[var(--border-subtle)] rounded-lg text-[var(--text-primary)] px-2 text-xs focus:outline-none focus:border-brand-500"
+              >
+                {Object.entries(SHOT_TYPES).map(([key, val]) => (
+                  <option key={key} value={key}>{val.icon} {val.label}</option>
+                ))}
+              </select>
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  min={1} max={60}
+                  value={editForm.duration}
+                  onChange={(e) => onEditFormChange({ ...editForm, duration: Number(e.target.value) })}
+                  className="w-14 h-8 bg-[var(--surface-ground)] border border-[var(--border-subtle)] rounded-lg text-[var(--text-primary)] px-2 text-xs text-center focus:outline-none focus:border-brand-500"
+                />
+                <span className="text-xs text-[var(--text-muted)]">s</span>
+              </div>
+            </div>
+
+            <textarea
+              value={editForm.description}
+              onChange={(e) => onEditFormChange({ ...editForm, description: e.target.value })}
+              rows={2}
+              placeholder="分镜描述..."
+              className="w-full bg-[var(--surface-ground)] border border-[var(--border-subtle)] rounded-lg text-[var(--text-primary)] px-3 py-2 text-sm focus:outline-none focus:border-brand-500 resize-none"
+              autoFocus
+            />
+            <input
+              value={editForm.dialogue || ''}
+              onChange={(e) => onEditFormChange({ ...editForm, dialogue: e.target.value })}
+              placeholder="对白（可选）"
+              className="w-full h-8 bg-[var(--surface-ground)] border border-[var(--border-subtle)] rounded-lg text-[var(--text-primary)] px-3 text-sm focus:outline-none focus:border-brand-500"
+            />
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-[var(--text-muted)]">Ctrl+S 保存 &middot; Esc 取消</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={onCancel}
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface-elevated)] rounded-lg hover:bg-[var(--surface-overlay)] transition-colors"
+                >取消</button>
+                <GradientBtn onClick={() => onSave(sb.id)}>保存</GradientBtn>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </GlassCard>
+    </motion.div>
+  );
 }
 
 export default function StoryboardClient() {
@@ -139,26 +521,50 @@ export default function StoryboardClient() {
   const filtered = boards.filter((b) => b.sceneNumber === selectedScene);
 
   return (
-    <div>
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-        <Link href="/dashboard/projects" className="hover:text-white transition-colors">项目</Link>
-        <span>/</span>
-        <Link href={`/dashboard/projects/${id}`} className="hover:text-white transition-colors">穿越之我在古代当总裁</Link>
-        <span>/</span>
-        <span className="text-white">分镜</span>
-      </div>
+    <div className="relative min-h-screen">
+      {/* Background effects */}
+      <ParticleBg particleCount={40} colors={[240, 260]} />
+      <GlowTrail enabled={true} trailCount={10} dotSize={6} lifetime={600} />
+      <FloatingElements count={4} className="opacity-20" />
 
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <PageHeader title="分镜编辑器" />
-        <div className="flex items-center gap-2">
-          <GradientBtn onClick={() => setShowAi(!showAi)}>
-            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            AI 批量生成
-          </GradientBtn>
-        </div>
-      </div>
+      <div className="relative z-10">
+        {/* Breadcrumb */}
+        <motion.div
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-2"
+        >
+          <Link href="/dashboard/projects" className="hover:text-[var(--text-primary)] transition-colors">项目</Link>
+          <span>/</span>
+          <Link href={`/dashboard/projects/${id}`} className="hover:text-[var(--text-primary)] transition-colors">穿越之我在古代当总裁</Link>
+          <span>/</span>
+          <span className="text-[var(--text-primary)] font-medium">分镜</span>
+        </motion.div>
+
+        {/* Title */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="flex items-center justify-between mb-6 flex-wrap gap-3"
+        >
+          <NeonText
+            as="h1"
+            color="#6366f1"
+            glowColor="#818cf8"
+            className="text-2xl font-bold"
+          >
+            &#x1F3AC; 分镜编辑器
+          </NeonText>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <GradientBtn onClick={() => setShowAi(!showAi)}>
+              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              AI 批量生成
+            </GradientBtn>
+          </motion.div>
+        </motion.div>
 
       {showAi && (
         <div className="mb-6">
@@ -171,226 +577,95 @@ export default function StoryboardClient() {
         </div>
       )}
 
-      {/* 统计 + 场景筛选 */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        <StatCard title="总镜头" value={String(boards.length)} accent="cyan" />
-        <StatCard title="已完成" value={`${completedCount}/${boards.length}`} accent="green" />
-        <StatCard title="总时长" value={`${totalDuration}秒`} accent="purple" />
-        <StatCard title="AI生图" value={`${aiGeneratedCount}帧`} accent="amber" />
-      </div>
+      {/* Stat Cards - Enhanced with ring progress */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="grid grid-cols-4 gap-3 mb-4"
+      >
+        <StatCardEnhanced title="总镜头" value={boards.length} icon="&#x1F3AC;" accent="#6366f1" progress={100} progressColor="#6366f1" />
+        <StatCardEnhanced title="已完成" value={completedCount} icon="&#x2705;" accent="#10b981" progress={(completedCount / boards.length) * 100} progressColor="#10b981" />
+        <StatCardEnhanced title="总时长" value={totalDuration} icon="&#x23F1;" accent="#8b5cf6" suffix="s" progress={Math.min((totalDuration / 120) * 100, 100)} progressColor="#8b5cf6" />
+        <StatCardEnhanced title="AI生图" value={aiGeneratedCount} icon="&#x26A1;" accent="#f59e0b" progress={(aiGeneratedCount / boards.length) * 100} progressColor="#f59e0b" />
+      </motion.div>
 
-      {/* 场景筛选 */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-        {sceneNumbers.map((sn) => (
-          <button
-            key={sn}
-            onClick={() => setSelectedScene(sn)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-              selectedScene === sn
-                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <span className="w-5 h-5 rounded bg-white/20 flex items-center justify-center text-xs">{sn}</span>
-            场景{sn}
-          </button>
-        ))}
-      </div>
+      {/* Cinematic Timeline Scene Selector */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <CinematicTimeline
+          boards={boards}
+          selectedScene={selectedScene}
+          onSelectScene={setSelectedScene}
+          totalDuration={totalDuration}
+        />
+      </motion.div>
 
-      {/* 分镜时间轴 */}
-      <div className="space-y-2">
-        {filtered.map((sb) => {
-          const st = SHOT_TYPES[sb.shotType] || SHOT_TYPES.MEDIUM;
-          const isEditing = editingId === sb.id;
-          const isGenLoading = sb.aiGenStatus === 'loading';
-          const isGenDone = sb.aiGenStatus === 'done';
+      {/* Shot List - Reorder & AnimatePresence */}
+      <Reorder.Group
+        axis="y"
+        values={filtered}
+        onReorder={(reordered) => {
+          // Merge reordered back into full list
+          const otherScenes = boards.filter(b => b.sceneNumber !== selectedScene);
+          setBoards([...otherScenes, ...reordered]);
+        }}
+        className="space-y-2"
+      >
+        <AnimatePresence mode="popLayout">
+          {filtered.map((sb) => {
+            const isEditing = editingId === sb.id;
+            return (
+              <Reorder.Item key={sb.id} value={sb} dragListener={!isEditing}>
+                <CinematicFrame
+                  sb={sb}
+                  isEditing={isEditing}
+                  onEdit={() => startEdit(sb)}
+                  onAiGen={() => handleShotAiGen(sb.id)}
+                  onRemove={() => setBoards(prev => prev.filter(b => b.id !== sb.id))}
+                  editForm={editForm}
+                  onEditFormChange={setEditForm}
+                  onSave={saveEdit}
+                  onCancel={() => setEditingId(null)}
+                />
+              </Reorder.Item>
+            );
+          })}
+        </AnimatePresence>
+      </Reorder.Group>
 
-          return (
-            <div
-              key={sb.id}
-              draggable={!isEditing}
-              onDragStart={() => setDragOver(sb.id)}
-              onDragOver={(e) => { e.preventDefault(); }}
-              onDrop={() => handleDrop(sb.id)}
-              className={`relative transition-all ${
-                dragOver === sb.id ? 'opacity-50' : ''
-              } ${sb.status === 'COMPLETED' ? 'border-l-2 border-[#00d4aa]' : 'border-l-2 border-transparent'}`}
+      {/* Add shot button */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="mt-3"
+      >
+        <GlassCard className="border-2 border-dashed border-[var(--border-subtle)] hover:border-brand-500/30 cursor-pointer group text-center py-6 transition-all duration-300 hover:bg-brand-500/5">
+          <div className="text-[var(--text-muted)] group-hover:text-brand-400 transition-colors">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              transition={{ duration: 0.3 }}
             >
-              <GlassCard hover={!isEditing} className="overflow-hidden">
-                {!isEditing ? (
-                  <div>
-                    <div className="flex items-center gap-4">
-                      {/* 拖拽把手 */}
-                      <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-400 transition-colors flex-shrink-0">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                        </svg>
-                      </div>
-
-                      {/* 序号 */}
-                      <div className="flex items-center gap-2 flex-shrink-0 w-20">
-                        <span className="text-xs text-gray-600">S{sb.sceneNumber}</span>
-                        <span className="text-lg font-bold text-white">#{sb.shotNumber}</span>
-                      </div>
-
-                      {/* 镜头类型 */}
-                      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${st.color} flex-shrink-0 w-24 justify-center`}>
-                        <span>{st.icon}</span>
-                        <span>{st.label}</span>
-                      </div>
-
-                      {/* 描述 */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-300 truncate">{sb.description}</p>
-                        {sb.cameraMovement && (
-                          <p className="text-xs text-gray-600 mt-0.5">运镜: {sb.cameraMovement} · 光: {sb.lighting}</p>
-                        )}
-                        {sb.dialogue && (
-                          <p className="text-xs text-brand-500 mt-0.5 truncate">&ldquo;{sb.dialogue}&rdquo;</p>
-                        )}
-                      </div>
-
-                      {/* 时长 */}
-                      <div className="text-xs text-gray-500 flex-shrink-0 w-16 text-right">
-                        <span className="font-mono">{sb.duration}s</span>
-                      </div>
-
-                      {/* AI 生图按钮 */}
-                      <div className="flex-shrink-0">
-                        {isGenLoading ? (
-                          <span className="flex items-center gap-1 text-xs text-purple-400 animate-pulse">
-                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                            生成中
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleShotAiGen(sb.id)}
-                            className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all ${
-                              isGenDone
-                                ? 'bg-[#00d4aa]/20 text-[#00d4aa]'
-                                : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/10'
-                            }`}
-                            title={isGenDone ? '已生成' : 'AI生成画面'}
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            {isGenDone ? '已生成' : '生图'}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* 状态 */}
-                      <div className="flex-shrink-0 w-16 text-center">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          sb.status === 'COMPLETED'
-                            ? 'bg-[#00d4aa]/20 text-[#00d4aa]'
-                            : 'bg-gray-500/20 text-gray-400'
-                        }`}>
-                          {sb.status === 'COMPLETED' ? '完成' : '草稿'}
-                        </span>
-                      </div>
-
-                      {/* 操作 */}
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          onClick={() => startEdit(sb)}
-                          className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-                          title="编辑"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="删除">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* AI 生成缩略图预览 */}
-                    {isGenDone && sb.thumbnail && (
-                      <div className="mt-3 ml-12 overflow-hidden rounded-lg border border-white/10 max-w-xs">
-                        <img src={sb.thumbnail} alt="AI生成画面" className="w-full h-auto object-cover" />
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* 编辑模式 */
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4 mb-1">
-                      <span className="text-sm text-gray-500">S{sb.sceneNumber} #{sb.shotNumber}</span>
-                      <select
-                        value={editForm.shotType}
-                        onChange={(e) => setEditForm({ ...editForm, shotType: e.target.value as any })}
-                        className="h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs focus:outline-none focus:border-brand-500"
-                      >
-                        {Object.entries(SHOT_TYPES).map(([key, val]) => (
-                          <option key={key} value={key}>{val.icon} {val.label}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="number"
-                        min={1} max={60}
-                        value={editForm.duration}
-                        onChange={(e) => setEditForm({ ...editForm, duration: Number(e.target.value) })}
-                        className="w-16 h-8 bg-white/5 border border-white/10 rounded-lg text-white px-2 text-xs text-center focus:outline-none focus:border-brand-500"
-                      />
-                      <span className="text-xs text-gray-500">秒</span>
-                    </div>
-
-                    <textarea
-                      value={editForm.description}
-                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                      rows={2}
-                      placeholder="分镜描述..."
-                      className="w-full bg-white/5 border border-white/10 rounded-lg text-white px-3 py-2 text-sm focus:outline-none focus:border-brand-500 resize-none"
-                      autoFocus
-                    />
-                    <input
-                      value={editForm.dialogue || ''}
-                      onChange={(e) => setEditForm({ ...editForm, dialogue: e.target.value })}
-                      placeholder="对白（可选）"
-                      className="w-full h-8 bg-white/5 border border-white/10 rounded-lg text-white px-3 text-sm focus:outline-none focus:border-brand-500"
-                    />
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
-                      >取消</button>
-                      <GradientBtn onClick={() => saveEdit(sb.id)}>保存</GradientBtn>
-                    </div>
-                  </div>
-                )}
-              </GlassCard>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 添加分镜 */}
-      <div className="mt-3">
-        <GlassCard className="border-2 border-dashed border-white/10 hover:border-brand-500/30 cursor-pointer group text-center py-4">
-          <div className="text-gray-500 group-hover:text-brand-500 transition-colors">
-            <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <span className="text-sm">添加分镜</span>
+              <svg className="w-7 h-7 mx-auto mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </motion.div>
+            <span className="text-sm font-medium">添加分镜到场景{selectedScene}</span>
           </div>
         </GlassCard>
-      </div>
+      </motion.div>
 
-      {/* 底部信息 */}
-      <div className="mt-4 flex items-center gap-2 text-xs text-gray-600">
+      {/* Footer info */}
+      <div className="mt-4 flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         拖拽分镜可调整顺序 | 点击生图按钮用AI生成画面 | 场景间移动会自动重新编号
+      </div>
       </div>
     </div>
   );

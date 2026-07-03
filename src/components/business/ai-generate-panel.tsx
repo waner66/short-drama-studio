@@ -76,13 +76,13 @@ export default function AIGeneratePanel({
           {quickTags.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
               {quickTags.map((tag) => (
-                <button
+                <GradientBtn
                   key={tag}
+                  variant="tag-chip"
                   onClick={() => setPrompt((prev) => prev + (prev ? '，' : '') + tag)}
-                  className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-gray-400 hover:bg-purple-500/10 hover:text-purple-400 transition-colors"
                 >
                   {tag}
-                </button>
+                </GradientBtn>
               ))}
             </div>
           ) : (

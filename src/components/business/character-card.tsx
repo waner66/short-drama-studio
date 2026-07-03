@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import type { OfficialTemplate } from '@/lib/data/character-templates';
+import { Theater, Handshake, Target, Waves, Lightbulb, MessageSquare, Clapperboard, Heart, Zap, ArrowRight } from '@/components/ui/icons';
 import './character-card.css';
 
 type CharacterCardProps = {
@@ -40,11 +41,11 @@ export default function CharacterCard({
 
   const d = data.defaultData;
   const personalityScores = [
-    { key: 'extraversion', value: d.extraversion, emoji: '🎭' },
-    { key: 'agreeableness', value: d.agreeableness, emoji: '🤝' },
-    { key: 'conscientiousness', value: d.conscientiousness, emoji: '🎯' },
-    { key: 'neuroticism', value: d.neuroticism, emoji: '🌊' },
-    { key: 'openness', value: d.openness, emoji: '💡' },
+    { key: 'extraversion', value: d.extraversion, Icon: Theater },
+    { key: 'agreeableness', value: d.agreeableness, Icon: Handshake },
+    { key: 'conscientiousness', value: d.conscientiousness, Icon: Target },
+    { key: 'neuroticism', value: d.neuroticism, Icon: Waves },
+    { key: 'openness', value: d.openness, Icon: Lightbulb },
   ];
 
   return (
@@ -69,7 +70,7 @@ export default function CharacterCard({
 
         {/* Archetype 金标 */}
         <div className="cc-archetype-badge">
-          <span className="cc-archetype-icon">✦</span>
+          <Zap size={14} strokeWidth={2.5} className="cc-archetype-icon" />
           {d.archetype}
         </div>
 
@@ -108,7 +109,7 @@ export default function CharacterCard({
             <span key={`s-${i}`} className="cc-tag cc-tag-surface">{t}</span>
           ))}
           {d.surfaceTraits.length > 0 && d.innerTraits.length > 0 && (
-            <span className="cc-tag-divider">→</span>
+            <ArrowRight size={14} strokeWidth={2} className="cc-tag-divider" />
           )}
           {d.innerTraits.map((t, i) => (
             <span key={`i-${i}`} className="cc-tag cc-tag-inner">{t}</span>
@@ -121,7 +122,7 @@ export default function CharacterCard({
           <div className="cc-personality-bars">
             {personalityScores.map(p => (
               <div key={p.key} className="cc-pbar-wrap" title={`${personalityLabels[p.key]}: ${p.value}/5`}>
-                <span className="cc-pbar-emoji">{p.emoji}</span>
+                <p.Icon size={14} strokeWidth={2} className="cc-pbar-emoji" />
                 <div className="cc-pbar-track">
                   <div
                     className="cc-pbar-fill"
@@ -139,11 +140,11 @@ export default function CharacterCard({
         {/* 口头禅 + 招牌动作 */}
         <div className="cc-signatures">
           <div className="cc-sig-item cc-sig-catchphrase">
-            <span className="cc-sig-icon">💬</span>
+            <MessageSquare size={14} strokeWidth={2} className="cc-sig-icon" />
             <span className="cc-sig-text">{d.catchphrase}</span>
           </div>
           <div className="cc-sig-item cc-sig-action">
-            <span className="cc-sig-icon">🎬</span>
+            <Clapperboard size={14} strokeWidth={2} className="cc-sig-icon" />
             <span className="cc-sig-text">{d.signatureAction}</span>
           </div>
         </div>
@@ -161,7 +162,12 @@ export default function CharacterCard({
             className={`cc-btn-fav ${isFavorited ? 'active' : ''}`}
             onClick={(e) => { e.stopPropagation(); onFavorite?.(data.id); }}
           >
-            {isFavorited ? '❤️' : '🤍'}
+            <Heart
+              size={16}
+              strokeWidth={2.5}
+              fill={isFavorited ? theme.accent : 'none'}
+              color={isFavorited ? theme.accent : 'currentColor'}
+            />
           </button>
         </div>
       </div>

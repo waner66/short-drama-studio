@@ -1,5 +1,6 @@
 /* ============================================
    Market Tabs - 视觉出彩的 Tab 切换组件
+   All colors migrated to Design System CSS variables
    ============================================ */
 
 .market-tabs-wrapper {
@@ -17,7 +18,7 @@
   height: 80px;
   background: radial-gradient(
     ellipse at center,
-    rgba(138, 92, 246, 0.12) 0%,
+    color-mix(in srgb, var(--brand-500) 12%, transparent) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -31,16 +32,11 @@
   align-items: center;
   gap: 4px;
   padding: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
   backdrop-filter: blur(20px);
   z-index: 1;
-}
-
-[data-theme='dark'] .market-tabs {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.06);
 }
 
 /* 单个 Tab 按钮 */
@@ -53,7 +49,7 @@
   border: none;
   border-radius: 16px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -64,22 +60,14 @@
 }
 
 .market-tab-btn:hover {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-[data-theme='dark'] .market-tab-btn {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-[data-theme='dark'] .market-tab-btn:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-primary);
+  background: var(--surface-overlay);
 }
 
 /* 选中态 */
 .market-tab-btn.active {
-  color: #fff;
-  text-shadow: 0 0 20px rgba(138, 92, 246, 0.5);
+  color: var(--text-primary);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--brand-500) 50%, transparent);
 }
 
 /* Emoji 图标 */
@@ -119,7 +107,7 @@
   border-radius: 18px;
   background: radial-gradient(
     ellipse at center,
-    rgba(138, 92, 246, 0.2) 0%,
+    color-mix(in srgb, var(--brand-500) 20%, transparent) 0%,
     transparent 70%
   );
   filter: blur(8px);
@@ -133,10 +121,10 @@
   bottom: 4px;
   height: 3px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #8a5cf6, #a78bfa, #c084fc);
+  background: linear-gradient(90deg, var(--brand-500), var(--brand-400), var(--brand-300));
   box-shadow:
-    0 0 12px rgba(138, 92, 246, 0.5),
-    0 0 24px rgba(138, 92, 246, 0.2);
+    0 0 12px color-mix(in srgb, var(--brand-500) 50%, transparent),
+    0 0 24px color-mix(in srgb, var(--brand-500) 20%, transparent);
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
@@ -147,14 +135,10 @@
 .market-tab-description {
   margin-top: 16px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-muted);
   text-align: center;
   letter-spacing: 0.03em;
   animation: fadeInUp 0.4s ease;
-}
-
-[data-theme='dark'] .market-tab-description {
-  color: rgba(255, 255, 255, 0.35);
 }
 
 @keyframes fadeInUp {
@@ -203,10 +187,10 @@
   }
 
   .tab-label {
-    display: none;  /* 超小屏幕只显示 emoji */
+    display: none;
   }
 
   .market-tab-btn.active .tab-label {
-    display: inline;  /* 选中时显示文字 */
+    display: inline;
   }
 }

@@ -77,11 +77,13 @@ export async function findOne<T = any>(
 
 /**
  * 条件查询 — 获取所有匹配记录
+ * @param order 排序，格式 "createdAt.desc" 或 "createdAt.asc"
  */
 export async function findMany<T = any>(
   table: string,
   filters: Record<string, string | number | null>,
-  select: string = "*"
+  select: string = "*",
+  order?: string
 ): Promise<T[]> {
   const params = new URLSearchParams();
   params.set("select", select);
@@ -92,6 +94,10 @@ export async function findMany<T = any>(
     } else {
       params.set(key, `eq.${value}`);
     }
+  }
+
+  if (order) {
+    params.set("order", order);
   }
 
   return supabaseFetch<T[]>(`/rest/v1/${table}?${params.toString()}`);
@@ -124,6 +130,38 @@ export async function insertOne<T = any>(
     body: JSON.stringify(data),
   });
   return results[0];
+}
+
+/**
+ * 更新一条记录
+ */
+export async function updateOne<T = any>(
+  table: string,
+  id: string,
+  data: Record<string, any>
+): Promise<T> {
+  data.updatedAt = new Date().toISOString();
+  const results = await supabaseFetch<T[]>(
+    `/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }
+  );
+  return results[0];
+}
+
+/**
+ * 删除一条记录
+ */
+export async function deleteOne(
+  table: string,
+  id: string
+): Promise<void> {
+  await supabaseFetch(
+    `/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,
+    { method: "DELETE" }
+  );
 }
 
 // ==================== 用户相关方法 ====================

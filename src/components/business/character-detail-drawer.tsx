@@ -58,7 +58,7 @@ function RadarChart({ scores }: {
           key={`grid-${idx}`}
           points={pts}
           fill="none"
-          stroke={idx === 4 ? '#d0d0d0' : '#e8e8e8'}
+          stroke={idx === 4 ? 'var(--border-default)' : 'var(--border-subtle)'}
           strokeWidth={idx === 4 ? 1.5 : 0.8}
           strokeDasharray={idx < 4 ? '3,3' : undefined}
         />
@@ -71,7 +71,7 @@ function RadarChart({ scores }: {
             key={`axis-${i}`}
             x1={cx} y1={cy}
             x2={outer.x} y2={outer.y}
-            stroke="#e0e0e0"
+            stroke="var(--border-default)"
             strokeWidth={0.8}
           />
         );
@@ -79,8 +79,9 @@ function RadarChart({ scores }: {
       {/* 数据填充 */}
       <polygon
         points={dataPolygon}
-        fill="rgba(139, 92, 246, 0.15)"
-        stroke="rgba(139, 92, 246, 0.6)"
+        fill="var(--brand-500)"
+        fillOpacity={0.15}
+        stroke="var(--brand-400)"
         strokeWidth={1.5}
       />
       {/* 数据点 */}
@@ -89,8 +90,8 @@ function RadarChart({ scores }: {
           key={`dot-${i}`}
           cx={p.x} cy={p.y}
           r={3.5}
-          fill="#7c3aed"
-          stroke="#fff"
+          fill="var(--brand-500)"
+          stroke="var(--surface-card)"
           strokeWidth={1.5}
         />
       ))}
