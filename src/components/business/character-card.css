@@ -161,28 +161,17 @@
 .character-card:hover .cc-actions { opacity: 1; transform: translateY(0); }
 
 .cc-btn-use {
-  flex: 1; padding: 8px 0; border: none; border-radius: 8px; color: #fff;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: filter 0.2s ease, transform 0.15s ease;
+  flex: 1;
 }
-.cc-btn-use:hover { filter: brightness(1.1); transform: scale(1.02); }
+.cc-btn-use svg {
+  transition: transform 0.3s ease;
+}
+.cc-btn-use:hover svg {
+  transform: translateX(3px);
+}
 
 .cc-btn-fav {
-  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border-subtle); border-radius: 8px;
-  background: var(--surface-card); font-size: 16px; cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-.cc-btn-fav:hover {
-  border-color: var(--color-danger);
-  background: color-mix(in srgb, var(--color-danger) 5%, transparent);
-  color: var(--color-danger);
-}
-.cc-btn-fav.active {
-  border-color: var(--color-danger);
-  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
-  color: var(--color-danger);
+  flex-shrink: 0;
 }
 
 @media (max-width: 480px) {

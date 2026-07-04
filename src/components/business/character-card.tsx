@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { OfficialTemplate } from '@/lib/data/character-templates';
 import { Theater, Handshake, Target, Waves, Lightbulb, MessageSquare, Clapperboard, Heart, Zap, ArrowRight } from '@/components/ui/icons';
+import RefinedButton from '@/components/ui/refined-button';
 import './character-card.css';
 
 type CharacterCardProps = {
@@ -151,24 +152,24 @@ export default function CharacterCard({
 
         {/* 底部操作栏 */}
         <div className="cc-actions">
-          <button
+          <RefinedButton
+            variant="primary-gradient"
+            gradientFrom={theme.accent}
+            gradientTo={theme.dark}
+            size="sm"
             className="cc-btn-use"
-            style={{ background: theme.accent }}
             onClick={(e) => { e.stopPropagation(); onUse?.(data); }}
           >
             使用此模板
-          </button>
-          <button
-            className={`cc-btn-fav ${isFavorited ? 'active' : ''}`}
+          </RefinedButton>
+          <RefinedButton
+            variant="heart-toggle"
+            size="md"
+            isToggled={isFavorited}
+            className="cc-btn-fav"
+            icon={<Heart size={16} strokeWidth={2.5} fill={isFavorited ? 'currentColor' : 'none'} />}
             onClick={(e) => { e.stopPropagation(); onFavorite?.(data.id); }}
-          >
-            <Heart
-              size={16}
-              strokeWidth={2.5}
-              fill={isFavorited ? theme.accent : 'none'}
-              color={isFavorited ? theme.accent : 'currentColor'}
-            />
-          </button>
+          />
         </div>
       </div>
     </div>

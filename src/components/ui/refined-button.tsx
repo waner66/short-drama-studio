@@ -8,16 +8,19 @@ import { cn } from '@/lib/utils';
 // 支持光泽动效、发光、按压反馈、涟漪效果
 // ================================================================
 
-type ButtonVariant = 'primary' | 'ghost-glass' | 'tag-chip' | 'icon-round';
+type ButtonVariant = 'primary' | 'ghost-glass' | 'tag-chip' | 'icon-round' | 'primary-gradient' | 'glass-elevated' | 'heart-toggle';
 
 interface RefinedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   icon?: ReactNode;
   loading?: boolean;
-  selected?: boolean; // for tag-chip
-  accent?: string;    // custom accent color for tag-chip (hex)
+  selected?: boolean;   // for tag-chip
+  accent?: string;      // custom accent color for tag-chip (hex)
   circle?: boolean;
+  gradientFrom?: string; // for primary-gradient (hex)
+  gradientTo?: string;   // for primary-gradient (hex)
+  isToggled?: boolean;   // for heart-toggle
   children?: ReactNode;
 }
 
@@ -32,6 +35,9 @@ export default function RefinedButton({
   selected = false,
   accent,
   circle = false,
+  gradientFrom,
+  gradientTo,
+  isToggled = false,
   className,
   children,
   disabled,
@@ -63,6 +69,20 @@ export default function RefinedButton({
       >
         {icon}
       </IconRoundButton>
+    );
+  }
+
+  if (variant === 'heart-toggle') {
+    return (
+      <HeartToggleButton
+        size={size}
+        isToggled={isToggled}
+        disabled={disabled}
+        className={className}
+        {...rest}
+      >
+        {icon}
+      </HeartToggleButton>
     );
   }
 
@@ -115,6 +135,53 @@ export default function RefinedButton({
             {children}
           </>
         )}
+      </button>
+    );
+  }
+
+  if (variant === 'primary-gradient') {
+    const gFrom = gradientFrom || '#8b5cf6';
+    const gTo = gradientTo || '#d946ef';
+    return (
+      <button
+        disabled={disabled || loading}
+        className={cn(
+          baseClasses,
+          'text-white',
+          'shadow-lg hover:shadow-xl',
+          'hover:-translate-y-0.5',
+          'before:absolute before:inset-0 before:-translate-x-full',
+          'before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent',
+          'before:transition-transform before:duration-700 before:ease-out',
+          'hover:before:translate-x-full',
+          className,
+        )}
+        style={{
+          background: `linear-gradient(135deg, ${gFrom}, ${gTo})`,
+          boxShadow: `0 4px 14px ${gFrom}44`,
+        }}
+        {...rest}
+      >
+        {loading ? <PulseDots /> : <>{icon}{children}</>}
+      </button>
+    );
+  }
+
+  if (variant === 'glass-elevated') {
+    return (
+      <button
+        disabled={disabled || loading}
+        className={cn(
+          baseClasses,
+          'bg-white/[0.07] backdrop-blur-md border border-white/[0.12] text-white/90',
+          'shadow-md shadow-black/10',
+          'hover:bg-white/[0.12] hover:border-white/[0.25] hover:text-white',
+          'hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/20',
+          className,
+        )}
+        {...rest}
+      >
+        {loading ? <PulseDots /> : <>{icon}{children}</>}
       </button>
     );
   }
@@ -289,6 +356,57 @@ export function SegmentedControl<T extends string>({
         );
       })}
     </div>
+  );
+}
+
+// ================================================================
+// 5. HeartToggle — 心形收藏按钮（带填充动画 + 脉冲波纹）
+// ================================================================
+function HeartToggleButton({
+  size = 'md',
+  isToggled = false,
+  className,
+  children,
+  disabled,
+  ...rest
+}: Omit<RefinedButtonProps, 'variant'> & { isToggled?: boolean }) {
+  const sizeMap: Record<string, string> = {
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
+    xl: 'w-14 h-14',
+  };
+
+  return (
+    <button
+      disabled={disabled}
+      className={cn(
+        'inline-flex items-center justify-center rounded-full',
+        'transition-all duration-300 ease-out',
+        'active:scale-90',
+        'disabled:opacity-40 disabled:cursor-not-allowed',
+        'relative',
+        isToggled
+          ? 'bg-pink-500/15 border border-pink-400/40 text-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.2)]'
+          : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/25 hover:text-gray-300',
+        sizeMap[size],
+        className,
+      )}
+      {...rest}
+    >
+      <span className={cn(
+        'inline-flex transition-transform duration-300',
+        isToggled && 'animate-heart-pop',
+      )}>
+        {children}
+      </span>
+      {isToggled && (
+        <span
+          className="absolute inset-0 rounded-full animate-ping bg-pink-400/20 pointer-events-none"
+          style={{ animationDuration: '0.5s', animationIterationCount: '1' }}
+        />
+      )}
+    </button>
   );
 }
 

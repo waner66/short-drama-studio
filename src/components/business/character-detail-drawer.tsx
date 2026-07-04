@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { OfficialTemplate } from '@/lib/data/character-templates';
+import { Brain, Drama, Gem, ClipboardList, BookOpen, Clapperboard, Lightbulb, Camera, Copy, Heart } from 'lucide-react';
+import RefinedButton from '@/components/ui/refined-button';
 import './character-detail-drawer.css';
 
 type Props = {
@@ -222,7 +224,7 @@ export default function CharacterDetailDrawer({
           {/* 人格分析 */}
           <section className="cd-section">
             <h3 className="cd-section-title">
-              <span className="cd-section-icon">🧠</span> 人格画像
+              <Brain size={18} strokeWidth={2} className="cd-section-icon-svg" /> 人格画像
             </h3>
             {/* 雷达图 */}
             <div className="cd-radar-wrap">
@@ -231,7 +233,7 @@ export default function CharacterDetailDrawer({
             {/* 双面人格 */}
             <div className="cd-dual-personality">
               <div className="cd-dual-card cd-dual-surface">
-                <div className="cd-dual-label">🎭 表面特质</div>
+                <div className="cd-dual-label"><Drama size={15} strokeWidth={2} className="cd-dual-label-icon" /> 表面特质</div>
                 <div className="cd-dual-traits">
                   {d.surfaceTraits.map((t, i) => (
                     <span key={i} className="cd-dual-tag surface">{t}</span>
@@ -240,7 +242,7 @@ export default function CharacterDetailDrawer({
               </div>
               <div className="cd-dual-arrow">⇄</div>
               <div className="cd-dual-card cd-dual-inner">
-                <div className="cd-dual-label">💎 内在特质</div>
+                <div className="cd-dual-label"><Gem size={15} strokeWidth={2} className="cd-dual-label-icon" /> 内在特质</div>
                 <div className="cd-dual-traits">
                   {d.innerTraits.map((t, i) => (
                     <span key={i} className="cd-dual-tag inner">{t}</span>
@@ -274,7 +276,7 @@ export default function CharacterDetailDrawer({
           {/* 外观档案 + 背景故事 */}
           <section className="cd-section">
             <h3 className="cd-section-title">
-              <span className="cd-section-icon">📋</span> 外观档案
+              <ClipboardList size={18} strokeWidth={2} className="cd-section-icon-svg" /> 外观档案
             </h3>
             <div className="cd-info-card">
               <p><strong>外貌：</strong>{d.appearanceDesc}</p>
@@ -285,7 +287,7 @@ export default function CharacterDetailDrawer({
 
           <section className="cd-section">
             <h3 className="cd-section-title">
-              <span className="cd-section-icon">📖</span> 背景故事
+              <BookOpen size={18} strokeWidth={2} className="cd-section-icon-svg" /> 背景故事
             </h3>
             <div className="cd-backstory">
               <div className="cd-backstory-line" />
@@ -296,7 +298,7 @@ export default function CharacterDetailDrawer({
           {/* 🎬 AI视频生成区 */}
           <section className="cd-section cd-section-ai">
             <h3 className="cd-section-title">
-              <span className="cd-section-icon">🎬</span> AI 视频生成
+              <Clapperboard size={18} strokeWidth={2} className="cd-section-icon-svg" /> AI 视频生成
             </h3>
 
             {/* 提示词 */}
@@ -308,7 +310,7 @@ export default function CharacterDetailDrawer({
                   className={`cd-ai-copy-btn ${copied ? 'copied' : ''}`}
                   onClick={() => handleCopyPrompt(d.visualPromptTemplate)}
                 >
-                  {copied ? '✅ 已复制' : '📋 复制'}
+                  {copied ? '✅ 已复制' : <><Copy size={13} strokeWidth={2} className="cd-copy-icon" /> 复制</>}
                 </button>
               </div>
             </div>
@@ -316,14 +318,14 @@ export default function CharacterDetailDrawer({
             {/* 灯光/机位信息 */}
             <div className="cd-ai-tech-grid">
               <div className="cd-ai-tech-item">
-                <span className="cd-ai-tech-emoji">💡</span>
+                <Lightbulb size={20} strokeWidth={1.8} className="cd-ai-tech-svg" />
                 <div>
                   <div className="cd-ai-tech-title">灯光风格</div>
                   <div className="cd-ai-tech-text">{d.lightingStyle}</div>
                 </div>
               </div>
               <div className="cd-ai-tech-item">
-                <span className="cd-ai-tech-emoji">📷</span>
+                <Camera size={20} strokeWidth={1.8} className="cd-ai-tech-svg" />
                 <div>
                   <div className="cd-ai-tech-title">机位/镜头</div>
                   <div className="cd-ai-tech-text">{d.cameraAngles}</div>
@@ -353,21 +355,24 @@ export default function CharacterDetailDrawer({
 
         {/* ===== 底部操作栏 ===== */}
         <div className="cd-footer">
-          <button
+          <RefinedButton
+            variant="primary-gradient"
+            gradientFrom="#8b5cf6"
+            gradientTo="#a78bfa"
+            size="lg"
             className="cd-footer-use"
             onClick={() => onUse?.(data)}
           >
-            <span>立即使用此模板</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </button>
-          <button
-            className={`cd-footer-fav ${isFavorited ? 'active' : ''}`}
+            立即使用此模板
+          </RefinedButton>
+          <RefinedButton
+            variant="heart-toggle"
+            size="lg"
+            isToggled={isFavorited}
+            className="cd-footer-fav"
+            icon={<Heart size={18} strokeWidth={2.5} fill={isFavorited ? 'currentColor' : 'none'} />}
             onClick={() => onFavorite?.(data.id)}
-          >
-            {isFavorited ? '❤️ 已收藏' : '🤍 收藏'}
-          </button>
+          />
         </div>
       </div>
     </div>

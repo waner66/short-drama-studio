@@ -73,6 +73,14 @@ function NewCharacterPage() {
       faceShape: 'oval' as FaceConfig['faceShape'],
       expression: 'smile' as FaceConfig['expression'],
       colorTheme: 'warm' as FaceConfig['colorTheme'],
+      eyebrow: 'jian' as FaceConfig['eyebrow'],
+      eyeShape: 'round' as FaceConfig['eyeShape'],
+      mouthStyle: 'weixiao' as FaceConfig['mouthStyle'],
+      skinTone: 'fair' as FaceConfig['skinTone'],
+      accessory: 'none' as FaceConfig['accessory'],
+      earring: 'none' as FaceConfig['earring'],
+      collarStyle: 'round' as FaceConfig['collarStyle'],
+      noseType: 'small' as FaceConfig['noseType'],
     },
     developmentArc: [] as ArcNode[],
   });
@@ -339,6 +347,13 @@ function NewCharacterPage() {
           faceShape={form.faceConfig.faceShape}
           expression={form.faceConfig.expression}
           colorTheme={form.faceConfig.colorTheme}
+          eyeShape={form.faceConfig.eyeShape}
+          eyebrow={form.faceConfig.eyebrow}
+          mouthStyle={form.faceConfig.mouthStyle}
+          skinTone={form.faceConfig.skinTone}
+          accessory={form.faceConfig.accessory}
+          earring={form.faceConfig.earring}
+          noseType={form.faceConfig.noseType}
         />
         <div className="flex flex-col items-center justify-center gap-2">
           <FormProgressRing filledFields={progressStats.filled} totalFields={progressStats.total} size={110} />

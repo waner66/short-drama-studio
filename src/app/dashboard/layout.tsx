@@ -35,6 +35,7 @@ import { useTheme } from '@/lib/theme-context';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import MobileSidebar from '@/components/ui/mobile-sidebar';
 import OnboardingGuide from '@/components/business/onboarding-guide';
+import { CommandPalette } from '@/components/ui/command-palette';
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -284,6 +285,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* 新用户引导 */}
       <OnboardingGuide />
+      {/* 全局命令面板 ⌘K */}
+      <CommandPalette />
     </div>
   );
 }

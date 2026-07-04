@@ -203,8 +203,9 @@
   gap: 6px;
 }
 
-.cd-section-icon {
-  font-size: 18px;
+.cd-section-icon-svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 /* 简介 */
@@ -277,6 +278,13 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.cd-dual-label-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .cd-dual-traits {
@@ -430,6 +438,10 @@
   padding-right: 60px;
 }
 
+.cd-copy-icon {
+  flex-shrink: 0;
+}
+
 .cd-ai-copy-btn {
   position: absolute;
   top: 10px;
@@ -474,9 +486,9 @@
   border: 1px solid var(--border-subtle);
 }
 
-.cd-ai-tech-emoji {
-  font-size: 20px;
+.cd-ai-tech-svg {
   flex-shrink: 0;
+  color: var(--text-muted);
   margin-top: 1px;
 }
 
@@ -572,49 +584,10 @@
 
 .cd-footer-use {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 0;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--brand-600), var(--brand-400));
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.cd-footer-use:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(139,92,246,0.3);
 }
 
 .cd-footer-fav {
-  padding: 12px 20px;
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--surface-card);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.cd-footer-fav:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-}
-
-.cd-footer-fav.active {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  flex-shrink: 0;
 }
 
 /* ===== 响应式 ===== */
