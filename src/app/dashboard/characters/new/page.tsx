@@ -13,6 +13,7 @@ import AiGeneratePanel from '@/components/business/ai-generate-panel';
 import FaceBuilder, { type FaceConfig } from '@/components/business/face-builder';
 import PersonalityRadarInteractive, { type PersonalityValues } from '@/components/business/personality-radar-interactive';
 import TraitTagCloud from '@/components/business/trait-tag-cloud';
+import { EmotionBadge, emotionTypes } from '@/components/ui/emotion-badge';
 import DevelopmentArcEditor, { type ArcNode, DEFAULT_NODES } from '@/components/business/development-arc-editor';
 import CharacterAvatarPreview from '@/components/business/character-avatar-preview';
 import FormProgressRing from '@/components/business/form-progress-ring';
@@ -62,6 +63,7 @@ function NewCharacterPage() {
     voiceTone: '',
     surfaceTraits: [] as string[],
     innerTraits: [] as string[],
+    emotion: '' as string,
     arcDescription: '',
     extraversion: 3,
     agreeableness: 3,
@@ -521,6 +523,24 @@ function NewCharacterPage() {
           </GlassCard>
         </div>
       </div>
+
+      {/* 情绪基调 — EmotionBadge 多选 */}
+      <GlassCard className="mb-4">
+        <div className="p-5">
+          <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            情绪基调
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {emotionTypes.map(type => (
+              <button key={type} onClick={() => setForm({ ...form, emotion: form.emotion === type ? '' : type })} className="transition-transform duration-150 hover:scale-105"
+                style={{ opacity: form.emotion && form.emotion !== type ? 0.4 : 1 }}>
+                <EmotionBadge type={type as any} size="md" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </GlassCard>
 
       {/* 传统性格标签（多选） */}
       <GlassCard className="mb-4">
