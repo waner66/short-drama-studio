@@ -36,6 +36,7 @@ import ThemeToggle from '@/components/ui/theme-toggle';
 import MobileSidebar from '@/components/ui/mobile-sidebar';
 import OnboardingGuide from '@/components/business/onboarding-guide';
 import { CommandPalette } from '@/components/ui/command-palette';
+import { QuickActionFAB } from '@/components/ui/quick-action-fab';
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -287,6 +288,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <OnboardingGuide />
       {/* 全局命令面板 ⌘K */}
       <CommandPalette />
+      {/* 快捷操作浮层 */}
+      <QuickActionFAB />
     </div>
   );
 }
