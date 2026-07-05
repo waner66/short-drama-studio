@@ -450,3 +450,26 @@ model CharacterRelation {
   description   String?
   createdAt     DateTime @default(now())
 }
+
+// 社区动态点赞
+model FeedLike {
+  id        String   @id @default(cuid())
+  feedId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([feedId, userId])
+  @@index([feedId])
+}
+
+// 社区动态评论
+model FeedComment {
+  id        String   @id @default(cuid())
+  feedId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([feedId])
+}

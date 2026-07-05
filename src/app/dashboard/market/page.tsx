@@ -15,6 +15,15 @@ import { officialTemplates, type OfficialTemplate } from '@/lib/data/character-t
 import { sceneTemplates, type SceneTemplate } from '@/lib/data/scene-templates';
 import { plotTemplates, type PlotTemplate } from '@/lib/data/plot-templates';
 
+// 从 API 动态加载角色模板（替代静态数据）
+async function fetchCharacterTemplates(): Promise<OfficialTemplate[]> {
+  try {
+    const res = await fetch('/api/character-templates?published=true');
+    if (res.ok) return await res.json();
+  } catch { /* 回退静态数据 */ }
+  return officialTemplates;
+}
+
 /* ================================================
    数据转换：将三种模板转为统一的 TemplateCardV2Data
    ================================================ */
@@ -144,6 +153,12 @@ export default function MarketPage() {
   const [sort, setSort] = useState('default');
   const [loading, setLoading] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const [characterTemplates, setCharacterTemplates] = useState<OfficialTemplate[]>(officialTemplates);
+
+  // 从 API 加载角色模板（回退静态数据）
+  useEffect(() => {
+    fetchCharacterTemplates().then(data => setCharacterTemplates(data));
+  }, []);
 
   // 抽屉状态
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -184,7 +199,7 @@ export default function MarketPage() {
   const allData = useMemo(() => {
     switch (activeTab) {
       case 'character':
-        return officialTemplates.map(characterToCard);
+        return characterTemplates.map(characterToCard);
       case 'scene':
         return sceneTemplates.map(sceneToCard);
       case 'plot':
@@ -235,7 +250,7 @@ export default function MarketPage() {
 
   // 角色Tab专用筛选（直接使用 OfficialTemplate，保留大五人格等富数据）
   const filteredCharacterData = useMemo(() => {
-    let result = [...officialTemplates];
+    let result = [...characterTemplates];
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(d =>
