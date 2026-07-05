@@ -82,12 +82,46 @@ export default function CommunityPage() {
     load();
   }, []);
 
-  const toggleLike = (id: string) => {
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+
+  const toggleLike = async (e: React.MouseEvent, item: FeedItem) => {
+    e.preventDefault(); // prevent Link navigation
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const prevLiked = likedIds.has(item.id);
+    // 乐观更新
     setLikedIds(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      prevLiked ? next.delete(item.id) : next.add(item.id);
       return next;
     });
+    setLikeCounts(prev => ({
+      ...prev,
+      [item.id]: (prev[item.id] || 0) + (prevLiked ? -1 : 1),
+    }));
+
+    try {
+      const res = await fetch(`/api/community/feed/${item.id}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLikeCounts(prev => ({ ...prev, [item.id]: data.count }));
+      }
+    } catch {
+      // 回滚
+      setLikedIds(prev => {
+        const next = new Set(prev);
+        prevLiked ? next.add(item.id) : next.delete(item.id);
+        return next;
+      });
+      setLikeCounts(prev => ({
+        ...prev,
+        [item.id]: (prev[item.id] || 0) + (prevLiked ? 1 : -1),
+      }));
+    }
   };
 
   // Latest publishes
@@ -171,6 +205,24 @@ export default function CommunityPage() {
                       }`}>
                         {item.type === 'purchase' ? '购买' : item.type === 'publish' ? '上架' : '评价'}
                       </span>
+                    </div>
+
+                    {/* Like / Comment actions */}
+                    <div className="mt-3 pt-3 flex items-center gap-4 border-t border-[var(--border-subtle)]">
+                      <button
+                        onClick={(e) => toggleLike(e, item)}
+                        className="flex items-center gap-1.5 text-xs transition-colors hover:scale-105"
+                        style={{ color: likedIds.has(item.id) ? 'var(--accent-coral, #ff6b9d)' : 'var(--text-muted)' }}
+                      >
+                        {likedIds.has(item.id) ? '❤️' : '🤍'}
+                        <span>{likeCounts[item.id] || 0}</span>
+                      </button>
+                      <button
+                        className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        💬 0
+                      </button>
                     </div>
                   </GlassCard>
                 </Link>
