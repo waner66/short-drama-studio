@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { OfficialTemplate } from '@/lib/data/character-templates';
 import { Brain, Drama, Gem, ClipboardList, BookOpen, Clapperboard, Lightbulb, Camera, Copy, Heart } from 'lucide-react';
 import RefinedButton from '@/components/ui/refined-button';
+import TemplateBundleModal from '@/components/business/template-bundle-modal';
 import './character-detail-drawer.css';
 
 type Props = {
@@ -130,6 +131,7 @@ export default function CharacterDetailDrawer({
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showBundle, setShowBundle] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -366,6 +368,16 @@ export default function CharacterDetailDrawer({
             立即使用此模板
           </RefinedButton>
           <RefinedButton
+            variant="primary-gradient"
+            gradientFrom="#f59e0b"
+            gradientTo="#f97316"
+            size="lg"
+            className="cd-footer-bundle"
+            onClick={() => setShowBundle(true)}
+          >
+            🎁 一键打包
+          </RefinedButton>
+          <RefinedButton
             variant="heart-toggle"
             size="lg"
             isToggled={isFavorited}
@@ -375,6 +387,17 @@ export default function CharacterDetailDrawer({
           />
         </div>
       </div>
+
+      {/* 一键打包弹窗 */}
+      {data && (
+        <TemplateBundleModal
+          open={showBundle}
+          onClose={() => setShowBundle(false)}
+          primaryId={data.id}
+          primaryType="character"
+          primaryName={data.name}
+        />
+      )}
     </div>
   );
 }

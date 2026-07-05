@@ -52,6 +52,8 @@ export interface OfficialTemplate {
   coverEmoji: string;
   coverGradient: string;
   defaultData: CharacterDefaultData;
+  compatibleSceneIds?: string[];
+  compatiblePlotIds?: string[];
 }
 
 export const officialTemplates: OfficialTemplate[] = [

@@ -28,6 +28,8 @@ export interface PlotTemplate {
       act3: string;  // 高潮（后20%）
     };
   };
+  compatibleCharacterIds?: string[];
+  compatibleSceneIds?: string[];
 }
 
 export const plotTemplates: PlotTemplate[] = [

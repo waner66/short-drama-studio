@@ -23,8 +23,10 @@ export interface SceneTemplate {
     lighting: string;      // 光线描述
     soundDesign: string;   // 音效建议
     cameraAngle: string;   // 推荐镜头
-    promptTemplate: string; // AI生成场景描述的模板
+    promptTemplate: string;
   };
+  compatibleCharacterIds?: string[];
+  compatiblePlotIds?: string[];
 }
 
 export const sceneTemplates: SceneTemplate[] = [
