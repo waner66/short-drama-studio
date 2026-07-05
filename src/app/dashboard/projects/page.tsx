@@ -10,6 +10,7 @@ import EmptyState from '@/components/ui/empty-state';
 import FloatingElements from '@/components/ui/floating-elements';
 import GlowTrail from '@/components/ui/glow-trail';
 import NeonText from '@/components/ui/neon-text';
+import { StoryCard } from '@/components/ui/story-card';
 
 // ─── status config ────────────────────────────────────────
 const statusMap: Record<string, { color: string; label: string; bg: string; glow: string; pulse: boolean }> = {
@@ -208,6 +209,7 @@ function CornerSparkles({ colors }: { colors: [string, string] }) {
 // ─── main component ────────────────────────────────────────
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<'detail' | 'compact'>('detail');
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -272,9 +274,22 @@ export default function ProjectsPage() {
           </NeonText>
         }
         actions={
-          <Link href="/dashboard/projects/new">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode(viewMode === 'detail' ? 'compact' : 'detail')}
+              className="px-3 py-2 rounded-lg text-xs font-medium transition-all border"
+              style={{
+                background: 'var(--surface-elevated)',
+                color: 'var(--text-secondary)',
+                borderColor: 'var(--border-subtle)',
+              }}
+            >
+              {viewMode === 'detail' ? '📋 紧凑视图' : '🎨 详情视图'}
+            </button>
+            <Link href="/dashboard/projects/new">
             <GradientBtn>+ 创建新项目</GradientBtn>
           </Link>
+          </div>
         }
       />
 
@@ -290,6 +305,21 @@ export default function ProjectsPage() {
             }
           />
         </GlassCard>
+      ) : viewMode === 'compact' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map(project => (
+            <StoryCard
+              key={project.id}
+              id={project.id}
+              title={project.title || '未命名项目'}
+              subtitle={project.description}
+              status={project.status || 'DRAFT'}
+              progress={progressMap[project.status] || 15}
+              meta={project.genre ? `${project.genre}` : undefined}
+              href={`/dashboard/projects/${project.id}`}
+            />
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {projects.map((project, idx) => {
