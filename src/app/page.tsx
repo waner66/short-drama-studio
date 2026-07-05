@@ -24,7 +24,7 @@ const coreFeatures = [
     id: 'character',
     icon: <TeamOutlined />,
     gradient: 'from-violet-600 to-purple-500',
-    glow: 'rgba(124, 92, 255, 0.3)',
+    glow: 'rgba(139, 92, 246, 0.3)',
     title: '人物设定',
     subtitle: 'AI Character Design',
     points: ['AI 智能生成角色形象', '性格/背景/外貌一键定义', '多角色关系图谱可视化'],
@@ -386,11 +386,11 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-6 text-sm text-[var(--text-muted)]">
             <span>AI人物设定</span>
-            <span className="w-1 h-1 rounded-full bg-[#2a2a4a]" />
+            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border-subtle)' }} />
             <span>AI场景搭建</span>
-            <span className="w-1 h-1 rounded-full bg-[#2a2a4a]" />
+            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border-subtle)' }} />
             <span>AI剧本生成</span>
-            <span className="w-1 h-1 rounded-full bg-[#2a2a4a]" />
+            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--border-subtle)' }} />
             <span>社区共创</span>
           </div>
         </div>
