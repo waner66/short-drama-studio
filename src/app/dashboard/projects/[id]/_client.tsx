@@ -204,31 +204,29 @@ export default function ProjectDetailClient() {
   const [loadingChars, setLoadingChars] = useState(true);
 
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const userId = user.id || 'demo';
-      import('@/lib/store/data-service').then(({ projectService, characterService }) => {
-        // 加载项目
-        const projects = projectService.listByUser(userId);
-        const p = projects.find((pr: Record<string, unknown>) => pr.id === id);
-        if (p) setProject({ ...mockProject, ...p });
-
-        // 加载角色
-        const characters = characterService.listByUser(userId);
-        if (characters.length > 0) {
-          const nodes: CharNode[] = characters.map((c: Record<string, unknown>, i: number) => ({
-            id: String(c.id),
-            name: String(c.name || ''),
-            role: String(c.narrativeRole || c.archetype || ''),
-            color: DEFAULT_CHAR_COLORS[i % DEFAULT_CHAR_COLORS.length],
-          }));
-          setCharNodes(nodes);
+    async function loadData() {
+      const token = localStorage.getItem('token');
+      try {
+        // 加载角色 — 从 API 获取（POST /api/characters 保存的）
+        const charRes = await fetch('/api/characters', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (charRes.ok) {
+          const characters = await charRes.json();
+          if (characters.length > 0) {
+            const nodes: CharNode[] = characters.map((c: Record<string, unknown>, i: number) => ({
+              id: String(c.id),
+              name: String(c.name || ''),
+              role: String((c as any).narrativeRole || (c as any).archetype || ''),
+              color: DEFAULT_CHAR_COLORS[i % DEFAULT_CHAR_COLORS.length],
+            }));
+            setCharNodes(nodes);
+          }
         }
-        setLoadingChars(false);
-      });
-    } catch {
+      } catch { /* 静默 */ }
       setLoadingChars(false);
     }
+    loadData();
   }, [id]);
 
   // 动态世界观节点：根据真实角色 + 静态场景/事件节点生成

@@ -277,24 +277,29 @@ export default function RelationsClient({ params }: { params: { id: string } }) 
   const [addModal, setAddModal] = useState(false);
   const [selectedChar, setSelectedChar] = useState<string | null>(null);
 
-  // 从 localStorage 加载真实角色
+  // 从 API 加载真实角色（POST /api/characters 保存到 PostgreSQL）
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const userId = user.id || 'demo';
-      import('@/lib/store/data-service').then(({ characterService }) => {
-        const chars = characterService.listByUser(userId);
-        if (chars.length > 0) {
-          const nodes: CharNode[] = chars.map((c: Record<string, unknown>, i: number) => ({
-            id: String(c.id),
-            name: String(c.name || ''),
-            role: String(c.narrativeRole || c.archetype || ''),
-            color: DEFAULT_CHAR_COLORS[i % DEFAULT_CHAR_COLORS.length],
-          }));
-          setCharacters(nodes);
+    async function loadCharacters() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/characters', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const chars = await res.json();
+          if (chars.length > 0) {
+            const nodes: CharNode[] = chars.map((c: Record<string, unknown>, i: number) => ({
+              id: String(c.id),
+              name: String(c.name || ''),
+              role: String((c as any).narrativeRole || (c as any).archetype || ''),
+              color: DEFAULT_CHAR_COLORS[i % DEFAULT_CHAR_COLORS.length],
+            }));
+            setCharacters(nodes);
+          }
         }
-      });
-    } catch { /* 加载失败则保持 mock 数据 */ }
+      } catch { /* 加载失败则保持 mock 数据 */ }
+    }
+    loadCharacters();
   }, []);
 
   const handleAddRelation = (relation: RelationEdge) => {
