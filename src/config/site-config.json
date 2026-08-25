@@ -1,0 +1,99 @@
+{
+  "home": {
+    "brand": {
+      "name": "灵感工场",
+      "navItems": [
+        { "label": "市场", "href": "/dashboard/market" },
+        { "label": "社区", "href": "/dashboard/community" },
+        { "label": "创作者", "href": "/dashboard/creator/demo" },
+        { "label": "流程", "href": "#workflow" },
+        { "label": "FAQ", "href": "#faq" }
+      ]
+    },
+    "banner": {
+      "text": "短剧资产交易 + 创作者社区已上线：买资产、卖资产、进社区都能进入真实页面。",
+      "ctaLabel": "逛市场"
+    },
+    "hero": {
+      "backgroundWord": "MUSE",
+      "kicker": "精致角色资产 / 创作者社区",
+      "title": "让角色设定成为短剧资产第一吸引力",
+      "subtitle": "持剑神女作为主视觉资产，市场负责成交，社区负责共创，AI 作为辅助能力加速项目落地。",
+      "searchPlaceholder": "例如：买一个甜宠反转剧情包，或发起三集必反转挑战",
+      "cta": {
+        "primary": { "label": "逛资产市场", "href": "/dashboard/market" },
+        "secondary": { "label": "进入社区", "href": "/dashboard/community" },
+        "ai": { "label": "AI 创作", "href": "/dashboard/projects/new" }
+      },
+      "stats": [
+        { "label": "热卖角色包", "value": "199元", "desc": "评分 4.9 · 已售 842" },
+        { "label": "社区挑战", "value": "2.4k", "desc": "神女执剑开场正在共创" },
+        { "label": "创作者收益", "value": "18,420元", "desc": "本周角色资产转化收入" }
+      ],
+      "model3d": { "enabled": true, "height": 3.4, "positionY": 0.25, "cameraZ": 7.6, "cameraY": 2.15, "fov": 36 }
+    },
+    "entries": [
+      {
+        "title": "买资产",
+        "desc": "角色设定、剧情包、场景包、分镜包，带授权、评分和买家复盘。",
+        "href": "/dashboard/market",
+        "stat": "1,286 单成交"
+      },
+      {
+        "title": "进社区",
+        "desc": "看热门话题、挑战赛、二创展示和真实交易评价。",
+        "href": "/dashboard/community",
+        "stat": "8,409 次互动"
+      },
+      {
+        "title": "卖资产",
+        "desc": "把角色、剧情、场景上架变现，追踪收益、审核和转化。",
+        "href": "/dashboard/creator/demo",
+        "stat": "¥42,860 创作者收益"
+      }
+    ],
+    "evidence": [
+      { "label": "最近成交", "value": "雨夜反转剧情包，3 分钟前" },
+      { "label": "授权状态", "value": "商用 / 二创 / 改编已标明" },
+      { "label": "社区热度", "value": "甜宠短剧挑战 2.4k 人参与" },
+      { "label": "创作者收益", "value": "本周榜首 ¥12,480" }
+    ],
+    "showcase": {
+      "sectionLabel": "资产橱窗",
+      "heading": "不是展示板，是能购买、收藏、加入项目的交易入口",
+      "featuredTitle": "雨夜便利店反转剧情包",
+      "featuredDesc": "含 3 集剧情结构、人物冲突、场景调度和分镜提示，适合品牌植入和甜宠反转。",
+      "featuredTags": ["¥69", "4.9 分", "326 销量", "商用授权", "128 次引用"]
+    },
+    "community": {
+      "label": "Community pulse",
+      "heading": "社区不是评论区，是交易信任和二创传播来源",
+      "desc": "用户能看到话题热度、挑战参与、买家复盘和二创作品，市场资产也能通过社区引用获得更高转化。"
+    },
+    "creators": { "label": "创作者雷达", "heading": "卖家的收益、影响力和上新状态直接可见" },
+    "workflow": {
+      "label": "Workflow",
+      "heading": "首页入口和产品页面形成闭环",
+      "desc": "市场负责成交，社区负责信任和传播，创作者中心负责供给，AI 创作负责把资产落进项目。"
+    },
+    "faq": [
+      { "q": "这是 AI 创作工具还是交易平台？", "a": "当前首页优先服务短剧资产交易和创作者社区。AI 创作保留为辅助入口，用来把 brief 快速转成项目。" },
+      { "q": "资产购买后能怎么用？", "a": "详情页会标明商用、二创、改编授权。购买后可加入项目工作台，继续拆分角色、剧情、场景和分镜。" },
+      { "q": "创作者如何获得收益？", "a": "创作者可发布角色设定、剧情包、场景包和分镜包。系统展示销量、评价、社区引用和预计收益。" }
+    ],
+    "footer": { "tagline": "短剧资产交易市场 + 创作者社区。让内容资产可以被发现、购买、共创和持续变现。" }
+  },
+  "market": {
+    "eyebrow": "Marketplace",
+    "title": "短剧资产市场",
+    "description": "发现可直接购买、加入项目和被社区验证的角色设定、剧情包、场景包、分镜包。价格、授权、销量、评分和社区引用同屏可见。",
+    "searchPlaceholder": "搜索：雨夜反转 / 甜宠角色 / 办公室场景 / 分镜包",
+    "quickPreviewLabel": "Quick Preview",
+    "buyerTrust": {
+      "title": "买家信任",
+      "items": ["最近 3 分钟有成交", "授权状态购买前可见", "社区讨论和买家复盘回流", "支持加入项目继续创作"]
+    },
+    "emptyTitle": "没有匹配资产",
+    "emptyDesc": "换一个分类或搜索词，也可以先查看示例资产。"
+  }
+}
